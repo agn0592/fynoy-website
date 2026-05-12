@@ -11,6 +11,34 @@ const LOGO_SVG = (
   </svg>
 );
 
+const XIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+  </svg>
+);
+
+const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
+
+const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+  </svg>
+);
+
+const LinkedInIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+    <rect x="2" y="9" width="4" height="12"></rect>
+    <circle cx="4" cy="4" r="2"></circle>
+  </svg>
+);
+
 export default function Footer() {
   return (
     <footer>
@@ -22,6 +50,20 @@ export default function Footer() {
               <span className="brand-name"><b>Fynoy</b><i>Capital</i></span>
             </Link>
             <p className="foot-blurb">Independent equity research and investment, based in Rotterdam.</p>
+            <div className="social-links" style={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
+              <a href="https://x.com/fynoycapital" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)" style={{ color: 'var(--ink)', transition: 'color 0.2s', opacity: 0.8 }}>
+                <XIcon style={{ width: 20, height: 20 }} />
+              </a>
+              <a href="https://www.instagram.com/fynoycapital/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" style={{ color: 'var(--ink)', transition: 'color 0.2s', opacity: 0.8 }}>
+                <InstagramIcon style={{ width: 20, height: 20 }} />
+              </a>
+              <a href="https://www.facebook.com/fynoycapital" target="_blank" rel="noopener noreferrer" aria-label="Facebook" style={{ color: 'var(--ink)', transition: 'color 0.2s', opacity: 0.8 }}>
+                <FacebookIcon style={{ width: 20, height: 20 }} />
+              </a>
+              <a href="https://www.linkedin.com/company/fynoy-capital/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" style={{ color: 'var(--ink)', transition: 'color 0.2s', opacity: 0.8 }}>
+                <LinkedInIcon style={{ width: 20, height: 20 }} />
+              </a>
+            </div>
           </div>
           <div>
             <h5>Navigation</h5>
