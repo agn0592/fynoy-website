@@ -136,6 +136,21 @@ p { margin: 0 0 1em; color: var(--ink); font-weight: 400 }
   height: 1px; background: var(--gold);
 }
 
+.nav-login-btn {
+  font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--gold); border: 1px solid rgba(201,169,110,0.35);
+  padding: 6px 16px; border-radius: 2px;
+  transition: background .2s ease, border-color .2s ease;
+  white-space: nowrap;
+}
+.nav-login-btn:hover { background: rgba(201,169,110,0.08); border-color: rgba(201,169,110,0.65) }
+
+.nav-drawer-login {
+  display: block; padding: 14px 0;
+  font-size: 14px; letter-spacing: 0.04em;
+  color: var(--gold); font-weight: 500;
+}
+
 .nav-burger {
   display: none; margin-left: auto;
   width: 36px; height: 36px; align-items: center; justify-content: center;
@@ -154,6 +169,7 @@ p { margin: 0 0 1em; color: var(--ink); font-weight: 400 }
 
 @media (max-width: 880px) {
   .nav-links { display: none }
+  .nav-login-btn { display: none }
   .nav-burger { display: inline-flex }
   .nav-inner { height: 64px }
   .brand-name { font-size: 17px }

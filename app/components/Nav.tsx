@@ -71,6 +71,9 @@ export default function Nav() {
             </Link>
           ))}
         </div>
+        <Link href="/auth/login" className="nav-login-btn">
+          Login
+        </Link>
         <button
           ref={burgerRef}
           className="nav-burger"
@@ -88,6 +91,9 @@ export default function Nav() {
             {l.label}
           </Link>
         ))}
+        <Link href="/auth/login" onClick={closeDrawer} className="nav-drawer-login">
+          Login
+        </Link>
       </div>
     </nav>
   );
