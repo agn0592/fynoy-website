@@ -448,3 +448,235 @@ footer { padding: clamp(56px,7vw,96px) 0 32px; border-top: 1px solid var(--line)
 .foot-bot .disc { max-width: 64ch }
 @media (max-width: 880px) { .foot-grid { grid-template-columns: 1fr 1fr; gap: 40px } }
 @media (max-width: 520px) { .foot-grid { grid-template-columns: 1fr } }
+
+/* ═══════════════════════════════════════════════
+   ANIMATIONS & INTERACTIONS
+   ═══════════════════════════════════════════════ */
+
+/* ── Keyframes ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px) }
+  to   { opacity: 1; transform: translateY(0) }
+}
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to   { opacity: 1 }
+}
+@keyframes floatOrb {
+  0%   { transform: translate(0, 0) scale(1) }
+  33%  { transform: translate(var(--tx1, 30px), var(--ty1, -20px)) scale(1.06) }
+  66%  { transform: translate(var(--tx2, -15px), var(--ty2, 15px)) scale(0.96) }
+  100% { transform: translate(0, 0) scale(1) }
+}
+@keyframes ticker {
+  from { transform: translateX(0) }
+  to   { transform: translateX(-50%) }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1 }
+  50%       { opacity: 0 }
+}
+@keyframes shimmer {
+  from { background-position: -200% center }
+  to   { background-position: 200% center }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92) }
+  to   { opacity: 1; transform: scale(1) }
+}
+
+/* ── Scroll reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1),
+              transform 0.65s cubic-bezier(0.16,1,0.3,1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Hero orbs ── */
+.hero-orbs {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: floatOrb var(--dur, 9s) ease-in-out infinite;
+}
+.orb-1 {
+  width: 520px; height: 520px;
+  background: radial-gradient(circle, rgba(201,169,110,0.12) 0%, transparent 70%);
+  top: -120px; left: -80px;
+  --dur: 11s; --tx1: 40px; --ty1: -30px; --tx2: -20px; --ty2: 20px;
+}
+.orb-2 {
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+  top: 40px; right: -60px;
+  --dur: 14s; --tx1: -30px; --ty1: 20px; --tx2: 15px; --ty2: -25px;
+}
+.orb-3 {
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(201,169,110,0.07) 0%, transparent 70%);
+  bottom: -40px; left: 40%;
+  --dur: 8s; --tx1: 20px; --ty1: 10px; --tx2: -10px; --ty2: -15px;
+}
+
+/* ── Stock ticker ── */
+.ticker-wrap {
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: rgba(10,15,30,0.7);
+  padding: 11px 0;
+  user-select: none;
+}
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker 40s linear infinite;
+}
+.ticker-track:hover { animation-play-state: paused }
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 20px;
+  font-size: 11.5px;
+  letter-spacing: 0.07em;
+  font-weight: 500;
+}
+.ticker-sym { color: var(--ink); opacity: .8 }
+.ticker-up  { color: #22c55e }
+.ticker-dn  { color: #ef4444 }
+.ticker-sep { color: var(--line-strong); margin-left: 6px }
+
+/* ── Typewriter ── */
+.typewriter {
+  color: var(--gold);
+  font-style: italic;
+  font-family: var(--serif);
+  font-size: clamp(15px, 1.4vw, 18px);
+  font-weight: 400;
+}
+.typewriter-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: var(--gold);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 0.9s step-end infinite;
+}
+
+/* ── Enhanced card hover ── */
+.approach {
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease !important;
+}
+.approach:hover {
+  background: rgba(201,169,110,0.05) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 0 0 1px var(--gold-line);
+}
+
+.principle {
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+.principle:hover {
+  background: rgba(201,169,110,0.05);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 0 0 1px var(--gold-line);
+}
+
+.check {
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+.check:hover {
+  background: rgba(201,169,110,0.04);
+  transform: translateY(-2px);
+}
+
+.req {
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+.req:hover {
+  border-color: var(--gold-line) !important;
+  background: rgba(201,169,110,0.03);
+}
+
+.step {
+  transition: background 0.2s ease;
+}
+.step:hover {
+  background: rgba(201,169,110,0.03);
+}
+
+.cta-card {
+  transition: background 0.25s ease !important;
+}
+.cta-card:hover {
+  background: rgba(201,169,110,0.04) !important;
+}
+
+/* ── Metric shimmer on hover ── */
+.metric {
+  transition: background 0.25s ease;
+}
+.metric:hover {
+  background: rgba(201,169,110,0.03);
+}
+
+/* ── Fact rows ── */
+.fact {
+  transition: border-color 0.2s ease;
+}
+.fact:hover {
+  border-color: var(--gold-line) !important;
+}
+
+/* ── Stat bar hover ── */
+.stat {
+  transition: background 0.2s ease;
+}
+.stat:hover {
+  background: rgba(201,169,110,0.03);
+}
+
+/* ── Gold glow on active nav link ── */
+.nav-link.is-active {
+  text-shadow: 0 0 12px rgba(201,169,110,0.4);
+}
+
+/* ── Button shine effect ── */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+.btn:hover::before { left: 140% }
+
+/* ── Contact info row hover ── */
+.info-row {
+  transition: border-color 0.2s ease;
+}
+.info-row:hover {
+  border-color: var(--gold-line) !important;
+}
