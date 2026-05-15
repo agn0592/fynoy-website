@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import SignOutButton from './components/SignOutButton'
 
@@ -17,6 +18,9 @@ export default async function DashboardLayout({
     : { data: null }
 
   const isAdmin = profile?.role === 'admin'
+
+  if (isAdmin) redirect('/admin')
+
   const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Member'
 
   return (
