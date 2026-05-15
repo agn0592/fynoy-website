@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import SignOutButton from '@/app/dashboard/components/SignOutButton'
 
@@ -20,6 +21,16 @@ export default async function AdminLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  if (!user) redirect('/dashboard')
+
+  const { data: profile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role !== 'admin') redirect('/dashboard')
 
   return (
     <div style={{ minHeight: '100vh', background: '#0f1117', color: '#fff' }}>
