@@ -1,6 +1,8 @@
 import type { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+export const maxDuration = 60
+
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 function parseXmlAttributes(
