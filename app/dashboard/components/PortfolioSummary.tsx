@@ -1,18 +1,7 @@
 interface PortfolioSummaryProps {
-  nav: number
-  unrealizedPnl: number
   unrealizedPnlPct: number
-  realizedPnlYtd: number
+  realizedPnlYtdPct: number
   openPositionsCount: number
-}
-
-function formatEur(value: number): string {
-  return new Intl.NumberFormat('en-EU', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value)
 }
 
 function formatPct(value: number): string {
@@ -22,31 +11,62 @@ function formatPct(value: number): string {
 interface StatCardProps {
   label: string
   value: string
-  subValue?: string
   valueColor?: string
+  description?: string
 }
 
-function StatCard({ label, value, subValue, valueColor }: StatCardProps) {
+function StatCard({ label, value, valueColor, description }: StatCardProps) {
   return (
     <div
       style={{
-        background: '#1a1d27',
+        background: 'linear-gradient(135deg, #1a1d27 0%, #1e2130 100%)',
         border: '1px solid #2a2d3e',
-        borderRadius: '10px',
-        padding: '20px 24px',
+        borderRadius: '12px',
+        padding: '24px',
         flex: '1 1 200px',
         minWidth: '180px',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <div style={{ color: '#6b7280', fontSize: '12px', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '2px',
+          background: valueColor
+            ? `linear-gradient(90deg, ${valueColor}40, ${valueColor}10)`
+            : 'linear-gradient(90deg, #3b82f640, #3b82f610)',
+        }}
+      />
+      <div
+        style={{
+          color: '#6b7280',
+          fontSize: '11px',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          marginBottom: '10px',
+        }}
+      >
         {label}
       </div>
-      <div style={{ color: valueColor || '#ffffff', fontSize: '24px', fontWeight: 600, lineHeight: 1.2 }}>
+      <div
+        style={{
+          color: valueColor || '#ffffff',
+          fontSize: '26px',
+          fontWeight: 700,
+          lineHeight: 1.1,
+          letterSpacing: '-0.02em',
+        }}
+      >
         {value}
       </div>
-      {subValue && (
-        <div style={{ color: valueColor || '#9ca3af', fontSize: '13px', marginTop: '4px' }}>
-          {subValue}
+      {description && (
+        <div style={{ color: '#4b5563', fontSize: '12px', marginTop: '6px' }}>
+          {description}
         </div>
       )}
     </div>
@@ -54,32 +74,31 @@ function StatCard({ label, value, subValue, valueColor }: StatCardProps) {
 }
 
 export default function PortfolioSummary({
-  nav,
-  unrealizedPnl,
   unrealizedPnlPct,
-  realizedPnlYtd,
+  realizedPnlYtdPct,
   openPositionsCount,
 }: PortfolioSummaryProps) {
-  const pnlColor = unrealizedPnl >= 0 ? '#22c55e' : '#ef4444'
-  const ytdColor = realizedPnlYtd >= 0 ? '#22c55e' : '#ef4444'
+  const unrealizedColor = unrealizedPnlPct >= 0 ? '#22c55e' : '#ef4444'
+  const ytdColor = realizedPnlYtdPct >= 0 ? '#22c55e' : '#ef4444'
 
   return (
     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-      <StatCard label="Total NAV" value={formatEur(nav)} />
       <StatCard
-        label="Unrealized PnL"
-        value={formatEur(unrealizedPnl)}
-        subValue={formatPct(unrealizedPnlPct)}
-        valueColor={pnlColor}
+        label="Unrealized Return"
+        value={formatPct(unrealizedPnlPct)}
+        valueColor={unrealizedColor}
+        description="Open positions"
       />
       <StatCard
-        label="Realized PnL YTD"
-        value={formatEur(realizedPnlYtd)}
+        label="Realized Return YTD"
+        value={formatPct(realizedPnlYtdPct)}
         valueColor={ytdColor}
+        description="Closed trades this year"
       />
       <StatCard
         label="Open Positions"
         value={String(openPositionsCount)}
+        description="Active holdings"
       />
     </div>
   )

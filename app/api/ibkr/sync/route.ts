@@ -89,7 +89,7 @@ async function fetchIbkrXml(): Promise<string> {
 async function fetchBenchmarkPrice(): Promise<number> {
   try {
     const res = await fetch(
-      'https://query1.finance.yahoo.com/v8/finance/chart/VWRL.L',
+      'https://query1.finance.yahoo.com/v8/finance/chart/VWCE.DE',
       { headers: { 'User-Agent': 'Mozilla/5.0' } }
     )
     if (!res.ok) return 0
@@ -98,6 +98,31 @@ async function fetchBenchmarkPrice(): Promise<number> {
   } catch {
     return 0
   }
+}
+
+// Returns a map of date string (YYYY-MM-DD) -> closing price for the past `rangeDays` days
+async function fetchBenchmarkHistory(rangeDays: number): Promise<Map<string, number>> {
+  const result = new Map<string, number>()
+  try {
+    const rangeParam = rangeDays <= 30 ? '1mo' : rangeDays <= 90 ? '3mo' : rangeDays <= 180 ? '6mo' : rangeDays <= 365 ? '1y' : '2y'
+    const res = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/VWCE.DE?interval=1d&range=${rangeParam}`,
+      { headers: { 'User-Agent': 'Mozilla/5.0' } }
+    )
+    if (!res.ok) return result
+    const data = await res.json()
+    const chartResult = data?.chart?.result?.[0]
+    const timestamps: number[] = chartResult?.timestamp ?? []
+    const closes: number[] = chartResult?.indicators?.quote?.[0]?.close ?? []
+    for (let i = 0; i < timestamps.length; i++) {
+      if (!timestamps[i] || !closes[i]) continue
+      const date = new Date(timestamps[i] * 1000).toISOString().split('T')[0]
+      result.set(date, closes[i])
+    }
+  } catch {
+    // fall through, return whatever we have
+  }
+  return result
 }
 
 // ── main handler ─────────────────────────────────────────────────────────────
@@ -274,6 +299,32 @@ export async function POST(request: NextRequest) {
       },
       { onConflict: 'snapshot_date' }
     )
+
+    // Backfill benchmark_value for snapshots that are missing it
+    const { data: missingBenchmark } = await supabase
+      .from('portfolio_snapshots')
+      .select('snapshot_date')
+      .or('benchmark_value.is.null,benchmark_value.eq.0')
+      .neq('snapshot_date', today)
+      .order('snapshot_date', { ascending: true })
+
+    if (missingBenchmark && missingBenchmark.length > 0) {
+      const oldestDate = missingBenchmark[0].snapshot_date as string
+      const ageDays = Math.ceil(
+        (Date.now() - new Date(oldestDate).getTime()) / 86_400_000
+      )
+      const history = await fetchBenchmarkHistory(ageDays + 5)
+
+      for (const row of missingBenchmark) {
+        const date = row.snapshot_date as string
+        const price = history.get(date)
+        if (!price) continue
+        await supabase
+          .from('portfolio_snapshots')
+          .update({ benchmark_value: price })
+          .eq('snapshot_date', date)
+      }
+    }
 
     // 8. Return summary
     return Response.json({
