@@ -148,7 +148,7 @@ export default function PerformanceChart({ data }: PerformanceChartProps) {
             Portfolio Performance
           </h2>
           <p style={{ color: '#4b5563', fontSize: '12px', margin: '4px 0 0' }}>
-            Indexed return vs FTSE All-World
+            Indexed return vs VWCE
           </p>
         </div>
         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
@@ -207,7 +207,7 @@ export default function PerformanceChart({ data }: PerformanceChartProps) {
           <Line
             type="monotone"
             dataKey="benchmark"
-            name="FTSE All-World"
+            name="VWCE"
             stroke="#4b5563"
             strokeWidth={1.5}
             dot={false}

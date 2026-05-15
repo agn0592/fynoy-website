@@ -89,7 +89,7 @@ async function fetchIbkrXml(): Promise<string> {
 async function fetchBenchmarkPrice(): Promise<number> {
   try {
     const res = await fetch(
-      'https://query1.finance.yahoo.com/v8/finance/chart/VWRL.L',
+      'https://query1.finance.yahoo.com/v8/finance/chart/VWCE.DE',
       { headers: { 'User-Agent': 'Mozilla/5.0' } }
     )
     if (!res.ok) return 0
@@ -106,7 +106,7 @@ async function fetchBenchmarkHistory(rangeDays: number): Promise<Map<string, num
   try {
     const rangeParam = rangeDays <= 30 ? '1mo' : rangeDays <= 90 ? '3mo' : rangeDays <= 180 ? '6mo' : rangeDays <= 365 ? '1y' : '2y'
     const res = await fetch(
-      `https://query1.finance.yahoo.com/v8/finance/chart/VWRL.L?interval=1d&range=${rangeParam}`,
+      `https://query1.finance.yahoo.com/v8/finance/chart/VWCE.DE?interval=1d&range=${rangeParam}`,
       { headers: { 'User-Agent': 'Mozilla/5.0' } }
     )
     if (!res.ok) return result
