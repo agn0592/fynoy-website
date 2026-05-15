@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
 import { WA_ICON } from "../components/WaIcon";
+import Reveal from "../components/Reveal";
+import HeroOrbs from "../components/HeroOrbs";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -18,10 +20,13 @@ export default function AboutPage() {
         {/* ── HERO ── */}
         <header className="hero">
           <div className="grid-bg" />
-          <div className="wrap" style={{ position: "relative" }}>
-            <span className="eyebrow">About Fynoy Capital</span>
-            <h1>Built on research.<br />Driven by <em className="it">conviction.</em></h1>
-            <p className="hero-sub lede">
+          <HeroOrbs />
+          <div className="wrap" style={{ position: "relative", zIndex: 1 }}>
+            <span className="eyebrow" style={{ animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both" }}>About Fynoy Capital</span>
+            <h1 style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.1s" }}>
+              Built on research.<br />Driven by <em className="it">conviction.</em>
+            </h1>
+            <p className="hero-sub lede" style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.25s" }}>
               Fynoy Capital is an independent, research-led investment practice based in Rotterdam,
               investing only in names we have studied, pitched, and defended ourselves.
             </p>
@@ -31,18 +36,24 @@ export default function AboutPage() {
         {/* ── KEY FACTS + COPY ── */}
         <section className="section">
           <div className="wrap two-col">
-            <aside>
-              <span className="eyebrow">Key facts</span>
-              <div className="facts" style={{ marginTop: 24 }}>
-                <div className="fact"><span className="fact-k">Founded</span><span className="fact-v">2025</span></div>
-                <div className="fact"><span className="fact-k">Domicile</span><span className="fact-v">Rotterdam, NL</span></div>
-                <div className="fact"><span className="fact-k">Registration</span><span className="fact-v">KvK 86136062</span></div>
-                <div className="fact"><span className="fact-k">Broker</span><span className="fact-v">Interactive Brokers</span></div>
-                <div className="fact"><span className="fact-k">Focus</span><span className="fact-v">Long-only equities</span></div>
-                <div className="fact"><span className="fact-k">Pitch cadence</span><span className="fact-v">Weekly · Thursdays</span></div>
-              </div>
-            </aside>
-            <div>
+            <Reveal>
+              <aside>
+                <span className="eyebrow">Key facts</span>
+                <div className="facts" style={{ marginTop: 24 }}>
+                  {[
+                    ["Founded", "2025"],
+                    ["Domicile", "Rotterdam, NL"],
+                    ["Registration", "KvK 86136062"],
+                    ["Broker", "Interactive Brokers"],
+                    ["Focus", "Long-only equities"],
+                    ["Pitch cadence", "Weekly · Thursdays"],
+                  ].map(([k, v], i) => (
+                    <div key={i} className="fact"><span className="fact-k">{k}</span><span className="fact-v">{v}</span></div>
+                  ))}
+                </div>
+              </aside>
+            </Reveal>
+            <Reveal delay={120}>
               <p>
                 Fynoy Capital began as a personal investment practice — a single analyst, a notebook of theses,
                 and the discipline to write everything down. Markets are noisy by default; conviction is built only
@@ -68,68 +79,75 @@ export default function AboutPage() {
                 Members of the research group see the same reports we use to make decisions, in the same form,
                 ahead of the same deadline. There is no privileged version.
               </p>
-            </div>
+            </Reveal>
           </div>
         </section>
 
         {/* ── PRINCIPLES ── */}
         <section className="section">
           <div className="wrap">
-            <span className="eyebrow">Principles</span>
-            <h2 style={{ marginTop: 24 }}>What guides every decision</h2>
+            <Reveal>
+              <span className="eyebrow">Principles</span>
+              <h2 style={{ marginTop: 24 }}>What guides every decision</h2>
+            </Reveal>
             <div className="principles" style={{ marginTop: 48 }}>
-              <div className="principle">
-                <svg className="glyph" viewBox="0 0 40 40" fill="none">
-                  <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="1"/>
-                  <path d="M12 20 L18 26 L28 14" stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round"/>
-                </svg>
-                <h3>Research first</h3>
-                <p>Every position begins with a written thesis. No idea enters the portfolio without surviving a live, structured pitch and rebuttal.</p>
-              </div>
-              <div className="principle">
-                <svg className="glyph" viewBox="0 0 40 40" fill="none">
-                  <rect x="6" y="6" width="28" height="28" stroke="currentColor" strokeWidth="1"/>
-                  <path d="M6 14 H34 M6 22 H34 M6 30 H34" stroke="currentColor" strokeWidth="1" opacity=".5"/>
-                </svg>
-                <h3>Transparency</h3>
-                <p>Reports, decisions, and outcomes are shared openly with the research group. The same materials we use to invest are the materials members read.</p>
-              </div>
-              <div className="principle">
-                <svg className="glyph" viewBox="0 0 40 40" fill="none">
-                  <path d="M20 4 L36 32 L4 32 Z" stroke="currentColor" strokeWidth="1"/>
-                  <circle cx="20" cy="24" r="3" fill="currentColor"/>
-                </svg>
-                <h3>Conviction over diversification</h3>
-                <p>We hold a small number of names where the work is deepest. We are skeptical of breadth as a substitute for understanding.</p>
-              </div>
+              {[
+                {
+                  svg: <svg className="glyph" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="1"/><path d="M12 20 L18 26 L28 14" stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round"/></svg>,
+                  title: "Research first",
+                  body: "Every position begins with a written thesis. No idea enters the portfolio without surviving a live, structured pitch and rebuttal.",
+                },
+                {
+                  svg: <svg className="glyph" viewBox="0 0 40 40" fill="none"><rect x="6" y="6" width="28" height="28" stroke="currentColor" strokeWidth="1"/><path d="M6 14 H34 M6 22 H34 M6 30 H34" stroke="currentColor" strokeWidth="1" opacity=".5"/></svg>,
+                  title: "Transparency",
+                  body: "Reports, decisions, and outcomes are shared openly with the research group. The same materials we use to invest are the materials members read.",
+                },
+                {
+                  svg: <svg className="glyph" viewBox="0 0 40 40" fill="none"><path d="M20 4 L36 32 L4 32 Z" stroke="currentColor" strokeWidth="1"/><circle cx="20" cy="24" r="3" fill="currentColor"/></svg>,
+                  title: "Conviction over diversification",
+                  body: "We hold a small number of names where the work is deepest. We are skeptical of breadth as a substitute for understanding.",
+                },
+              ].map((p, i) => (
+                <Reveal key={i} delay={i * 100}>
+                  <div className="principle">
+                    {p.svg}
+                    <h3>{p.title}</h3>
+                    <p>{p.body}</p>
+                  </div>
+                </Reveal>
+              ))}
             </div>
           </div>
         </section>
 
         {/* ── CTA SPLIT ── */}
         <div className="cta-split">
-          <div className="cta-card">
-            <span className="eyebrow">Research group</span>
-            <h2>Join Us</h2>
-            <p>Follow the weekly research, attend Thursday pitches, and join a serious investor community. Free to join.</p>
+          <Reveal className="cta-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div>
+              <span className="eyebrow">Research group</span>
+              <h2>Join Us</h2>
+              <p>Follow the weekly research, attend Thursday pitches, and join a serious investor community. Free to join.</p>
+            </div>
             <div className="cta-foot">
               <a className="btn btn-primary" target="_blank" rel="noopener noreferrer"
                 href="https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.">
                 {WA_ICON} Join on WhatsApp
               </a>
             </div>
-          </div>
-          <div className="cta-card gold">
-            <span className="eyebrow">Collaboration</span>
-            <h2>Work With Us</h2>
-            <p>Experienced traders collaborate with Fynoy Capital on a profit-sharing basis.</p>
+          </Reveal>
+          <Reveal delay={100} className="cta-card gold" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div>
+              <span className="eyebrow">Collaboration</span>
+              <h2>Work With Us</h2>
+              <p>Experienced traders collaborate with Fynoy Capital on a profit-sharing basis.</p>
+            </div>
             <div className="cta-foot">
               <a className="btn btn-on-gold" target="_blank" rel="noopener noreferrer"
                 href="https://wa.me/31682074482?text=Hi%2C%20I'm%20interested%20in%20collaborating%20as%20a%20trader%20with%20Fynoy%20Capital.">
                 {WA_ICON} Get in touch
               </a>
             </div>
-          </div>
+          </Reveal>
         </div>
 
       </main>
