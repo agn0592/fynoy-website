@@ -5,7 +5,6 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from 'recharts'
 import type { PieLabelRenderProps } from 'recharts'
@@ -70,60 +69,81 @@ export default function SectorAllocation({ data }: SectorAllocationProps) {
   return (
     <div
       style={{
-        background: '#1a1d27',
+        background: 'linear-gradient(135deg, #1a1d27 0%, #1e2130 100%)',
         border: '1px solid #2a2d3e',
-        borderRadius: '10px',
+        borderRadius: '12px',
         padding: '24px',
+        height: '100%',
       }}
     >
-      <h2 style={{ color: '#fff', fontSize: '16px', fontWeight: 600, margin: '0 0 20px' }}>
+      <h2 style={{ color: '#fff', fontSize: '15px', fontWeight: 600, margin: '0 0 6px', letterSpacing: '-0.01em' }}>
         Sector Allocation
       </h2>
+      <p style={{ color: '#4b5563', fontSize: '12px', margin: '0 0 20px' }}>
+        Portfolio weight by sector
+      </p>
       {data.length === 0 ? (
-        <div style={{ color: '#6b7280', fontSize: '14px', textAlign: 'center', padding: '40px 0' }}>
+        <div style={{ color: '#4b5563', fontSize: '14px', textAlign: 'center', padding: '40px 0' }}>
           No sector data available
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={280}>
-          <PieChart>
-            <Pie
-              data={enriched}
-              dataKey="value"
-              nameKey="sector"
-              cx="50%"
-              cy="50%"
-              innerRadius={70}
-              outerRadius={110}
-              labelLine={false}
-              label={renderCustomLabel}
-            >
-              {enriched.map((_, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{
-                background: '#0f1117',
-                border: '1px solid #2a2d3e',
-                borderRadius: '6px',
-                color: '#fff',
-                fontSize: '12px',
-              }}
-              formatter={(value, name) => {
-                const numVal = typeof value === 'number' ? value : 0
-                const pct = total > 0 ? ((numVal / total) * 100).toFixed(1) : '0.0'
-                return [`€${numVal.toLocaleString()} (${pct}%)`, name]
-              }}
-            />
-            <Legend
-              formatter={(value: string, entry: { payload?: { pct?: number } }) => (
-                <span style={{ color: '#9ca3af', fontSize: '12px' }}>
-                  {value} {entry.payload?.pct !== undefined ? `${entry.payload.pct.toFixed(1)}%` : ''}
+        <>
+          <ResponsiveContainer width="100%" height={220}>
+            <PieChart>
+              <Pie
+                data={enriched}
+                dataKey="value"
+                nameKey="sector"
+                cx="50%"
+                cy="50%"
+                innerRadius={65}
+                outerRadius={100}
+                labelLine={false}
+                label={renderCustomLabel}
+              >
+                {enriched.map((_, index) => (
+                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{
+                  background: '#0f1117',
+                  border: '1px solid #2a2d3e',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontSize: '12px',
+                }}
+                formatter={(_value, name, entry) => {
+                  const pct = entry?.payload?.pct
+                  return [`${typeof pct === 'number' ? pct.toFixed(1) : '0.0'}%`, name]
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
+            {enriched.map((d, i) => (
+              <div key={d.sector} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '2px',
+                      background: COLORS[i % COLORS.length],
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span style={{ color: '#9ca3af', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {d.sector}
+                  </span>
+                </div>
+                <span style={{ color: '#d1d5db', fontSize: '12px', fontWeight: 600, flexShrink: 0 }}>
+                  {d.pct.toFixed(1)}%
                 </span>
-              )}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )

@@ -4,11 +4,7 @@ import { useState } from 'react'
 
 interface Position {
   symbol: string
-  entry_price_actual: number
-  current_price: number
-  position_size_actual: number
   pct_of_nav: number
-  unrealized_pnl: number
   unrealized_pnl_pct: number
 }
 
@@ -21,28 +17,16 @@ type SortDir = 'asc' | 'desc'
 
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: 'symbol', label: 'Symbol' },
-  { key: 'entry_price_actual', label: 'Entry Price' },
-  { key: 'current_price', label: 'Current Price' },
-  { key: 'position_size_actual', label: 'Position Size' },
-  { key: 'pct_of_nav', label: '% NAV' },
-  { key: 'unrealized_pnl', label: 'Unrealized PnL (€)' },
-  { key: 'unrealized_pnl_pct', label: 'Unrealized PnL (%)' },
+  { key: 'pct_of_nav', label: '% of Portfolio' },
+  { key: 'unrealized_pnl_pct', label: 'Return' },
 ]
-
-function formatEur(v: number): string {
-  return new Intl.NumberFormat('en-EU', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-  }).format(v)
-}
 
 function formatPct(v: number): string {
   return `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`
 }
 
 export default function PositionsTable({ positions }: PositionsTableProps) {
-  const [sortKey, setSortKey] = useState<SortKey>('unrealized_pnl')
+  const [sortKey, setSortKey] = useState<SortKey>('pct_of_nav')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
 
   function handleSort(key: SortKey) {
@@ -66,50 +50,53 @@ export default function PositionsTable({ positions }: PositionsTableProps) {
   })
 
   const thStyle: React.CSSProperties = {
-    padding: '10px 16px',
+    padding: '12px 20px',
     textAlign: 'left',
-    color: '#6b7280',
+    color: '#4b5563',
     fontSize: '11px',
     fontWeight: 600,
     textTransform: 'uppercase',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.08em',
     cursor: 'pointer',
     userSelect: 'none',
     whiteSpace: 'nowrap',
+    borderBottom: '1px solid #2a2d3e',
   }
 
   const tdStyle: React.CSSProperties = {
-    padding: '12px 16px',
+    padding: '14px 20px',
     fontSize: '13px',
-    color: '#e5e7eb',
-    borderTop: '1px solid #2a2d3e',
+    color: '#d1d5db',
     whiteSpace: 'nowrap',
   }
 
   return (
     <div
       style={{
-        background: '#1a1d27',
+        background: 'linear-gradient(135deg, #1a1d27 0%, #1e2130 100%)',
         border: '1px solid #2a2d3e',
-        borderRadius: '10px',
+        borderRadius: '12px',
         overflow: 'hidden',
       }}
     >
-      <div style={{ padding: '20px 24px 0', marginBottom: '4px' }}>
-        <h2 style={{ color: '#fff', fontSize: '16px', fontWeight: 600, margin: 0 }}>
+      <div style={{ padding: '20px 24px 16px' }}>
+        <h2 style={{ color: '#fff', fontSize: '15px', fontWeight: 600, margin: 0, letterSpacing: '-0.01em' }}>
           Open Positions
         </h2>
+        <p style={{ color: '#4b5563', fontSize: '12px', margin: '4px 0 0' }}>
+          {positions.length} active {positions.length === 1 ? 'holding' : 'holdings'}
+        </p>
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr>
+            <tr style={{ background: '#161820' }}>
               {COLUMNS.map((col) => (
                 <th
                   key={col.key}
                   style={{
                     ...thStyle,
-                    color: sortKey === col.key ? '#3b82f6' : '#6b7280',
+                    color: sortKey === col.key ? '#3b82f6' : '#4b5563',
                   }}
                   onClick={() => handleSort(col.key)}
                 >
@@ -122,24 +109,52 @@ export default function PositionsTable({ positions }: PositionsTableProps) {
           <tbody>
             {sorted.length === 0 ? (
               <tr>
-                <td colSpan={COLUMNS.length} style={{ ...tdStyle, textAlign: 'center', color: '#6b7280' }}>
+                <td colSpan={COLUMNS.length} style={{ ...tdStyle, textAlign: 'center', color: '#4b5563', padding: '40px 20px' }}>
                   No open positions
                 </td>
               </tr>
             ) : (
-              sorted.map((pos) => {
-                const pnlColor = pos.unrealized_pnl >= 0 ? '#22c55e' : '#ef4444'
+              sorted.map((pos, i) => {
+                const pnlColor = pos.unrealized_pnl_pct >= 0 ? '#22c55e' : '#ef4444'
+                const navPct = Math.min(100, Math.max(0, pos.pct_of_nav))
                 return (
-                  <tr key={pos.symbol} style={{ transition: 'background 0.1s' }}>
-                    <td style={{ ...tdStyle, fontWeight: 600, color: '#fff' }}>{pos.symbol}</td>
-                    <td style={tdStyle}>{formatEur(pos.entry_price_actual)}</td>
-                    <td style={tdStyle}>{formatEur(pos.current_price)}</td>
-                    <td style={tdStyle}>{pos.position_size_actual.toLocaleString()}</td>
-                    <td style={tdStyle}>{pos.pct_of_nav.toFixed(2)}%</td>
-                    <td style={{ ...tdStyle, color: pnlColor, fontWeight: 500 }}>
-                      {formatEur(pos.unrealized_pnl)}
+                  <tr
+                    key={pos.symbol}
+                    style={{
+                      borderTop: '1px solid #1e2130',
+                      background: i % 2 === 0 ? 'transparent' : '#161820',
+                      transition: 'background 0.1s',
+                    }}
+                  >
+                    <td style={{ ...tdStyle, fontWeight: 700, color: '#fff', fontSize: '14px' }}>
+                      {pos.symbol}
                     </td>
-                    <td style={{ ...tdStyle, color: pnlColor, fontWeight: 500 }}>
+                    <td style={tdStyle}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div
+                          style={{
+                            height: '4px',
+                            width: '80px',
+                            background: '#2a2d3e',
+                            borderRadius: '2px',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          <div
+                            style={{
+                              height: '100%',
+                              width: `${navPct}%`,
+                              background: '#3b82f6',
+                              borderRadius: '2px',
+                            }}
+                          />
+                        </div>
+                        <span style={{ color: '#9ca3af', minWidth: '40px' }}>
+                          {pos.pct_of_nav.toFixed(1)}%
+                        </span>
+                      </div>
+                    </td>
+                    <td style={{ ...tdStyle, color: pnlColor, fontWeight: 600 }}>
                       {formatPct(pos.unrealized_pnl_pct)}
                     </td>
                   </tr>

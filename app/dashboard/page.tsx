@@ -6,7 +6,6 @@ import SectorAllocation from './components/SectorAllocation'
 import ClosedTradesTable from './components/ClosedTradesTable'
 import AICommentary from './components/AICommentary'
 
-// Service-role client to bypass RLS for read-only dashboard data
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,7 +50,6 @@ interface Case {
 export default async function DashboardPage() {
   const supabase = getServiceClient()
 
-  // Fetch all data in parallel
   const [
     { data: openPositionsRaw },
     { data: closedTradesRaw },
@@ -82,7 +80,7 @@ export default async function DashboardPage() {
   const snapshots: PortfolioSnapshot[] = snapshotsRaw ?? []
   const cases: Case[] = casesRaw ?? []
 
-  // --- Calculated metrics ---
+  // --- Calculated metrics (% only, no absolute values exposed) ---
   const totalNav = openPositions.reduce(
     (sum, p) => sum + p.current_price * p.position_size_actual,
     0
@@ -91,12 +89,13 @@ export default async function DashboardPage() {
     (sum, p) => sum + (p.unrealized_pnl ?? 0),
     0
   )
-  const totalUnrealizedPnlPct = totalNav > 0 ? (totalUnrealizedPnl / totalNav) * 100 : 0
+  const unrealizedPnlPct = totalNav > 0 ? (totalUnrealizedPnl / totalNav) * 100 : 0
 
   const ytdStart = new Date(new Date().getFullYear(), 0, 1).toISOString().slice(0, 10)
   const realizedPnlYtd = closedTrades
     .filter((t) => t.exit_date >= ytdStart)
     .reduce((sum, t) => sum + (t.realized_pnl ?? 0), 0)
+  const realizedPnlYtdPct = totalNav > 0 ? (realizedPnlYtd / totalNav) * 100 : 0
 
   // --- Performance chart data ---
   const chartData = snapshots.map((s) => ({
@@ -126,21 +125,16 @@ export default async function DashboardPage() {
   const commentaryUpdatedAt = commentaryResult.data?.created_at ?? null
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Summary cards */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <PortfolioSummary
-        nav={totalNav}
-        unrealizedPnl={totalUnrealizedPnl}
-        unrealizedPnlPct={totalUnrealizedPnlPct}
-        realizedPnlYtd={realizedPnlYtd}
+        unrealizedPnlPct={unrealizedPnlPct}
+        realizedPnlYtdPct={realizedPnlYtdPct}
         openPositionsCount={openPositions.length}
       />
 
-      {/* Performance chart */}
       <PerformanceChart data={chartData} />
 
-      {/* Positions + Sector allocation side by side */}
-      <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
         <div style={{ flex: '2 1 500px', minWidth: '300px' }}>
           <PositionsTable positions={openPositions} />
         </div>
@@ -149,10 +143,8 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Closed trades */}
       <ClosedTradesTable trades={closedTrades} />
 
-      {/* AI Commentary */}
       <AICommentary commentary={commentary} updatedAt={commentaryUpdatedAt} />
     </div>
   )
