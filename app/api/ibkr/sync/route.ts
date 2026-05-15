@@ -43,29 +43,43 @@ async function fetchIbkrXml(): Promise<string> {
     throw new Error('IBKR_FLEX_TOKEN or IBKR_FLEX_QUERY_ID not configured')
   }
 
-  // Step 1: request the report
   const step1Url =
     `https://gdcdyn.interactivebrokers.com/Universal/servlet/` +
     `FlexStatementService.SendRequest?t=${token}&q=${queryId}&v=3`
 
-  const step1Res = await fetch(step1Url)
-  if (!step1Res.ok) {
-    throw new Error(`IBKR step-1 request failed: ${step1Res.status}`)
+  // Step 1: request the report — retry on error 1001 (server busy)
+  let referenceCode = ''
+  let reportUrl = ''
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    if (attempt > 1) await sleep(5000)
+
+    const step1Res = await fetch(step1Url)
+    if (!step1Res.ok) {
+      throw new Error(`IBKR step-1 request failed: ${step1Res.status}`)
+    }
+    const step1Xml = await step1Res.text()
+
+    // Error 1001 = server busy, try again shortly
+    if (step1Xml.includes('<ErrorCode>1001</ErrorCode>')) {
+      if (attempt < 3) continue
+      throw new Error(`IBKR not ready after 3 attempts: ${step1Xml}`)
+    }
+
+    referenceCode = extractTag(step1Xml, 'ReferenceCode')
+    reportUrl = extractTag(step1Xml, 'Url')
+
+    if (!referenceCode || !reportUrl) {
+      throw new Error(`Could not parse ReferenceCode/Url from IBKR response: ${step1Xml}`)
+    }
+    break
   }
-  const step1Xml = await step1Res.text()
 
-  const referenceCode = extractTag(step1Xml, 'ReferenceCode')
-  const reportUrl = extractTag(step1Xml, 'Url')
-
-  if (!referenceCode || !reportUrl) {
-    throw new Error(`Could not parse ReferenceCode/Url from IBKR response: ${step1Xml}`)
-  }
-
-  // Step 2: poll for the report (max 5 attempts, 2 s delay)
+  // Step 2: poll for the report (max 8 attempts, 3 s delay)
   const fetchUrl = `${reportUrl}?q=${referenceCode}&t=${token}&v=3`
 
-  for (let attempt = 1; attempt <= 5; attempt++) {
-    if (attempt > 1) await sleep(2000)
+  for (let attempt = 1; attempt <= 8; attempt++) {
+    if (attempt > 1) await sleep(3000)
 
     const res = await fetch(fetchUrl)
     if (!res.ok) {
@@ -74,14 +88,13 @@ async function fetchIbkrXml(): Promise<string> {
     const xml = await res.text()
 
     if (xml.includes('<FlexStatementResponse status="warn"')) {
-      // Report not ready yet — retry
       continue
     }
 
     return xml
   }
 
-  throw new Error('IBKR report not ready after 5 attempts')
+  throw new Error('IBKR report not ready after 8 attempts')
 }
 
 // ── Yahoo Finance benchmark ──────────────────────────────────────────────────
