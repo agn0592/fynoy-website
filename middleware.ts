@@ -4,9 +4,11 @@ import { updateSession } from '@/lib/supabase/middleware'
 export async function middleware(request: NextRequest) {
   const { supabaseResponse, user, supabase } = await updateSession(request)
 
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  const path = request.nextUrl.pathname
+
+  if (path.startsWith('/admin') || path.startsWith('/dashboard')) {
     if (!user) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      return NextResponse.redirect(new URL('/auth/login', request.url))
     }
 
     const { data: profile } = await supabase
@@ -15,8 +17,14 @@ export async function middleware(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    if (profile?.role !== 'admin') {
+    const isAdmin = profile?.role === 'admin'
+
+    if (path.startsWith('/admin') && !isAdmin) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+
+    if (path.startsWith('/dashboard') && isAdmin) {
+      return NextResponse.redirect(new URL('/admin', request.url))
     }
   }
 

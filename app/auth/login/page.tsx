@@ -21,7 +21,7 @@ function LoginForm() {
     setLoading(true)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
       setError(error.message)
@@ -29,7 +29,21 @@ function LoginForm() {
       return
     }
 
-    router.push(next)
+    // If the caller supplied an explicit destination, honour it.
+    // Otherwise route based on role: admins go to /admin, members to /dashboard.
+    if (searchParams.get('next')) {
+      router.push(next)
+      router.refresh()
+      return
+    }
+
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', authData.user.id)
+      .single()
+
+    router.push(profile?.role === 'admin' ? '/admin' : '/dashboard')
     router.refresh()
   }
 
