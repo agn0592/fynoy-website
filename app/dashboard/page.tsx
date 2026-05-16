@@ -14,38 +14,17 @@ function getServiceClient() {
 }
 
 interface OpenPosition {
-  id: string
-  trading_id: string | null
-  symbol: string
-  entry_price_actual: number
-  current_price: number
-  position_size_actual: number
-  pct_of_nav: number
-  unrealized_pnl: number
-  unrealized_pnl_pct: number
+  id: string; trading_id: string | null; symbol: string
+  entry_price_actual: number; current_price: number; position_size_actual: number
+  pct_of_nav: number; unrealized_pnl: number; unrealized_pnl_pct: number
 }
-
 interface ClosedTrade {
-  symbol: string
-  entry_date: string
-  exit_date: string
-  entry_price: number
-  exit_price: number
-  realized_pnl: number
-  realized_pnl_pct: number
-  holding_period_days: number
+  symbol: string; entry_date: string; exit_date: string
+  entry_price: number; exit_price: number; realized_pnl: number
+  realized_pnl_pct: number; holding_period_days: number
 }
-
-interface PortfolioSnapshot {
-  snapshot_date: string
-  total_nav: number
-  benchmark_value: number
-}
-
-interface Case {
-  trading_id: string
-  sector: string | null
-}
+interface PortfolioSnapshot { snapshot_date: string; total_nav: number; benchmark_value: number }
+interface Case { trading_id: string; sector: string | null }
 
 export default async function DashboardPage() {
   const supabase = getServiceClient()
@@ -69,7 +48,7 @@ export default async function DashboardPage() {
   const snapshots: PortfolioSnapshot[] = snapshotsRaw ?? []
   const cases: Case[] = casesRaw ?? []
 
-  // % metrics only — no absolute values exposed to members
+  // % only — no absolute values exposed
   const totalNav = openPositions.reduce((s, p) => s + p.current_price * p.position_size_actual, 0)
   const totalUnrealized = openPositions.reduce((s, p) => s + (p.unrealized_pnl ?? 0), 0)
   const unrealizedPct = totalNav > 0 ? (totalUnrealized / totalNav) * 100 : 0
@@ -78,11 +57,7 @@ export default async function DashboardPage() {
   const realizedYtd = closedTrades.filter(t => t.exit_date >= ytdStart).reduce((s, t) => s + (t.realized_pnl ?? 0), 0)
   const realizedYtdPct = totalNav > 0 ? (realizedYtd / totalNav) * 100 : 0
 
-  const chartData = snapshots.map(s => ({
-    date: s.snapshot_date,
-    nav: s.total_nav ?? 0,
-    benchmark: s.benchmark_value ?? 0,
-  }))
+  const chartData = snapshots.map(s => ({ date: s.snapshot_date, nav: s.total_nav ?? 0, benchmark: s.benchmark_value ?? 0 }))
 
   const caseMap = new Map<string, string>(cases.map(c => [c.trading_id, c.sector ?? 'Unknown']))
   const sectorMap = new Map<string, number>()
@@ -99,43 +74,36 @@ export default async function DashboardPage() {
 
   return (
     <>
-      {/* Page header */}
-      <div className="dash-header">
-        <div className="dash-header-grid">
-          <h1>Portfolio <em>Overview</em></h1>
-          <span className="dash-sync-time">Member Dashboard</span>
+      {/* Two-column app grid */}
+      <div className="dash-grid">
+
+        {/* ── Left column: chart + positions ── */}
+        <div className="dash-col">
+          <div id="performance">
+            <PerformanceChart data={chartData} />
+          </div>
+          <div id="holdings">
+            <PositionsTable positions={openPositions} />
+          </div>
         </div>
-      </div>
 
-      {/* Stats + chart: visually one block */}
-      <div style={{ marginTop: 32 }}>
-        <div className="dash-section-label">Performance</div>
-        <PortfolioSummary
-          unrealizedPnlPct={unrealizedPct}
-          realizedPnlYtdPct={realizedYtdPct}
-          openPositionsCount={openPositions.length}
-        />
-        <PerformanceChart data={chartData} />
-      </div>
-
-      {/* Positions + Sector: two-col grid, connected borders */}
-      <div style={{ marginTop: 48 }}>
-        <div className="dash-section-label">Holdings</div>
-        <div className="dash-grid-2" style={{ borderTop: '1px solid var(--line)' }}>
-          <PositionsTable positions={openPositions} />
+        {/* ── Right column: stats + sector + trades ── */}
+        <div className="dash-col">
+          <PortfolioSummary
+            unrealizedPnlPct={unrealizedPct}
+            realizedPnlYtdPct={realizedYtdPct}
+            openPositionsCount={openPositions.length}
+          />
           <SectorAllocation data={sectorData} />
+          <div id="history">
+            <ClosedTradesTable trades={closedTrades} />
+          </div>
         </div>
+
       </div>
 
-      {/* Closed trades */}
-      <div style={{ marginTop: 48 }}>
-        <div className="dash-section-label">Trade History</div>
-        <ClosedTradesTable trades={closedTrades} />
-      </div>
-
-      {/* Commentary */}
-      <div style={{ marginTop: 48 }}>
-        <div className="dash-section-label">Analysis</div>
+      {/* ── Full-width commentary ── */}
+      <div className="dash-full" id="commentary">
         <AICommentary commentary={commentary} updatedAt={commentaryUpdatedAt} />
       </div>
     </>

@@ -2,18 +2,11 @@
 
 import { useState } from 'react'
 
-interface Position {
-  symbol: string
-  pct_of_nav: number
-  unrealized_pnl_pct: number
-}
-
+interface Position { symbol: string; pct_of_nav: number; unrealized_pnl_pct: number }
 type SortKey = keyof Position
 type SortDir = 'asc' | 'desc'
 
-function fmtPct(v: number): string {
-  return `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`
-}
+function fmtPct(v: number) { return `${v >= 0 ? '+' : ''}${v.toFixed(2)}%` }
 
 export default function PositionsTable({ positions }: { positions: Position[] }) {
   const [sortKey, setSortKey] = useState<SortKey>('pct_of_nav')
@@ -31,65 +24,53 @@ export default function PositionsTable({ positions }: { positions: Position[] })
     return sortDir === 'asc' ? (av as number) - (bv as number) : (bv as number) - (av as number)
   })
 
-  function thClass(key: SortKey) {
-    return `dash-th${sortKey === key ? ' sorted' : ''}`
-  }
-
-  function arrow(key: SortKey) {
-    if (sortKey !== key) return <span style={{ color: 'rgba(232,228,220,0.2)', marginLeft: 4 }}>↕</span>
-    return <span style={{ marginLeft: 4 }}>{sortDir === 'asc' ? '↑' : '↓'}</span>
-  }
+  const arrow = (k: SortKey) => sortKey === k ? (sortDir === 'asc' ? ' ↑' : ' ↓') : ''
 
   return (
-    <div className="dash-panel" style={{ padding: 0 }}>
-      <div style={{ padding: 'clamp(20px,3vw,32px)', paddingBottom: 0 }}>
-        <div className="dash-panel-title">Open Positions</div>
-        <div className="dash-panel-sub">{positions.length} active {positions.length === 1 ? 'holding' : 'holdings'}</div>
+    <div className="dash-card">
+      <div className="dash-card-header">
+        <div>
+          <div className="dash-card-title">Open Positions</div>
+          <div className="dash-card-sub">{positions.length} active {positions.length === 1 ? 'holding' : 'holdings'}</div>
+        </div>
       </div>
-      <div style={{ overflowX: 'auto' }}>
+      <div style={{ overflowX: 'auto', marginTop: 12 }}>
         <table className="dash-table">
           <thead>
-            <tr style={{ background: 'rgba(10,15,30,0.6)' }}>
-              <th className={thClass('symbol')} onClick={() => handleSort('symbol')}>Symbol {arrow('symbol')}</th>
-              <th className={thClass('pct_of_nav')} onClick={() => handleSort('pct_of_nav')}>Weight {arrow('pct_of_nav')}</th>
-              <th className={thClass('unrealized_pnl_pct')} onClick={() => handleSort('unrealized_pnl_pct')}>Return {arrow('unrealized_pnl_pct')}</th>
+            <tr>
+              <th className={`dash-th${sortKey === 'symbol' ? ' sorted' : ''}`} onClick={() => handleSort('symbol')}>Symbol{arrow('symbol')}</th>
+              <th className={`dash-th${sortKey === 'pct_of_nav' ? ' sorted' : ''}`} onClick={() => handleSort('pct_of_nav')}>Weight{arrow('pct_of_nav')}</th>
+              <th className={`dash-th${sortKey === 'unrealized_pnl_pct' ? ' sorted' : ''}`} onClick={() => handleSort('unrealized_pnl_pct')}>Return{arrow('unrealized_pnl_pct')}</th>
             </tr>
           </thead>
           <tbody>
             {sorted.length === 0 ? (
               <tr>
-                <td colSpan={3} className="dash-td" style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--ink-dim)', fontStyle: 'italic', fontFamily: 'var(--serif)' }}>
+                <td colSpan={3} className="dash-td" style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--ink-dim)', fontStyle: 'italic', fontFamily: 'var(--serif)' }}>
                   No open positions
                 </td>
               </tr>
-            ) : (
-              sorted.map(pos => {
-                const isUp = pos.unrealized_pnl_pct >= 0
-                const navPct = Math.min(100, Math.max(0, pos.pct_of_nav))
-                return (
-                  <tr key={pos.symbol} className="dash-tr">
-                    <td className="dash-td">
-                      <span className="dash-symbol">{pos.symbol}</span>
-                    </td>
-                    <td className="dash-td">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div className="nav-bar-track">
-                          <div className="nav-bar-fill" style={{ width: `${navPct}%` }} />
-                        </div>
-                        <span style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 500, minWidth: 36 }}>
-                          {pos.pct_of_nav.toFixed(1)}%
-                        </span>
+            ) : sorted.map(pos => {
+              const navPct = Math.min(100, Math.max(0, pos.pct_of_nav))
+              return (
+                <tr key={pos.symbol} className="dash-tr">
+                  <td className="dash-td"><span className="dash-symbol">{pos.symbol}</span></td>
+                  <td className="dash-td">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div className="weight-bar-track">
+                        <div className="weight-bar-fill" style={{ width: `${navPct}%` }} />
                       </div>
-                    </td>
-                    <td className="dash-td">
-                      <span className={`ret-badge ${isUp ? 'up' : 'dn'}`}>
-                        {fmtPct(pos.unrealized_pnl_pct)}
-                      </span>
-                    </td>
-                  </tr>
-                )
-              })
-            )}
+                      <span style={{ fontSize: 12, color: 'var(--ink)', minWidth: 32 }}>{pos.pct_of_nav.toFixed(1)}%</span>
+                    </div>
+                  </td>
+                  <td className="dash-td">
+                    <span className={`ret-badge ${pos.unrealized_pnl_pct >= 0 ? 'up' : 'dn'}`}>
+                      {fmtPct(pos.unrealized_pnl_pct)}
+                    </span>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
