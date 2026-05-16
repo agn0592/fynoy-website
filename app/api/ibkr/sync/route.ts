@@ -69,18 +69,21 @@ async function fetchIbkrXml(): Promise<string> {
     }
 
     referenceCode = extractTag(step1Xml, 'ReferenceCode')
-    reportUrl = extractTag(step1Xml, 'Url')
 
-    if (!referenceCode || !reportUrl) {
-      throw new Error(`Could not parse ReferenceCode/Url from IBKR response: ${step1Xml}`)
+    if (!referenceCode) {
+      throw new Error(`Could not parse ReferenceCode from IBKR response: ${step1Xml}`)
     }
     break
   }
 
   // Step 2: poll for the report (max 8 attempts, 3 s delay)
-  const fetchUrl = `${reportUrl}?q=${referenceCode}&t=${token}&v=3`
+  const fetchUrl =
+    `https://gdcdyn.interactivebrokers.com/Universal/servlet/` +
+    `FlexStatementService.GetStatement?q=${referenceCode}&t=${token}&v=3`
 
-  for (let attempt = 1; attempt <= 8; attempt++) {
+  await sleep(10000)
+
+  for (let attempt = 1; attempt <= 5; attempt++) {
     if (attempt > 1) await sleep(3000)
 
     const res = await fetch(fetchUrl)
