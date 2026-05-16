@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import SidebarNav from './components/SidebarNav'
@@ -38,9 +39,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="dash-content">
         <header className="dash-topbar">
           <div className="dash-topbar-left">
-            <span className="dash-topbar-title">
-              Portfolio <em>Overview</em>
-            </span>
+            <Image src="/fynoy-horizontal.png" alt="Fynoy Capital" height={22} width={110} style={{ objectFit: 'contain' }} />
           </div>
           <div className="dash-topbar-right">
             {isAdmin && (
