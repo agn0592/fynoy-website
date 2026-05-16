@@ -94,7 +94,7 @@
 /* ── Top bar ── */
 .dash-topbar {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(10,15,30,0.92);
+  background: color-mix(in srgb, var(--navy) 92%, transparent);
   backdrop-filter: saturate(160%) blur(14px);
   -webkit-backdrop-filter: saturate(160%) blur(14px);
   border-bottom: 1px solid var(--line);

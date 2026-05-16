@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import AdminSidebarNav from './components/AdminSidebarNav'
 import SignOutButton from '@/app/dashboard/components/SignOutButton'
+import ThemeToggle from '@/app/dashboard/components/ThemeToggle'
 import '../dashboard/dashboard.css'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -27,7 +28,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="dash-shell">
       {/* ── Sidebar ── */}
       <aside className="dash-sidebar">
-        <div className="dash-sb-logo">F</div>
+        <div className="dash-sb-logo">
+          <Image src="/fynoy-square.png" alt="Fynoy" width={32} height={32} style={{ objectFit: 'contain' }} />
+        </div>
 
         <nav className="dash-sb-nav">
           <AdminSidebarNav />
@@ -41,6 +44,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </svg>
             <span className="dash-sb-tooltip">Member View</span>
           </Link>
+          <ThemeToggle />
           <SignOutButton />
         </div>
       </aside>
@@ -49,7 +53,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="dash-content">
         <header className="dash-topbar">
           <div className="dash-topbar-left">
-            <Image src="/fynoy-horizontal.png" alt="Fynoy Capital" height={22} width={110} style={{ objectFit: 'contain' }} />
+            <span className="dash-topbar-title">Admin <em>Command Center</em></span>
             <span className="dash-admin-pill">Admin</span>
           </div>
           <div className="dash-topbar-right">

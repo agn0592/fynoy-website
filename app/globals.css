@@ -20,6 +20,25 @@
   --max: 1320px;
 }
 
+/* ───── light mode ───── */
+[data-theme="light"] {
+  --navy:        #f4f1eb;
+  --navy-2:      #ffffff;
+  --navy-3:      #ede9e1;
+  --gold:        #8b6420;
+  --gold-soft:   #7a5618;
+  --ink:         #1c1710;
+  --ink-mute:    #4a4132;
+  --ink-dim:     #7a6f5e;
+  --line:        rgba(28,23,16,0.10);
+  --line-strong: rgba(28,23,16,0.18);
+  --gold-line:   rgba(139,100,32,0.30);
+}
+[data-theme="light"] body {
+  background: var(--navy);
+  color: var(--ink);
+}
+
 * { box-sizing: border-box }
 html, body { margin: 0; padding: 0 }
 html { scroll-behavior: smooth }

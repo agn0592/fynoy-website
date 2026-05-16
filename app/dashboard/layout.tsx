@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import SidebarNav from './components/SidebarNav'
 import SignOutButton from './components/SignOutButton'
+import ThemeToggle from './components/ThemeToggle'
 import './dashboard.css'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -24,13 +25,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="dash-shell">
       {/* ── Sidebar ── */}
       <aside className="dash-sidebar">
-        <div className="dash-sb-logo">F</div>
+        <div className="dash-sb-logo">
+          <Image src="/fynoy-square.png" alt="Fynoy" width={32} height={32} style={{ objectFit: 'contain' }} />
+        </div>
 
         <nav className="dash-sb-nav">
           <SidebarNav />
         </nav>
 
         <div className="dash-sb-foot">
+          <ThemeToggle />
           <SignOutButton />
         </div>
       </aside>
@@ -39,7 +43,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="dash-content">
         <header className="dash-topbar">
           <div className="dash-topbar-left">
-            <Image src="/fynoy-horizontal.png" alt="Fynoy Capital" height={22} width={110} style={{ objectFit: 'contain' }} />
+            <span className="dash-topbar-title">Portfolio <em>Overview</em></span>
           </div>
           <div className="dash-topbar-right">
             {isAdmin && (
