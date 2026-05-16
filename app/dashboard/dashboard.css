@@ -44,7 +44,7 @@
   transition: color 0.2s, background 0.2s;
   cursor: pointer;
 }
-.dash-sb-item:hover { color: var(--ink); background: rgba(232,228,220,0.05) }
+.dash-sb-item:hover { color: var(--ink); background: rgba(128,114,90,0.08) }
 .dash-sb-item.is-active {
   color: var(--gold);
   background: rgba(201,169,110,0.08);
@@ -80,7 +80,7 @@
   transition: color 0.2s, background 0.2s;
   cursor: pointer; background: none; border: none; position: relative;
 }
-.dash-sb-signout:hover { color: var(--ink); background: rgba(232,228,220,0.05) }
+.dash-sb-signout:hover { color: var(--ink); background: rgba(128,114,90,0.08) }
 
 /* ── Content area ── */
 .dash-content {
@@ -391,4 +391,24 @@
   .dash-stats-stack { grid-template-columns: 1fr }
   .dash-stat-cell { border-right: 0 }
   .dash-stat-cell.full-width { grid-column: 1 }
+}
+
+/* ── Light mode overrides ── */
+[data-theme="light"] .dash-sb-item:hover {
+  background: rgba(28,23,16,0.06);
+}
+[data-theme="light"] .dash-sb-signout:hover {
+  background: rgba(28,23,16,0.06);
+}
+[data-theme="light"] .dash-sb-item.is-active {
+  background: rgba(139,100,32,0.10);
+}
+[data-theme="light"] .dash-sb-logo img {
+  filter: brightness(0) saturate(100%) invert(35%) sepia(50%) saturate(600%) hue-rotate(15deg) brightness(80%);
+}
+[data-theme="light"] .dash-stat-glow.up {
+  background: radial-gradient(ellipse at center bottom, rgba(74,222,128,0.08) 0%, transparent 70%);
+}
+[data-theme="light"] .dash-stat-glow.dn {
+  background: radial-gradient(ellipse at center bottom, rgba(248,113,113,0.08) 0%, transparent 70%);
 }
