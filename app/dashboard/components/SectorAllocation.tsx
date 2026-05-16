@@ -96,7 +96,6 @@ export default function SectorAllocation({ data }: { data: SectorData[] }) {
                 {enriched.map((_, i) => (
                   <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}
-                {/* @ts-expect-error recharts label prop accepts custom component */}
                 <CenterLabel count={enriched.length} />
               </Pie>
               <Tooltip content={<SectorTooltip />} />
