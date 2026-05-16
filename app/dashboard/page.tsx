@@ -23,7 +23,7 @@ interface ClosedTrade {
   entry_price: number; exit_price: number; realized_pnl: number
   realized_pnl_pct: number; holding_period_days: number
 }
-interface PortfolioSnapshot { snapshot_date: string; total_nav: number; benchmark_value: number }
+interface PortfolioSnapshot { snapshot_date: string; total_nav: number; benchmark_value: number; deposits_withdrawals: number }
 interface Case { trading_id: string; sector: string | null }
 
 export default async function DashboardPage() {
@@ -57,7 +57,16 @@ export default async function DashboardPage() {
   const realizedYtd = closedTrades.filter(t => t.exit_date >= ytdStart).reduce((s, t) => s + (t.realized_pnl ?? 0), 0)
   const realizedYtdPct = totalNav > 0 ? (realizedYtd / totalNav) * 100 : 0
 
-  const chartData = snapshots.map(s => ({ date: s.snapshot_date, nav: s.total_nav ?? 0, benchmark: s.benchmark_value ?? 0 }))
+  // Subtract cumulative deposits so chart shows pure trading performance, not capital additions
+  let cumulativeDeposits = 0
+  const chartData = snapshots.map(s => {
+    cumulativeDeposits += s.deposits_withdrawals ?? 0
+    return {
+      date: s.snapshot_date,
+      nav: (s.total_nav ?? 0) - cumulativeDeposits,
+      benchmark: s.benchmark_value ?? 0,
+    }
+  })
 
   const caseMap = new Map<string, string>(cases.map(c => [c.trading_id, c.sector ?? 'Unknown']))
   const sectorMap = new Map<string, number>()
