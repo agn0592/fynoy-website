@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import AdminSidebarNav from './components/AdminSidebarNav'
+import SidebarLogo from '@/app/dashboard/components/SidebarLogo'
 import SignOutButton from '@/app/dashboard/components/SignOutButton'
 import ThemeToggle from '@/app/dashboard/components/ThemeToggle'
 import '../dashboard/dashboard.css'
@@ -29,7 +29,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* ── Sidebar ── */}
       <aside className="dash-sidebar">
         <div className="dash-sb-logo">
-          <Image src="/fynoy-square.png" alt="Fynoy" width={32} height={32} style={{ objectFit: 'contain' }} />
+          <SidebarLogo />
         </div>
 
         <nav className="dash-sb-nav">

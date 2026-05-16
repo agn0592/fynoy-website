@@ -403,9 +403,6 @@
 [data-theme="light"] .dash-sb-item.is-active {
   background: rgba(139,100,32,0.10);
 }
-[data-theme="light"] .dash-sb-logo img {
-  filter: brightness(0);
-}
 [data-theme="light"] .dash-stat-glow.up {
   background: radial-gradient(ellipse at center bottom, rgba(74,222,128,0.08) 0%, transparent 70%);
 }

@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import SidebarNav from './components/SidebarNav'
+import SidebarLogo from './components/SidebarLogo'
 import SignOutButton from './components/SignOutButton'
 import ThemeToggle from './components/ThemeToggle'
 import './dashboard.css'
@@ -26,7 +26,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* ── Sidebar ── */}
       <aside className="dash-sidebar">
         <div className="dash-sb-logo">
-          <Image src="/fynoy-square.png" alt="Fynoy" width={32} height={32} style={{ objectFit: 'contain' }} />
+          <SidebarLogo />
         </div>
 
         <nav className="dash-sb-nav">
