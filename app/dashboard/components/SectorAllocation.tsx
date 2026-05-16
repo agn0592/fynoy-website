@@ -5,9 +5,16 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 interface SectorData { sector: string; value: number }
 
 const COLORS = [
-  '#c9a96e', '#8b7355', '#e8c98a', '#6b9e8b',
-  '#9b8a6e', '#7a9db5', '#b8956e', '#8aa67a',
-  '#a88b6e', '#6e8aa6',
+  '#c9a96e', // gold
+  '#4f9de8', // bright blue
+  '#e8614f', // red-orange
+  '#5bc98a', // green
+  '#b07fe8', // purple
+  '#e8c84f', // yellow
+  '#4fc9c9', // teal
+  '#e87fb0', // pink
+  '#8ae84f', // lime
+  '#e89b4f', // orange
 ]
 
 interface TooltipEntry { payload?: { sector: string; pct: number } }
