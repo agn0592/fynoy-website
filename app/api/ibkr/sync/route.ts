@@ -88,10 +88,10 @@ async function fetchIbkrXml(): Promise<string> {
     `https://gdcdyn.interactivebrokers.com/Universal/servlet/` +
     `FlexStatementService.GetStatement?q=${referenceCode}&t=${token}&v=3`
 
-  await sleep(10000)
+  await sleep(5000)
 
   for (let attempt = 1; attempt <= 5; attempt++) {
-    if (attempt > 1) await sleep(3000)
+    if (attempt > 1) await sleep(2000)
 
     const res = await fetch(fetchUrl)
     if (!res.ok) {
@@ -170,7 +170,9 @@ export async function POST(request: NextRequest) {
     // ── Open positions ────────────────────────────────────────────────────────
     const rawOpen = parseXmlAttributes(xml, 'OpenPosition')
 
+    const tradingIdCache = new Map<string, string | null>()
     async function resolveTradingId(symbol: string): Promise<string | null> {
+      if (tradingIdCache.has(symbol)) return tradingIdCache.get(symbol)!
       const { data } = await supabase
         .from('cases')
         .select('trading_id')
@@ -179,43 +181,40 @@ export async function POST(request: NextRequest) {
         .order('date_of_case', { ascending: false })
         .limit(1)
         .maybeSingle()
-      return data?.trading_id ?? null
+      const id = data?.trading_id ?? null
+      tradingIdCache.set(symbol, id)
+      return id
     }
 
+    const now = new Date().toISOString()
+    const openRows = await Promise.all(
+      rawOpen
+        .filter(pos => !!pos.symbol)
+        .map(async pos => {
+          const entryPrice = parseFloat(pos.openPrice ?? pos.costBasisPrice ?? '0')
+          const positionSize = parseFloat(pos.position ?? pos.quantity ?? '0')
+          const unrealizedPnl = parseFloat(pos.fifoPnlUnrealized ?? pos.unrealizedPL ?? '0')
+          const denominator = entryPrice * positionSize
+          return {
+            trading_id: await resolveTradingId(pos.symbol),
+            symbol: pos.symbol,
+            entry_price_actual: entryPrice,
+            entry_date_actual: parseIbkrDate(pos.openDateTime),
+            position_size_actual: positionSize,
+            pct_of_nav: parseFloat(pos.percentOfNAV ?? '0'),
+            current_price: parseFloat(pos.markPrice ?? '0'),
+            unrealized_pnl: unrealizedPnl,
+            unrealized_pnl_pct: denominator !== 0 ? (unrealizedPnl / denominator) * 100 : 0,
+            last_synced_at: now,
+          }
+        })
+    )
+
     let openCount = 0
-    for (const pos of rawOpen) {
-      const symbol = pos.symbol ?? ''
-      if (!symbol) continue
-
-      const entryPrice = parseFloat(pos.openPrice ?? pos.costBasisPrice ?? '0')
-      const positionSize = parseFloat(pos.position ?? pos.quantity ?? '0')
-      const unrealizedPnl = parseFloat(pos.fifoPnlUnrealized ?? pos.unrealizedPL ?? '0')
-      const denominator = entryPrice * positionSize
-      const unrealizedPnlPct = denominator !== 0 ? (unrealizedPnl / denominator) * 100 : 0
-
-      const trading_id = await resolveTradingId(symbol)
-
-      const { error } = await supabase.from('open_positions').upsert(
-        {
-          trading_id,
-          symbol,
-          entry_price_actual: entryPrice,
-          entry_date_actual: parseIbkrDate(pos.openDateTime),
-          position_size_actual: positionSize,
-          pct_of_nav: parseFloat(pos.percentOfNAV ?? '0'),
-          current_price: parseFloat(pos.markPrice ?? '0'),
-          unrealized_pnl: unrealizedPnl,
-          unrealized_pnl_pct: unrealizedPnlPct,
-          last_synced_at: new Date().toISOString(),
-        },
-        { onConflict: 'symbol' }
-      )
-
-      if (error) {
-        console.error(`open_positions upsert error for ${symbol}:`, error)
-      } else {
-        openCount++
-      }
+    if (openRows.length > 0) {
+      const { error } = await supabase.from('open_positions').upsert(openRows, { onConflict: 'symbol' })
+      if (error) console.error('open_positions batch upsert error:', error)
+      else openCount = openRows.length
     }
 
     // ── Closed trades ─────────────────────────────────────────────────────────
@@ -224,52 +223,42 @@ export async function POST(request: NextRequest) {
         ? parseXmlAttributes(xml, 'ClosedPosition')
         : parseXmlAttributes(xml, 'Trade')
 
+    const closedRows = (await Promise.all(
+      rawClosed
+        .filter(trade => !!trade.symbol)
+        .map(async trade => {
+          const entryDate = parseIbkrDate(trade.openDateTime)
+          const exitDate = parseIbkrDate(trade.closeDateTime ?? trade.dateTime ?? trade.tradeDate)
+          if (!entryDate || !exitDate) return null
+
+          const entryPrice = parseFloat(trade.openPrice ?? trade.costBasis ?? '0')
+          const exitPrice = parseFloat(trade.closePrice ?? trade.tradePrice ?? '0')
+          const positionSize = parseFloat(trade.quantity ?? '0')
+          const realizedPnl = parseFloat(trade.fifoPnl ?? trade.realizedPL ?? '0')
+          const denominator = entryPrice * positionSize
+          return {
+            trading_id: await resolveTradingId(trade.symbol),
+            symbol: trade.symbol,
+            entry_price: entryPrice,
+            exit_price: exitPrice,
+            entry_date: entryDate,
+            exit_date: exitDate,
+            position_size: positionSize,
+            realized_pnl: realizedPnl,
+            realized_pnl_pct: denominator !== 0 ? (realizedPnl / denominator) * 100 : 0,
+            holding_period_days: Math.round(
+              (new Date(exitDate).getTime() - new Date(entryDate).getTime()) / 86_400_000
+            ),
+            last_synced_at: now,
+          }
+        })
+    )).filter((r): r is NonNullable<typeof r> => r !== null)
+
     let closedCount = 0
-    for (const trade of rawClosed) {
-      const symbol = trade.symbol ?? ''
-      if (!symbol) continue
-
-      // Support both ClosedPosition and Trade attribute naming
-      const entryDate = parseIbkrDate(trade.openDateTime)
-      const exitDate = parseIbkrDate(trade.closeDateTime ?? trade.dateTime ?? trade.tradeDate)
-
-      if (!entryDate || !exitDate) continue
-
-      const holdingPeriodDays = Math.round(
-        (new Date(exitDate).getTime() - new Date(entryDate).getTime()) / 86_400_000
-      )
-
-      const entryPrice = parseFloat(trade.openPrice ?? trade.costBasis ?? '0')
-      const exitPrice = parseFloat(trade.closePrice ?? trade.tradePrice ?? '0')
-      const positionSize = parseFloat(trade.quantity ?? '0')
-      const realizedPnl = parseFloat(trade.fifoPnl ?? trade.realizedPL ?? '0')
-      const denominator = entryPrice * positionSize
-      const realizedPnlPct = denominator !== 0 ? (realizedPnl / denominator) * 100 : 0
-
-      const trading_id = await resolveTradingId(symbol)
-
-      const { error } = await supabase.from('closed_trades').upsert(
-        {
-          trading_id,
-          symbol,
-          entry_price: entryPrice,
-          exit_price: exitPrice,
-          entry_date: entryDate,
-          exit_date: exitDate,
-          position_size: positionSize,
-          realized_pnl: realizedPnl,
-          realized_pnl_pct: realizedPnlPct,
-          holding_period_days: holdingPeriodDays,
-          last_synced_at: new Date().toISOString(),
-        },
-        { onConflict: 'symbol,entry_date,exit_date' }
-      )
-
-      if (error) {
-        console.error(`closed_trades upsert error for ${symbol}:`, error)
-      } else {
-        closedCount++
-      }
+    if (closedRows.length > 0) {
+      const { error } = await supabase.from('closed_trades').upsert(closedRows, { onConflict: 'symbol,entry_date,exit_date' })
+      if (error) console.error('closed_trades batch upsert error:', error)
+      else closedCount = closedRows.length
     }
 
     // ── NAV history from IBKR (NetAssetValue, one row per day) ───────────────
@@ -284,23 +273,20 @@ export async function POST(request: NextRequest) {
       depositsMap.set(date, (depositsMap.get(date) ?? 0) + amount)
     }
 
+    const navRows = rawNav
+      .map(nav => ({ date: parseIbkrDate(nav.reportDate), total: parseFloat(nav.total ?? '0') }))
+      .filter(r => r.date && r.total !== 0)
+      .map(r => ({
+        snapshot_date: r.date!,
+        total_nav: r.total,
+        deposits_withdrawals: depositsMap.get(r.date!) ?? 0,
+      }))
+
     let navCount = 0
-    for (const nav of rawNav) {
-      const date = parseIbkrDate(nav.reportDate)
-      if (!date) continue
-      const totalNav = parseFloat(nav.total ?? '0')
-      if (totalNav === 0) continue
-
-      const { error } = await supabase.from('portfolio_snapshots').upsert(
-        {
-          snapshot_date: date,
-          total_nav: totalNav,
-          deposits_withdrawals: depositsMap.get(date) ?? 0,
-        },
-        { onConflict: 'snapshot_date' }
-      )
-
-      if (!error) navCount++
+    if (navRows.length > 0) {
+      const { error } = await supabase.from('portfolio_snapshots').upsert(navRows, { onConflict: 'snapshot_date' })
+      if (error) console.error('portfolio_snapshots batch upsert error:', error)
+      else navCount = navRows.length
     }
 
     // ── Today's snapshot: add live benchmark + realized PnL ──────────────────
