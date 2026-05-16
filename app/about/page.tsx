@@ -3,6 +3,7 @@ import Nav from "../components/Nav";
 import Footer from "../components/Footer";
 import { WA_ICON } from "../components/WaIcon";
 import Reveal from "../components/Reveal";
+import Link from "next/link";
 import HeroOrbs from "../components/HeroOrbs";
 
 export const metadata: Metadata = {
@@ -100,7 +101,7 @@ export default function AboutPage() {
                 {
                   svg: <svg className="glyph" viewBox="0 0 40 40" fill="none"><rect x="6" y="6" width="28" height="28" stroke="currentColor" strokeWidth="1"/><path d="M6 14 H34 M6 22 H34 M6 30 H34" stroke="currentColor" strokeWidth="1" opacity=".5"/></svg>,
                   title: "Transparency",
-                  body: "Reports, decisions, and outcomes are shared openly with the research group. The same materials we use to invest are the materials members read.",
+                  body: "Reports, decisions, and positions are open to all members — including a live portfolio dashboard with every trade and P&L in real time. No black box.",
                 },
                 {
                   svg: <svg className="glyph" viewBox="0 0 40 40" fill="none"><path d="M20 4 L36 32 L4 32 Z" stroke="currentColor" strokeWidth="1"/><circle cx="20" cy="24" r="3" fill="currentColor"/></svg>,
@@ -124,12 +125,15 @@ export default function AboutPage() {
         <div className="cta-split">
           <Reveal className="cta-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <span className="eyebrow">Research group</span>
-              <h2>Join Us</h2>
-              <p>Follow the weekly research, attend Thursday pitches, and join a serious investor community. Free to join.</p>
+              <span className="eyebrow">Portfolio dashboard</span>
+              <h2>Track live. For free.</h2>
+              <p>Create a free account to access the live portfolio — every open position, every closed trade, full P&amp;L, performance vs benchmark.</p>
             </div>
             <div className="cta-foot">
-              <a className="btn btn-primary" target="_blank" rel="noopener noreferrer"
+              <Link className="btn btn-primary" href="/auth/register">
+                Create free account →
+              </Link>
+              <a className="btn btn-outline" target="_blank" rel="noopener noreferrer"
                 href="https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.">
                 {WA_ICON} Join on WhatsApp
               </a>

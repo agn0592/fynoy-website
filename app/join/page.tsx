@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import { WA_ICON } from "../components/WaIcon";
 import Reveal from "../components/Reveal";
 import HeroOrbs from "../components/HeroOrbs";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Join Us",
@@ -47,22 +48,30 @@ export default function JoinPage() {
           </div>
         </header>
 
-        {/* ── BIG CTA ── */}
-        <section className="section">
-          <div className="wrap">
-            <Reveal>
-              <div className="big-cta">
-                <span className="eyebrow no-rule">WhatsApp</span>
-                <h2>Ready to join?</h2>
-                <p>Send us a message on WhatsApp and we'll add you to the research group ahead of this week's pitch.</p>
-                <a className="btn btn-primary" target="_blank" rel="noopener noreferrer"
-                  href="https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.">
-                  {WA_ICON} Join on WhatsApp
-                </a>
-              </div>
-            </Reveal>
+        {/* ── CTA SPLIT ── */}
+        <div className="cta-split">
+          <div className="cta-card">
+            <span className="eyebrow">WhatsApp</span>
+            <h2>Join via WhatsApp</h2>
+            <p>Send us a message and we'll add you to the research group ahead of this week's pitch.</p>
+            <div className="cta-foot">
+              <a className="btn btn-primary" target="_blank" rel="noopener noreferrer"
+                href="https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.">
+                {WA_ICON} Join on WhatsApp
+              </a>
+            </div>
           </div>
-        </section>
+          <div className="cta-card gold">
+            <span className="eyebrow">Portfolio dashboard</span>
+            <h2>Track live. For free.</h2>
+            <p>Create a free account to access the live portfolio, every closed trade, and full P&amp;L — the same data we use internally.</p>
+            <div className="cta-foot">
+              <Link className="btn btn-on-gold" href="/auth/register">
+                Create free account →
+              </Link>
+            </div>
+          </div>
+        </div>
 
         {/* ── WHAT'S INCLUDED ── */}
         <section className="section">
@@ -75,6 +84,7 @@ export default function JoinPage() {
               {[
                 { title: "Weekly research report", body: "A full written stock analysis is delivered before each Thursday pitch — thesis, financials, valuation, and the key risks we are watching." },
                 { title: "Live Thursday pitch sessions", body: "Attend the pitch, question the thesis, and engage with the process. Members are invited to push back, propose counter-views, and stress-test the work." },
+                { title: "Live portfolio dashboard", body: "Track every open position and closed trade in real time. Full P&L, performance vs benchmark, and sector breakdown — the exact same view we use internally." },
                 { title: "WhatsApp group access", body: "Direct access to reports, mid-week updates, position changes, and the broader investment community on WhatsApp." },
               ].map((item, i) => (
                 <Reveal key={i} delay={i * 100}>

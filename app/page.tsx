@@ -136,6 +136,75 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* ── TRANSPARENCY ── */}
+        <section className="section">
+          <div className="wrap">
+            <Reveal>
+              <span className="eyebrow">Live transparency</span>
+            </Reveal>
+            <div className="transparency-layout">
+              <Reveal delay={100}>
+                <div className="transparency-copy">
+                  <h2>Every position.<br />Every trade.<br />Nothing hidden.</h2>
+                  <p className="muted">
+                    Members get a real-time view of the full Fynoy Capital portfolio — open positions with live prices, every closed trade with exact P&amp;L, and weekly performance tracked against the FTSE All-World. The same data we use internally.
+                  </p>
+                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 28 }}>
+                    <Link href="/auth/register" className="btn btn-primary">Create free account</Link>
+                    <Link href="/auth/login" className="btn btn-outline">Sign in</Link>
+                  </div>
+                </div>
+              </Reveal>
+              <Reveal delay={200}>
+                <div className="dashboard-mock">
+                  <div className="mock-bar">
+                    <span className="label">Portfolio dashboard</span>
+                    <span className="mock-live">
+                      <span className="mock-live-dot">●</span> Live
+                    </span>
+                  </div>
+                  <div className="mock-metrics">
+                    <div className="mock-metric">
+                      <div className="label">YTD Return</div>
+                      <div className="mock-val up">+21.0%</div>
+                    </div>
+                    <div className="mock-metric">
+                      <div className="label">vs Benchmark</div>
+                      <div className="mock-val up">+17.4pp</div>
+                    </div>
+                    <div className="mock-metric">
+                      <div className="label">Win rate</div>
+                      <div className="mock-val">68%</div>
+                    </div>
+                  </div>
+                  <div className="mock-section-label label">Open positions</div>
+                  <div className="mock-table">
+                    {[
+                      { ticker: "NVDA", name: "Nvidia Corp.", pnl: "+34.2%", up: true },
+                      { ticker: "ASML", name: "ASML Holding", pnl: "+12.8%", up: true },
+                      { ticker: "AAPL", name: "Apple Inc.",   pnl: "+8.1%",  up: true },
+                    ].map((r) => (
+                      <div key={r.ticker} className="mock-row">
+                        <span className="mock-ticker">{r.ticker}</span>
+                        <span className="mock-name">{r.name}</span>
+                        <span className={`mock-pnl ${r.up ? "up" : "dn"}`}>{r.pnl}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mock-section-label label">Recent closed trade</div>
+                  <div className="mock-table">
+                    <div className="mock-row">
+                      <span className="mock-ticker">META</span>
+                      <span className="mock-name">Meta Platforms</span>
+                      <span className="mock-pnl up">+61.4%</span>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
         {/* ── APPROACH ── */}
         <section className="section">
           <div className="wrap">

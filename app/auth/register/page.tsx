@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import Nav from '@/app/components/Nav'
+import HeroOrbs from '@/app/components/HeroOrbs'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -37,80 +39,123 @@ export default function RegisterPage() {
       return
     }
 
-    setMessage('Check your email for a confirmation link.')
-    setLoading(false)
+    router.push('/dashboard')
+    router.refresh()
   }
 
   return (
-    <main style={{ maxWidth: 400, margin: '80px auto', padding: '0 16px' }}>
-      <h1 style={{ marginBottom: 24 }}>Create account</h1>
+    <>
+      <Nav />
+      <main className="auth-page">
+        <div className="auth-split">
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <label htmlFor="fullName">Full name</label>
-          <input
-            id="fullName"
-            type="text"
-            autoComplete="name"
-            required
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            style={{ padding: '8px 12px', fontSize: 16, borderRadius: 4, border: '1px solid #ccc' }}
-          />
+          {/* Left pitch panel */}
+          <div className="auth-pitch">
+            <HeroOrbs />
+            <div className="grid-bg" />
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <span className="eyebrow">Free to join</span>
+              <h1 style={{ marginTop: 20, fontSize: 'clamp(32px,3.8vw,52px)', lineHeight: 1.08 }}>
+                Full transparency.<br />Zero cost.
+              </h1>
+              <p className="lede" style={{ marginTop: 20, maxWidth: '30ch', color: 'var(--ink-mute)' }}>
+                Create a free account and follow every move Fynoy Capital makes — in real time.
+              </p>
+              <div className="auth-features" style={{ marginTop: 32 }}>
+                {[
+                  'Live portfolio with open positions',
+                  'Full closed trade history & P&L',
+                  'Weekly stock research reports',
+                  'Live Thursday pitch sessions',
+                  'Performance vs FTSE All-World',
+                ].map((f) => (
+                  <div key={f} className="auth-feature">
+                    <span className="auth-feature-dot" />
+                    {f}
+                  </div>
+                ))}
+              </div>
+              <p style={{ marginTop: 32, fontSize: 13, color: 'var(--ink-dim)' }}>
+                No fees. No commitments. Cancel anytime.
+              </p>
+            </div>
+          </div>
+
+          {/* Right form panel */}
+          <div className="auth-form-side">
+            <div className="auth-card">
+              <h2 style={{ fontSize: 'clamp(22px,2.2vw,30px)', marginBottom: 6 }}>Create account</h2>
+              <p style={{ fontSize: 14, color: 'var(--ink-mute)', marginBottom: 32 }}>
+                Already a member?{' '}
+                <Link href="/auth/login" style={{ color: 'var(--gold)' }}>
+                  Sign in →
+                </Link>
+              </p>
+
+              <form onSubmit={handleSubmit}>
+                <div className="auth-input-group">
+                  <label className="auth-label" htmlFor="fullName">Full name</label>
+                  <input
+                    id="fullName"
+                    type="text"
+                    autoComplete="name"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="auth-input"
+                    placeholder="Jan de Vries"
+                  />
+                </div>
+                <div className="auth-input-group">
+                  <label className="auth-label" htmlFor="email">Email address</label>
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="auth-input"
+                    placeholder="you@example.com"
+                  />
+                </div>
+                <div className="auth-input-group">
+                  <label className="auth-label" htmlFor="password">Password</label>
+                  <input
+                    id="password"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="auth-input"
+                    placeholder="Min. 8 characters"
+                  />
+                </div>
+
+                {error && <p className="auth-error">{error}</p>}
+                {message && <p className="auth-success">{message}</p>}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn btn-primary"
+                  style={{ width: '100%', justifyContent: 'center', marginTop: 8, padding: '14px 0', fontSize: 13 }}
+                >
+                  {loading ? 'Creating account…' : 'Create free account'}
+                </button>
+
+                <p style={{ marginTop: 16, fontSize: 12, color: 'var(--ink-dim)', lineHeight: 1.6 }}>
+                  By creating an account you agree to our{' '}
+                  <Link href="/legal/privacy" style={{ color: 'var(--ink-mute)' }}>privacy policy</Link>.
+                </p>
+              </form>
+            </div>
+          </div>
+
         </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ padding: '8px 12px', fontSize: 16, borderRadius: 4, border: '1px solid #ccc' }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            autoComplete="new-password"
-            required
-            minLength={8}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ padding: '8px 12px', fontSize: 16, borderRadius: 4, border: '1px solid #ccc' }}
-          />
-        </div>
-
-        {error && <p style={{ color: 'red', margin: 0 }}>{error}</p>}
-        {message && <p style={{ color: 'green', margin: 0 }}>{message}</p>}
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: '10px 0',
-            fontSize: 16,
-            borderRadius: 4,
-            border: 'none',
-            background: '#0070f3',
-            color: '#fff',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.7 : 1,
-          }}
-        >
-          {loading ? 'Creating account…' : 'Create account'}
-        </button>
-      </form>
-
-      <p style={{ marginTop: 16, fontSize: 14 }}>
-        Already have an account?{' '}
-        <Link href="/auth/login">Sign in</Link>
-      </p>
-    </main>
+      </main>
+    </>
   )
 }
