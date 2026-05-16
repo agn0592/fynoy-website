@@ -1,8 +1,5 @@
--- ============================================================
--- IBKR Backfill v3 - from FYNOY_daily_sync_2.xml
--- ============================================================
+-- IBKR Backfill v4 - FYNOY_daily_sync_3.xml
 
--- portfolio_snapshots
 INSERT INTO public.portfolio_snapshots (snapshot_date, total_nav, total_unrealized_pnl, total_realized_pnl, deposits_withdrawals)
 VALUES
   ('2026-01-01', 150.9871, 6.5597, 0.0000, 0.0000),
@@ -108,7 +105,7 @@ ON CONFLICT (snapshot_date) DO UPDATE
       total_realized_pnl = EXCLUDED.total_realized_pnl,
       deposits_withdrawals = EXCLUDED.deposits_withdrawals;
 
--- open_positions (latest snapshot: 2026-05-15)
+-- open_positions (2026-05-15)
 INSERT INTO public.open_positions (symbol, entry_price_actual, entry_date_actual, position_size_actual, pct_of_nav, current_price, unrealized_pnl, unrealized_pnl_pct, last_synced_at)
 VALUES
   ('I500', 28.112539, '2025-07-31', 84.0973, 54.36, 12.418, 90.51465, 3.8286, now()),
@@ -128,9 +125,10 @@ ON CONFLICT (symbol) DO UPDATE
       unrealized_pnl_pct = EXCLUDED.unrealized_pnl_pct,
       last_synced_at = now();
 
--- closed_trades
+-- closed_trades (2 trades)
 INSERT INTO public.closed_trades (symbol, entry_price, exit_price, entry_date, exit_date, position_size, realized_pnl, realized_pnl_pct, holding_period_days, last_synced_at)
 VALUES
-  ('RHM', 1462.5000, 1151.2, NULL, '2026-05-12', 0.1, -32.38, -22.1402, NULL, now()),
-  ('PANW', 161.3033, 215, NULL, '2026-05-12', 0.75, 39.26903, 32.4598, NULL, now())
-ON CONFLICT (symbol, entry_date, exit_date) DO NOTHING;
+  ('RHM', 1462.5000, 1138.7000, '2026-04-10', '2026-05-12', 0.1, -32.38, -22.1402, 32, now()),
+  ('PANW', 161.3033, 222.7731, '2026-03-24', '2026-05-12', 0.75, 39.26903, 38.1082, 49, now())
+ON CONFLICT (symbol, entry_date, exit_date) DO UPDATE
+  SET exit_price = EXCLUDED.exit_price, realized_pnl = EXCLUDED.realized_pnl, realized_pnl_pct = EXCLUDED.realized_pnl_pct, holding_period_days = EXCLUDED.holding_period_days, last_synced_at = now();

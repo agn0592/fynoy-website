@@ -168,7 +168,25 @@ export async function POST(request: NextRequest) {
     const xml = await fetchIbkrXml()
 
     // ── Open positions ────────────────────────────────────────────────────────
-    const rawOpen = parseXmlAttributes(xml, 'OpenPosition')
+    const allOpenPos = parseXmlAttributes(xml, 'OpenPosition').filter(p => !!p.symbol && p.assetCategory === 'STK')
+    // SUMMARY rows: one per symbol, aggregated position data
+    const rawOpen = allOpenPos.filter(p => p.levelOfDetail === 'SUMMARY')
+    // LOT rows: one per purchase lot — use to find earliest entry date per symbol
+    const lotOpen = allOpenPos.filter(p => p.levelOfDetail === 'LOT')
+
+    // Build earliest entry date + weighted avg entry price from LOT data
+    const entryBySymbol = new Map<string, { date: string; price: number }>()
+    for (const lot of lotOpen) {
+      const dt = parseIbkrDate(lot.openDateTime)
+      if (!dt) continue
+      const ex = entryBySymbol.get(lot.symbol)
+      if (!ex || dt < ex.date) {
+        entryBySymbol.set(lot.symbol, {
+          date: dt,
+          price: parseFloat(lot.openPrice ?? lot.costBasisPrice ?? '0'),
+        })
+      }
+    }
 
     const tradingIdCache = new Map<string, string | null>()
     async function resolveTradingId(symbol: string): Promise<string | null> {
@@ -188,26 +206,26 @@ export async function POST(request: NextRequest) {
 
     const now = new Date().toISOString()
     const openRows = await Promise.all(
-      rawOpen
-        .filter(pos => !!pos.symbol)
-        .map(async pos => {
-          const entryPrice = parseFloat(pos.openPrice ?? pos.costBasisPrice ?? '0')
-          const positionSize = parseFloat(pos.position ?? pos.quantity ?? '0')
-          const unrealizedPnl = parseFloat(pos.fifoPnlUnrealized ?? pos.unrealizedPL ?? '0')
-          const denominator = entryPrice * positionSize
-          return {
-            trading_id: await resolveTradingId(pos.symbol),
-            symbol: pos.symbol,
-            entry_price_actual: entryPrice,
-            entry_date_actual: parseIbkrDate(pos.openDateTime),
-            position_size_actual: positionSize,
-            pct_of_nav: parseFloat(pos.percentOfNAV ?? '0'),
-            current_price: parseFloat(pos.markPrice ?? '0'),
-            unrealized_pnl: unrealizedPnl,
-            unrealized_pnl_pct: denominator !== 0 ? (unrealizedPnl / denominator) * 100 : 0,
-            last_synced_at: now,
-          }
-        })
+      rawOpen.map(async pos => {
+        const entry = entryBySymbol.get(pos.symbol)
+        const entryPrice = entry?.price ?? parseFloat(pos.openPrice ?? pos.costBasisPrice ?? '0')
+        const entryDate = entry?.date ?? parseIbkrDate(pos.openDateTime)
+        const positionSize = parseFloat(pos.position ?? pos.quantity ?? '0')
+        const unrealizedPnl = parseFloat(pos.fifoPnlUnrealized ?? pos.unrealizedPL ?? '0')
+        const denominator = entryPrice * positionSize
+        return {
+          trading_id: await resolveTradingId(pos.symbol),
+          symbol: pos.symbol,
+          entry_price_actual: entryPrice,
+          entry_date_actual: entryDate,
+          position_size_actual: positionSize,
+          pct_of_nav: parseFloat(pos.percentOfNAV ?? '0'),
+          current_price: parseFloat(pos.markPrice ?? '0'),
+          unrealized_pnl: unrealizedPnl,
+          unrealized_pnl_pct: denominator !== 0 ? (unrealizedPnl / denominator) * 100 : 0,
+          last_synced_at: now,
+        }
+      })
     )
 
     let openCount = 0
@@ -218,40 +236,44 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Closed trades ─────────────────────────────────────────────────────────
-    const rawClosed =
-      parseXmlAttributes(xml, 'ClosedPosition').length > 0
-        ? parseXmlAttributes(xml, 'ClosedPosition')
-        : parseXmlAttributes(xml, 'Trade')
-
+    // Flex Query with "Closed Lots" exports <Lot> tags where:
+    //   tradePrice = entry price (opening trade price)
+    //   cost       = total entry cost in trade currency
+    //   fifoPnlRealized = realized PnL in base currency (EUR)
+    //   exit price is derived: (cost + pnlInLocalCurrency) / qty
+    const closedLots = parseXmlAttributes(xml, 'Lot').filter(
+      l => l.buySell === 'SELL' && !!l.symbol && l.assetCategory === 'STK'
+    )
     const closedRows = (await Promise.all(
-      rawClosed
-        .filter(trade => !!trade.symbol)
-        .map(async trade => {
-          const entryDate = parseIbkrDate(trade.openDateTime)
-          const exitDate = parseIbkrDate(trade.closeDateTime ?? trade.dateTime ?? trade.tradeDate)
-          if (!entryDate || !exitDate) return null
+      closedLots.map(async lot => {
+        const entryDate = parseIbkrDate(lot.openDateTime)
+        const exitDate = parseIbkrDate(lot.dateTime ?? lot.tradeDate)
+        if (!entryDate || !exitDate) return null
 
-          const entryPrice = parseFloat(trade.openPrice ?? trade.costBasis ?? '0')
-          const exitPrice = parseFloat(trade.closePrice ?? trade.tradePrice ?? '0')
-          const positionSize = parseFloat(trade.quantity ?? '0')
-          const realizedPnl = parseFloat(trade.fifoPnl ?? trade.realizedPL ?? '0')
-          const denominator = entryPrice * positionSize
-          return {
-            trading_id: await resolveTradingId(trade.symbol),
-            symbol: trade.symbol,
-            entry_price: entryPrice,
-            exit_price: exitPrice,
-            entry_date: entryDate,
-            exit_date: exitDate,
-            position_size: positionSize,
-            realized_pnl: realizedPnl,
-            realized_pnl_pct: denominator !== 0 ? (realizedPnl / denominator) * 100 : 0,
-            holding_period_days: Math.round(
-              (new Date(exitDate).getTime() - new Date(entryDate).getTime()) / 86_400_000
-            ),
-            last_synced_at: now,
-          }
-        })
+        const qty = Math.abs(parseFloat(lot.quantity ?? '0'))
+        const entryPrice = parseFloat(lot.tradePrice ?? '0')
+        const cost = Math.abs(parseFloat(lot.cost ?? '0'))
+        const fx = parseFloat(lot.fxRateToBase ?? '1')
+        const realizedPnl = parseFloat(lot.fifoPnlRealized ?? '0')
+        const realizedPnlLocal = realizedPnl / fx
+        const exitPrice = qty !== 0 ? (cost + realizedPnlLocal) / qty : 0
+        const realizedPct = cost !== 0 ? (realizedPnlLocal / cost) * 100 : 0
+        return {
+          trading_id: await resolveTradingId(lot.symbol),
+          symbol: lot.symbol,
+          entry_price: entryPrice,
+          exit_price: exitPrice,
+          entry_date: entryDate,
+          exit_date: exitDate,
+          position_size: qty,
+          realized_pnl: realizedPnl,
+          realized_pnl_pct: realizedPct,
+          holding_period_days: Math.round(
+            (new Date(exitDate).getTime() - new Date(entryDate).getTime()) / 86_400_000
+          ),
+          last_synced_at: now,
+        }
+      })
     )).filter((r): r is NonNullable<typeof r> => r !== null)
 
     let closedCount = 0
@@ -261,26 +283,30 @@ export async function POST(request: NextRequest) {
       else closedCount = closedRows.length
     }
 
-    // ── NAV history from IBKR (NetAssetValue, one row per day) ───────────────
-    const rawNav = parseXmlAttributes(xml, 'NetAssetValue')
-
-    // Build deposits map from ChangeInNAV section
-    const depositsMap = new Map<string, number>()
-    for (const change of parseXmlAttributes(xml, 'ChangeInNAV')) {
-      const date = parseIbkrDate(change.toDate ?? change.fromDate ?? change.reportDate)
+    // ── NAV history from ChangeInNAV (one row per day, includes deposits) ───────
+    // ChangeInNAV.endingValue is the authoritative daily NAV in base currency (EUR).
+    // Unrealized PnL is summed from OpenPosition SUMMARY rows per date.
+    const unrealizedByDate = new Map<string, number>()
+    for (const pos of rawOpen) {
+      const date = parseIbkrDate(pos.reportDate)
       if (!date) continue
-      const amount = parseFloat(change.depositsWithdrawals ?? '0')
-      depositsMap.set(date, (depositsMap.get(date) ?? 0) + amount)
+      const fx = parseFloat(pos.fxRateToBase ?? '1')
+      const upnl = parseFloat(pos.fifoPnlUnrealized ?? pos.unrealizedPL ?? '0') * fx
+      unrealizedByDate.set(date, (unrealizedByDate.get(date) ?? 0) + upnl)
     }
 
-    const navRows = rawNav
-      .map(nav => ({ date: parseIbkrDate(nav.reportDate), total: parseFloat(nav.total ?? '0') }))
-      .filter(r => r.date && r.total !== 0)
-      .map(r => ({
-        snapshot_date: r.date!,
-        total_nav: r.total,
-        deposits_withdrawals: depositsMap.get(r.date!) ?? 0,
-      }))
+    const navRows = parseXmlAttributes(xml, 'ChangeInNAV')
+      .filter(r => r.currency === 'EUR' && !!r.toDate)
+      .map(r => {
+        const date = parseIbkrDate(r.toDate)!
+        return {
+          snapshot_date: date,
+          total_nav: parseFloat(r.endingValue ?? '0'),
+          total_unrealized_pnl: unrealizedByDate.get(date) ?? 0,
+          deposits_withdrawals: parseFloat(r.depositsWithdrawals ?? '0'),
+        }
+      })
+      .filter(r => r.total_nav !== 0)
 
     let navCount = 0
     if (navRows.length > 0) {
@@ -289,34 +315,12 @@ export async function POST(request: NextRequest) {
       else navCount = navRows.length
     }
 
-    // ── Today's snapshot: add live benchmark + realized PnL ──────────────────
+    // ── Today's snapshot: add live benchmark ─────────────────────────────────
     const today = new Date().toISOString().split('T')[0]
     const benchmarkValue = await fetchBenchmarkPrice()
 
-    const yearStart = `${new Date().getFullYear()}-01-01`
-    const { data: ytdTrades } = await supabase
-      .from('closed_trades')
-      .select('realized_pnl')
-      .gte('exit_date', yearStart)
-
-    const totalRealizedPnl = (ytdTrades ?? []).reduce(
-      (sum, row) => sum + (row.realized_pnl ?? 0),
-      0
-    )
-
-    const totalUnrealizedPnl = rawOpen.reduce(
-      (sum, pos) => sum + parseFloat(pos.fifoPnlUnrealized ?? pos.unrealizedPL ?? '0'),
-      0
-    )
-
     await supabase.from('portfolio_snapshots').upsert(
-      {
-        snapshot_date: today,
-        benchmark_value: benchmarkValue,
-        total_unrealized_pnl: totalUnrealizedPnl,
-        total_realized_pnl: totalRealizedPnl,
-        created_at: new Date().toISOString(),
-      },
+      { snapshot_date: today, benchmark_value: benchmarkValue },
       { onConflict: 'snapshot_date' }
     )
 
