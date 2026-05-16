@@ -325,7 +325,7 @@ export async function POST(request: NextRequest) {
       { onConflict: 'snapshot_date' }
     )
 
-    // ── Backfill missing benchmark values ────────────────────────────────────
+    // ── Backfill missing benchmark values (batch) ────────────────────────────
     const { data: missingBenchmark } = await supabase
       .from('portfolio_snapshots')
       .select('snapshot_date')
@@ -335,19 +335,15 @@ export async function POST(request: NextRequest) {
 
     if (missingBenchmark && missingBenchmark.length > 0) {
       const oldestDate = missingBenchmark[0].snapshot_date as string
-      const ageDays = Math.ceil(
-        (Date.now() - new Date(oldestDate).getTime()) / 86_400_000
-      )
+      const ageDays = Math.ceil((Date.now() - new Date(oldestDate).getTime()) / 86_400_000)
       const history = await fetchBenchmarkHistory(ageDays + 5)
 
-      for (const row of missingBenchmark) {
-        const date = row.snapshot_date as string
-        const price = history.get(date)
-        if (!price) continue
-        await supabase
-          .from('portfolio_snapshots')
-          .update({ benchmark_value: price })
-          .eq('snapshot_date', date)
+      const benchmarkUpdates = missingBenchmark
+        .map(row => ({ snapshot_date: row.snapshot_date as string, benchmark_value: history.get(row.snapshot_date as string) }))
+        .filter(r => r.benchmark_value)
+
+      if (benchmarkUpdates.length > 0) {
+        await supabase.from('portfolio_snapshots').upsert(benchmarkUpdates, { onConflict: 'snapshot_date' })
       }
     }
 
