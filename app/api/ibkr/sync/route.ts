@@ -51,7 +51,6 @@ async function fetchIbkrXml(): Promise<string> {
 
   // Step 1: request the report — retry on error 1001 (server busy)
   let referenceCode = ''
-  let reportUrl = ''
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     if (attempt > 1) await sleep(5000)
