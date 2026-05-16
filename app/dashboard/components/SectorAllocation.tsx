@@ -14,81 +14,72 @@ interface SectorData {
   value: number
 }
 
-interface SectorAllocationProps {
-  data: SectorData[]
-}
-
+// Gold-toned palette that matches the brand
 const COLORS = [
-  '#3b82f6',
-  '#8b5cf6',
-  '#ec4899',
-  '#f59e0b',
-  '#10b981',
-  '#06b6d4',
-  '#f97316',
-  '#84cc16',
-  '#6366f1',
-  '#14b8a6',
+  '#c9a96e', // gold
+  '#8b7355', // warm brown
+  '#e8c98a', // light gold
+  '#6b9e8b', // teal
+  '#9b8a6e', // muted gold
+  '#7a9db5', // slate blue
+  '#b8956e', // copper
+  '#8aa67a', // sage
+  '#a88b6e', // warm tan
+  '#6e8aa6', // cool blue
 ]
 
-function renderCustomLabel(props: PieLabelRenderProps) {
-  const { cx, cy, midAngle, innerRadius, outerRadius, percent } = props
-  if (!percent || percent < 0.05) return null
-  const cxNum = Number(cx ?? 0)
-  const cyNum = Number(cy ?? 0)
-  const midNum = Number(midAngle ?? 0)
-  const innerNum = Number(innerRadius ?? 0)
-  const outerNum = Number(outerRadius ?? 0)
-  const RADIAN = Math.PI / 180
-  const radius = innerNum + (outerNum - innerNum) * 0.5
-  const x = cxNum + radius * Math.cos(-midNum * RADIAN)
-  const y = cyNum + radius * Math.sin(-midNum * RADIAN)
+interface TooltipEntry {
+  payload?: { sector: string; pct: number }
+}
+
+function SectorTooltip({ active, payload }: { active?: boolean; payload?: TooltipEntry[] }) {
+  if (!active || !payload?.length) return null
+  const d = payload[0]?.payload
+  if (!d) return null
   return (
-    <text
-      x={x}
-      y={y}
-      fill="white"
-      textAnchor="middle"
-      dominantBaseline="central"
-      fontSize={11}
-      fontWeight={600}
-    >
-      {`${(percent * 100).toFixed(1)}%`}
-    </text>
+    <div className="dash-tooltip">
+      <div className="dash-tooltip-row">
+        <span className="dash-tooltip-label">{d.sector}</span>
+        <span className="dash-tooltip-value" style={{ color: 'var(--gold)' }}>{d.pct.toFixed(1)}%</span>
+      </div>
+    </div>
   )
 }
 
-export default function SectorAllocation({ data }: SectorAllocationProps) {
-  const total = data.reduce((sum, d) => sum + d.value, 0)
+function CenterLabel({ viewBox, count }: { viewBox?: { cx: number; cy: number }; count: number }) {
+  if (!viewBox) return null
+  const { cx, cy } = viewBox
+  return (
+    <g>
+      <text x={cx} y={cy - 8} textAnchor="middle" fill="#e8e4dc" fontSize={26} fontFamily="Playfair Display, serif" fontWeight={500}>
+        {count}
+      </text>
+      <text x={cx} y={cy + 12} textAnchor="middle" fill="#8b8a82" fontSize={10} fontFamily="DM Sans, sans-serif" letterSpacing="0.12em">
+        SECTORS
+      </text>
+    </g>
+  )
+}
 
-  const enriched = data.map((d) => ({
+export default function SectorAllocation({ data }: { data: SectorData[] }) {
+  const total = data.reduce((s, d) => s + d.value, 0)
+  const enriched = data.map(d => ({
     ...d,
     pct: total > 0 ? (d.value / total) * 100 : 0,
   }))
 
   return (
-    <div
-      style={{
-        background: 'linear-gradient(135deg, #1a1d27 0%, #1e2130 100%)',
-        border: '1px solid #2a2d3e',
-        borderRadius: '12px',
-        padding: '24px',
-        height: '100%',
-      }}
-    >
-      <h2 style={{ color: '#fff', fontSize: '15px', fontWeight: 600, margin: '0 0 6px', letterSpacing: '-0.01em' }}>
-        Sector Allocation
-      </h2>
-      <p style={{ color: '#4b5563', fontSize: '12px', margin: '0 0 20px' }}>
-        Portfolio weight by sector
-      </p>
+    <div className="dash-panel">
+      <div className="dash-panel-title">Sector Allocation</div>
+      <div className="dash-panel-sub">Portfolio weight</div>
+
       {data.length === 0 ? (
-        <div style={{ color: '#4b5563', fontSize: '14px', textAlign: 'center', padding: '40px 0' }}>
-          No sector data available
+        <div style={{ color: 'var(--ink-dim)', fontSize: 14, textAlign: 'center', padding: '40px 0', fontStyle: 'italic', fontFamily: 'var(--serif)' }}>
+          No sector data
         </div>
       ) : (
         <>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
                 data={enriched}
@@ -96,50 +87,33 @@ export default function SectorAllocation({ data }: SectorAllocationProps) {
                 nameKey="sector"
                 cx="50%"
                 cy="50%"
-                innerRadius={65}
-                outerRadius={100}
-                labelLine={false}
-                label={renderCustomLabel}
+                innerRadius={62}
+                outerRadius={90}
+                strokeWidth={2}
+                stroke="var(--navy-2)"
+                paddingAngle={2}
               >
-                {enriched.map((_, index) => (
-                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                {enriched.map((_, i) => (
+                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}
+                {/* @ts-expect-error recharts label prop accepts custom component */}
+                <CenterLabel count={enriched.length} />
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  background: '#0f1117',
-                  border: '1px solid #2a2d3e',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '12px',
-                }}
-                formatter={(_value, name, entry) => {
-                  const pct = entry?.payload?.pct
-                  return [`${typeof pct === 'number' ? pct.toFixed(1) : '0.0'}%`, name]
-                }}
-              />
+              <Tooltip content={<SectorTooltip />} />
             </PieChart>
           </ResponsiveContainer>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
+
+          <div className="sector-legend">
             {enriched.map((d, i) => (
-              <div key={d.sector} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '2px',
-                      background: COLORS[i % COLORS.length],
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span style={{ color: '#9ca3af', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {d.sector}
-                  </span>
+              <div key={d.sector} className="sector-legend-item">
+                <div className="sector-swatch" style={{ background: COLORS[i % COLORS.length] }} />
+                <span className="sector-name">{d.sector}</span>
+                <div className="sector-pct-wrap">
+                  <div className="sector-pct-bar-wrap">
+                    <div className="sector-pct-bar" style={{ width: `${d.pct}%`, background: COLORS[i % COLORS.length] }} />
+                  </div>
+                  <span className="sector-pct">{d.pct.toFixed(1)}%</span>
                 </div>
-                <span style={{ color: '#d1d5db', fontSize: '12px', fontWeight: 600, flexShrink: 0 }}>
-                  {d.pct.toFixed(1)}%
-                </span>
               </div>
             ))}
           </div>

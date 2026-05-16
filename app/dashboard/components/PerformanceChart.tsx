@@ -3,12 +3,12 @@
 import { useState, useMemo } from 'react'
 import {
   ResponsiveContainer,
-  LineChart,
+  ComposedChart,
+  Area,
   Line,
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   CartesianGrid,
   ReferenceLine,
 } from 'recharts'
@@ -24,90 +24,54 @@ interface PerformanceChartProps {
 }
 
 type FilterKey = '1M' | '3M' | '6M' | 'YTD' | '1Y' | 'All'
-
 const FILTERS: FilterKey[] = ['1M', '3M', '6M', 'YTD', '1Y', 'All']
 
-function getFilteredData(data: DataPoint[], filter: FilterKey): DataPoint[] {
-  if (!data.length) return data
+function filterData(data: DataPoint[], f: FilterKey): DataPoint[] {
+  if (!data.length || f === 'All') return data
   const now = new Date()
   let cutoff: Date
-
-  switch (filter) {
-    case '1M':
-      cutoff = new Date(now)
-      cutoff.setMonth(cutoff.getMonth() - 1)
-      break
-    case '3M':
-      cutoff = new Date(now)
-      cutoff.setMonth(cutoff.getMonth() - 3)
-      break
-    case '6M':
-      cutoff = new Date(now)
-      cutoff.setMonth(cutoff.getMonth() - 6)
-      break
-    case 'YTD':
-      cutoff = new Date(now.getFullYear(), 0, 1)
-      break
-    case '1Y':
-      cutoff = new Date(now)
-      cutoff.setFullYear(cutoff.getFullYear() - 1)
-      break
-    case 'All':
-    default:
-      return data
+  if (f === 'YTD') { cutoff = new Date(now.getFullYear(), 0, 1) }
+  else {
+    cutoff = new Date(now)
+    const map: Record<FilterKey, number> = { '1M': 1, '3M': 3, '6M': 6, 'YTD': 0, '1Y': 12, 'All': 0 }
+    cutoff.setMonth(cutoff.getMonth() - map[f])
   }
-
-  return data.filter((d) => new Date(d.date) >= cutoff)
+  return data.filter(d => new Date(d.date) >= cutoff)
 }
 
-function indexData(data: DataPoint[]): { date: string; portfolio: number; benchmark: number }[] {
+function indexData(data: DataPoint[]) {
   if (!data.length) return []
-  const baseNav = data[0].nav
-  const baseBenchmark = data[0].benchmark
-  return data.map((d) => ({
+  const bn = data[0].nav, bb = data[0].benchmark
+  return data.map(d => ({
     date: d.date,
-    portfolio: baseNav > 0 ? ((d.nav - baseNav) / baseNav) * 100 : 0,
-    benchmark: baseBenchmark > 0 ? ((d.benchmark - baseBenchmark) / baseBenchmark) * 100 : 0,
+    portfolio: bn > 0 ? ((d.nav - bn) / bn) * 100 : 0,
+    benchmark: bb > 0 ? ((d.benchmark - bb) / bb) * 100 : 0,
   }))
 }
 
-function formatPct(value: number): string {
-  return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
+function fmtPct(v: number): string {
+  return `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`
 }
 
-function formatYAxis(value: number): string {
-  return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`
+function fmtDate(d: string): string {
+  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
 }
 
-interface TooltipPayload {
-  name: string
-  value: number
-  color: string
-}
-
-interface CustomTooltipProps {
+interface TooltipProps {
   active?: boolean
-  payload?: TooltipPayload[]
+  payload?: Array<{ name: string; value: number; color: string }>
   label?: string
 }
 
-function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
+function ChartTooltip({ active, payload, label }: TooltipProps) {
   if (!active || !payload?.length) return null
   return (
-    <div
-      style={{
-        background: '#0f1117',
-        border: '1px solid #2a2d3e',
-        borderRadius: '8px',
-        padding: '12px 16px',
-        fontSize: '12px',
-      }}
-    >
-      <div style={{ color: '#6b7280', marginBottom: '8px', fontWeight: 500 }}>{label}</div>
-      {payload.map((p) => (
-        <div key={p.name} style={{ color: p.color, marginBottom: '4px', display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-          <span style={{ color: '#9ca3af' }}>{p.name}</span>
-          <span style={{ fontWeight: 600 }}>{formatPct(p.value)}</span>
+    <div className="dash-tooltip">
+      <div className="dash-tooltip-date">{label ? fmtDate(label) : ''}</div>
+      {payload.map(p => (
+        <div key={p.name} className="dash-tooltip-row">
+          <span className="dash-tooltip-label">{p.name}</span>
+          <span className="dash-tooltip-value" style={{ color: p.color }}>{fmtPct(p.value)}</span>
         </div>
       ))}
     </div>
@@ -115,106 +79,93 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 }
 
 export default function PerformanceChart({ data }: PerformanceChartProps) {
-  const [activeFilter, setActiveFilter] = useState<FilterKey>('All')
+  const [active, setActive] = useState<FilterKey>('All')
 
-  const filteredData = useMemo(
-    () => getFilteredData(data, activeFilter),
-    [data, activeFilter]
+  const chartData = useMemo(
+    () => indexData(filterData(data, active)),
+    [data, active]
   )
 
-  const indexedData = useMemo(() => indexData(filteredData), [filteredData])
-
   return (
-    <div
-      style={{
-        background: 'linear-gradient(135deg, #1a1d27 0%, #1e2130 100%)',
-        border: '1px solid #2a2d3e',
-        borderRadius: '12px',
-        padding: '24px',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '24px',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}
-      >
+    <div className="dash-chart-card">
+      <div className="dash-chart-top">
         <div>
-          <h2 style={{ color: '#fff', fontSize: '15px', fontWeight: 600, margin: 0, letterSpacing: '-0.01em' }}>
-            Portfolio Performance
-          </h2>
-          <p style={{ color: '#4b5563', fontSize: '12px', margin: '4px 0 0' }}>
-            Indexed return vs VWCE
-          </p>
+          <div className="dash-chart-title">Portfolio Performance</div>
+          <div className="dash-chart-legend" style={{ marginTop: 6 }}>
+            <div className="dash-chart-legend-item">
+              <div className="dash-legend-line" style={{ background: '#c9a96e' }} />
+              <span>Portfolio</span>
+            </div>
+            <div className="dash-chart-legend-item">
+              <div className="dash-legend-line" style={{ background: '#5d5d57', borderTop: '2px dashed #5d5d57', height: 0 }} />
+              <span>VWCE</span>
+            </div>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-          {FILTERS.map((f) => (
+        <div className="dash-filters">
+          {FILTERS.map(f => (
             <button
               key={f}
-              onClick={() => setActiveFilter(f)}
-              style={{
-                padding: '5px 12px',
-                borderRadius: '6px',
-                border: '1px solid',
-                borderColor: activeFilter === f ? '#3b82f6' : '#2a2d3e',
-                background: activeFilter === f ? '#3b82f615' : 'transparent',
-                color: activeFilter === f ? '#3b82f6' : '#4b5563',
-                cursor: 'pointer',
-                fontSize: '12px',
-                fontWeight: 500,
-                transition: 'all 0.15s',
-              }}
+              className={`dash-filter${active === f ? ' active' : ''}`}
+              onClick={() => setActive(f)}
             >
               {f}
             </button>
           ))}
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={280}>
-        <LineChart data={indexedData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e2130" vertical={false} />
+
+      <ResponsiveContainer width="100%" height={320}>
+        <ComposedChart data={chartData} margin={{ top: 8, right: 0, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id="portfolioGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#c9a96e" stopOpacity={0.18} />
+              <stop offset="100%" stopColor="#c9a96e" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid
+            strokeDasharray="0"
+            stroke="rgba(232,228,220,0.05)"
+            vertical={false}
+          />
           <XAxis
             dataKey="date"
-            tick={{ fill: '#4b5563', fontSize: 11 }}
+            tick={{ fill: '#5d5d57', fontSize: 10, fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.04em' }}
             tickLine={false}
-            axisLine={{ stroke: '#2a2d3e' }}
+            axisLine={{ stroke: 'rgba(232,228,220,0.08)' }}
+            tickFormatter={fmtDate}
+            interval="preserveStartEnd"
           />
           <YAxis
-            tickFormatter={formatYAxis}
-            tick={{ fill: '#4b5563', fontSize: 11 }}
+            tickFormatter={v => `${v >= 0 ? '+' : ''}${v.toFixed(0)}%`}
+            tick={{ fill: '#5d5d57', fontSize: 10, fontFamily: 'DM Sans, sans-serif' }}
             tickLine={false}
             axisLine={false}
-            width={60}
+            width={52}
           />
-          <ReferenceLine y={0} stroke="#2a2d3e" strokeWidth={1} />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend
-            wrapperStyle={{ color: '#6b7280', fontSize: '12px', paddingTop: '16px' }}
-          />
-          <Line
+          <ReferenceLine y={0} stroke="rgba(232,228,220,0.12)" strokeWidth={1} />
+          <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(201,169,110,0.2)', strokeWidth: 1 }} />
+          <Area
             type="monotone"
             dataKey="portfolio"
             name="Portfolio"
-            stroke="#3b82f6"
+            stroke="#c9a96e"
             strokeWidth={2}
+            fill="url(#portfolioGrad)"
             dot={false}
-            activeDot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }}
+            activeDot={{ r: 4, fill: '#c9a96e', stroke: '#0a0f1e', strokeWidth: 2 }}
           />
           <Line
             type="monotone"
             dataKey="benchmark"
             name="VWCE"
-            stroke="#4b5563"
+            stroke="#5d5d57"
             strokeWidth={1.5}
-            dot={false}
-            activeDot={{ r: 4, fill: '#4b5563', strokeWidth: 0 }}
             strokeDasharray="4 4"
+            dot={false}
+            activeDot={{ r: 3, fill: '#5d5d57', stroke: '#0a0f1e', strokeWidth: 2 }}
           />
-        </LineChart>
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   )

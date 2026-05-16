@@ -58,21 +58,10 @@ export default async function DashboardPage() {
     commentaryResult,
   ] = await Promise.all([
     supabase.from('open_positions').select('*'),
-    supabase
-      .from('closed_trades')
-      .select('*')
-      .order('exit_date', { ascending: false }),
-    supabase
-      .from('portfolio_snapshots')
-      .select('*')
-      .order('snapshot_date', { ascending: true }),
+    supabase.from('closed_trades').select('*').order('exit_date', { ascending: false }),
+    supabase.from('portfolio_snapshots').select('*').order('snapshot_date', { ascending: true }),
     supabase.from('cases').select('trading_id, sector'),
-    supabase
-      .from('commentary')
-      .select('content, created_at')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+    supabase.from('commentary').select('content, created_at').order('created_at', { ascending: false }).limit(1).maybeSingle(),
   ])
 
   const openPositions: OpenPosition[] = openPositionsRaw ?? []
@@ -80,72 +69,75 @@ export default async function DashboardPage() {
   const snapshots: PortfolioSnapshot[] = snapshotsRaw ?? []
   const cases: Case[] = casesRaw ?? []
 
-  // --- Calculated metrics (% only, no absolute values exposed) ---
-  const totalNav = openPositions.reduce(
-    (sum, p) => sum + p.current_price * p.position_size_actual,
-    0
-  )
-  const totalUnrealizedPnl = openPositions.reduce(
-    (sum, p) => sum + (p.unrealized_pnl ?? 0),
-    0
-  )
-  const unrealizedPnlPct = totalNav > 0 ? (totalUnrealizedPnl / totalNav) * 100 : 0
+  // % metrics only — no absolute values exposed to members
+  const totalNav = openPositions.reduce((s, p) => s + p.current_price * p.position_size_actual, 0)
+  const totalUnrealized = openPositions.reduce((s, p) => s + (p.unrealized_pnl ?? 0), 0)
+  const unrealizedPct = totalNav > 0 ? (totalUnrealized / totalNav) * 100 : 0
 
   const ytdStart = new Date(new Date().getFullYear(), 0, 1).toISOString().slice(0, 10)
-  const realizedPnlYtd = closedTrades
-    .filter((t) => t.exit_date >= ytdStart)
-    .reduce((sum, t) => sum + (t.realized_pnl ?? 0), 0)
-  const realizedPnlYtdPct = totalNav > 0 ? (realizedPnlYtd / totalNav) * 100 : 0
+  const realizedYtd = closedTrades.filter(t => t.exit_date >= ytdStart).reduce((s, t) => s + (t.realized_pnl ?? 0), 0)
+  const realizedYtdPct = totalNav > 0 ? (realizedYtd / totalNav) * 100 : 0
 
-  // --- Performance chart data ---
-  const chartData = snapshots.map((s) => ({
+  const chartData = snapshots.map(s => ({
     date: s.snapshot_date,
     nav: s.total_nav ?? 0,
     benchmark: s.benchmark_value ?? 0,
   }))
 
-  // --- Sector allocation ---
-  const caseMap = new Map<string, string>(
-    cases.map((c) => [c.trading_id, c.sector ?? 'Unknown'])
-  )
-
+  const caseMap = new Map<string, string>(cases.map(c => [c.trading_id, c.sector ?? 'Unknown']))
   const sectorMap = new Map<string, number>()
   for (const pos of openPositions) {
     const sector = pos.trading_id ? (caseMap.get(pos.trading_id) ?? 'Unknown') : 'Unknown'
-    const marketValue = pos.current_price * pos.position_size_actual
-    sectorMap.set(sector, (sectorMap.get(sector) ?? 0) + marketValue)
+    sectorMap.set(sector, (sectorMap.get(sector) ?? 0) + pos.current_price * pos.position_size_actual)
   }
-
   const sectorData = Array.from(sectorMap.entries())
     .map(([sector, value]) => ({ sector, value }))
     .sort((a, b) => b.value - a.value)
 
-  // --- AI Commentary ---
   const commentary = commentaryResult.data?.content ?? null
   const commentaryUpdatedAt = commentaryResult.data?.created_at ?? null
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <PortfolioSummary
-        unrealizedPnlPct={unrealizedPnlPct}
-        realizedPnlYtdPct={realizedPnlYtdPct}
-        openPositionsCount={openPositions.length}
-      />
-
-      <PerformanceChart data={chartData} />
-
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        <div style={{ flex: '2 1 500px', minWidth: '300px' }}>
-          <PositionsTable positions={openPositions} />
+    <>
+      {/* Page header */}
+      <div className="dash-header">
+        <div className="dash-header-grid">
+          <h1>Portfolio <em>Overview</em></h1>
+          <span className="dash-sync-time">Member Dashboard</span>
         </div>
-        <div style={{ flex: '1 1 280px', minWidth: '260px' }}>
+      </div>
+
+      {/* Stats + chart: visually one block */}
+      <div style={{ marginTop: 32 }}>
+        <div className="dash-section-label">Performance</div>
+        <PortfolioSummary
+          unrealizedPnlPct={unrealizedPct}
+          realizedPnlYtdPct={realizedYtdPct}
+          openPositionsCount={openPositions.length}
+        />
+        <PerformanceChart data={chartData} />
+      </div>
+
+      {/* Positions + Sector: two-col grid, connected borders */}
+      <div style={{ marginTop: 48 }}>
+        <div className="dash-section-label">Holdings</div>
+        <div className="dash-grid-2" style={{ borderTop: '1px solid var(--line)' }}>
+          <PositionsTable positions={openPositions} />
           <SectorAllocation data={sectorData} />
         </div>
       </div>
 
-      <ClosedTradesTable trades={closedTrades} />
+      {/* Closed trades */}
+      <div style={{ marginTop: 48 }}>
+        <div className="dash-section-label">Trade History</div>
+        <ClosedTradesTable trades={closedTrades} />
+      </div>
 
-      <AICommentary commentary={commentary} updatedAt={commentaryUpdatedAt} />
-    </div>
+      {/* Commentary */}
+      <div style={{ marginTop: 48 }}>
+        <div className="dash-section-label">Analysis</div>
+        <AICommentary commentary={commentary} updatedAt={commentaryUpdatedAt} />
+      </div>
+    </>
   )
 }
