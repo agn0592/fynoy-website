@@ -1,37 +1,16 @@
 'use client'
 
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts'
-import type { PieLabelRenderProps } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 
-interface SectorData {
-  sector: string
-  value: number
-}
+interface SectorData { sector: string; value: number }
 
-// Gold-toned palette that matches the brand
 const COLORS = [
-  '#c9a96e', // gold
-  '#8b7355', // warm brown
-  '#e8c98a', // light gold
-  '#6b9e8b', // teal
-  '#9b8a6e', // muted gold
-  '#7a9db5', // slate blue
-  '#b8956e', // copper
-  '#8aa67a', // sage
-  '#a88b6e', // warm tan
-  '#6e8aa6', // cool blue
+  '#c9a96e', '#8b7355', '#e8c98a', '#6b9e8b',
+  '#9b8a6e', '#7a9db5', '#b8956e', '#8aa67a',
+  '#a88b6e', '#6e8aa6',
 ]
 
-interface TooltipEntry {
-  payload?: { sector: string; pct: number }
-}
-
+interface TooltipEntry { payload?: { sector: string; pct: number } }
 function SectorTooltip({ active, payload }: { active?: boolean; payload?: TooltipEntry[] }) {
   if (!active || !payload?.length) return null
   const d = payload[0]?.payload
@@ -63,10 +42,7 @@ function CenterLabel({ viewBox, count }: { viewBox?: { cx: number; cy: number };
 
 export default function SectorAllocation({ data }: { data: SectorData[] }) {
   const total = data.reduce((s, d) => s + d.value, 0)
-  const enriched = data.map(d => ({
-    ...d,
-    pct: total > 0 ? (d.value / total) * 100 : 0,
-  }))
+  const enriched = data.map(d => ({ ...d, pct: total > 0 ? (d.value / total) * 100 : 0 }))
 
   return (
     <div className="dash-panel">
@@ -81,21 +57,9 @@ export default function SectorAllocation({ data }: { data: SectorData[] }) {
         <>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
-              <Pie
-                data={enriched}
-                dataKey="value"
-                nameKey="sector"
-                cx="50%"
-                cy="50%"
-                innerRadius={62}
-                outerRadius={90}
-                strokeWidth={2}
-                stroke="var(--navy-2)"
-                paddingAngle={2}
-              >
-                {enriched.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                ))}
+              <Pie data={enriched} dataKey="value" nameKey="sector" cx="50%" cy="50%"
+                innerRadius={62} outerRadius={90} strokeWidth={2} stroke="var(--navy-2)" paddingAngle={2}>
+                {enriched.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 <CenterLabel count={enriched.length} />
               </Pie>
               <Tooltip content={<SectorTooltip />} />
@@ -104,15 +68,10 @@ export default function SectorAllocation({ data }: { data: SectorData[] }) {
 
           <div className="sector-legend">
             {enriched.map((d, i) => (
-              <div key={d.sector} className="sector-legend-item">
-                <div className="sector-swatch" style={{ background: COLORS[i % COLORS.length] }} />
+              <div key={d.sector} className="sector-row">
+                <div className="sector-dot" style={{ background: COLORS[i % COLORS.length] }} />
                 <span className="sector-name">{d.sector}</span>
-                <div className="sector-pct-wrap">
-                  <div className="sector-pct-bar-wrap">
-                    <div className="sector-pct-bar" style={{ width: `${d.pct}%`, background: COLORS[i % COLORS.length] }} />
-                  </div>
-                  <span className="sector-pct">{d.pct.toFixed(1)}%</span>
-                </div>
+                <span className="sector-pct">{d.pct.toFixed(1)}%</span>
               </div>
             ))}
           </div>

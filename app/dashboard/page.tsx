@@ -90,7 +90,7 @@ export default async function DashboardPage() {
       {/* Two-column app grid */}
       <div className="dash-grid">
 
-        {/* ── Left column: chart + positions ── */}
+        {/* ── Left column: chart + positions + trade history ── */}
         <div className="dash-col">
           <div id="performance">
             <PerformanceChart data={chartData} />
@@ -98,9 +98,12 @@ export default async function DashboardPage() {
           <div id="holdings">
             <PositionsTable positions={openPositions} />
           </div>
+          <div id="history">
+            <ClosedTradesTable trades={closedTrades} />
+          </div>
         </div>
 
-        {/* ── Right column: stats + sector + trades ── */}
+        {/* ── Right column: stats + sector ── */}
         <div className="dash-col">
           <PortfolioSummary
             unrealizedPnlPct={unrealizedPct}
@@ -110,9 +113,6 @@ export default async function DashboardPage() {
             inceptionDate="1 Jan 2026"
           />
           <SectorAllocation data={sectorData} />
-          <div id="history">
-            <ClosedTradesTable trades={closedTrades} />
-          </div>
         </div>
 
       </div>

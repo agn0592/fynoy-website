@@ -35,7 +35,7 @@ export default function PortfolioSummary({ unrealizedPnlPct, realizedPnlYtdPct, 
           <div className={`dash-stat-glow ${rCls}`} />
         </div>
         <div className="dash-stat-cell">
-          <div className="dash-stat-label">Total Return</div>
+          <div className="dash-stat-label">Total Return <span style={{ fontWeight: 400, opacity: 0.5, fontSize: '0.8em' }}>TWR</span></div>
           <div className={`dash-stat-val ${tCls}`}>{fmt(twrPct)}</div>
           <div className={`dash-stat-glow ${tCls}`} />
         </div>
