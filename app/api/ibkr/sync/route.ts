@@ -304,6 +304,7 @@ export async function POST(request: NextRequest) {
           total_nav: parseFloat(r.endingValue ?? '0'),
           total_unrealized_pnl: unrealizedByDate.get(date) ?? 0,
           deposits_withdrawals: parseFloat(r.depositsWithdrawals ?? '0'),
+          daily_twr: parseFloat(r.twr ?? '0'),
         }
       })
       .filter(r => r.total_nav !== 0)

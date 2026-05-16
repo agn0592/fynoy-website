@@ -23,7 +23,7 @@ interface ClosedTrade {
   entry_price: number; exit_price: number; realized_pnl: number
   realized_pnl_pct: number; holding_period_days: number
 }
-interface PortfolioSnapshot { snapshot_date: string; total_nav: number; benchmark_value: number; deposits_withdrawals: number }
+interface PortfolioSnapshot { snapshot_date: string; total_nav: number; benchmark_value: number; deposits_withdrawals: number; daily_twr: number }
 interface Case { trading_id: string; sector: string | null }
 
 export default async function DashboardPage() {
@@ -57,21 +57,25 @@ export default async function DashboardPage() {
   const realizedYtd = closedTrades.filter(t => t.exit_date >= ytdStart).reduce((s, t) => s + (t.realized_pnl ?? 0), 0)
   const realizedYtdPct = totalNav > 0 ? (realizedYtd / totalNav) * 100 : 0
 
-  // Subtract cumulative deposits so chart shows pure trading performance, not capital additions
-  let cumulativeDeposits = 0
+  // Use IBKR's time-weighted return (TWR) for chart — this correctly excludes deposits/withdrawals
+  // twr is in % per day; chain-multiply to get cumulative performance index starting at 100
+  let twrFactor = 1
   const chartData = snapshots.map(s => {
-    cumulativeDeposits += s.deposits_withdrawals ?? 0
-    return {
-      date: s.snapshot_date,
-      nav: (s.total_nav ?? 0) - cumulativeDeposits,
-      benchmark: s.benchmark_value ?? 0,
-    }
+    twrFactor *= (1 + (s.daily_twr ?? 0) / 100)
+    return { date: s.snapshot_date, nav: twrFactor * 100, benchmark: s.benchmark_value ?? 0 }
   })
 
+  const SECTOR_FALLBACK: Record<string, string> = {
+    I500: 'ETF', IBM: 'Technology', LLY: 'Healthcare',
+    MSFT: 'Technology', ORCL: 'Technology', PLTR: 'Technology',
+    V: 'Financials', RHM: 'Industrials', PANW: 'Technology',
+  }
   const caseMap = new Map<string, string>(cases.map(c => [c.trading_id, c.sector ?? 'Unknown']))
   const sectorMap = new Map<string, number>()
   for (const pos of openPositions) {
-    const sector = pos.trading_id ? (caseMap.get(pos.trading_id) ?? 'Unknown') : 'Unknown'
+    const sector = pos.trading_id
+      ? (caseMap.get(pos.trading_id) ?? SECTOR_FALLBACK[pos.symbol] ?? 'Unknown')
+      : (SECTOR_FALLBACK[pos.symbol] ?? 'Unknown')
     sectorMap.set(sector, (sectorMap.get(sector) ?? 0) + pos.current_price * pos.position_size_actual)
   }
   const sectorData = Array.from(sectorMap.entries())
@@ -102,6 +106,8 @@ export default async function DashboardPage() {
             unrealizedPnlPct={unrealizedPct}
             realizedPnlYtdPct={realizedYtdPct}
             openPositionsCount={openPositions.length}
+            twrPct={(twrFactor - 1) * 100}
+            inceptionDate="1 Jan 2026"
           />
           <SectorAllocation data={sectorData} />
           <div id="history">
