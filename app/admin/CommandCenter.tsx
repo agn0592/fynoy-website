@@ -3,15 +3,12 @@
 import Link from 'next/link'
 import {
   ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
   PieChart,
   Pie,
   Cell,
+  Tooltip,
 } from 'recharts'
+import PerformanceChart from '@/app/dashboard/components/PerformanceChart'
 
 export interface CommandCenterProps {
   syncAgeHours: number | null
@@ -28,7 +25,7 @@ export interface CommandCenterProps {
   openPositionsCount: number
   navDelta: number | null
 
-  navHistory: { date: string; nav: number }[]
+  navHistory: { date: string; nav: number; benchmark: number }[]
   sectorChartData: { name: string; value: number }[]
 
   activeCasesCount: number
@@ -67,22 +64,6 @@ function fmt(n: number) {
 
 function fmtShort(s: string) {
   return new Date(s).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
-}
-
-function NavTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) {
-  if (!active || !payload?.length) return null
-  return (
-    <div style={{
-      background: 'var(--navy-3)',
-      border: '1px solid var(--gold-line)',
-      borderRadius: '2px',
-      padding: '10px 14px',
-      fontSize: '12px',
-    }}>
-      <div style={{ color: 'var(--ink-dim)', marginBottom: '4px' }}>{label}</div>
-      <div style={{ color: 'var(--gold)', fontWeight: 700 }}>{fmt(payload[0].value)}</div>
-    </div>
-  )
 }
 
 function SectorTooltip({ active, payload }: { active?: boolean; payload?: { name: string; value: number }[] }) {
@@ -323,36 +304,23 @@ export default function CommandCenter(props: CommandCenterProps) {
           {/* ── Left column ── */}
           <div className="dash-col">
 
-            {/* NAV Chart */}
-            <div className="adm-card dash-card" style={{ padding: '22px 24px' }}>
-              <div className="dash-card-header" style={{ marginBottom: '16px' }}>
-                <div>
-                  <div className="dash-card-title">NAV Performance</div>
-                  <div className="dash-card-sub">Portfolio value over time</div>
+            {/* NAV Chart (portfolio vs VWCE, same component as member dashboard) */}
+            {navHistory.length > 1 ? (
+              <PerformanceChart data={navHistory} />
+            ) : (
+              <div className="adm-card dash-card" style={{ padding: '22px 24px' }}>
+                <div className="dash-card-header" style={{ marginBottom: '16px' }}>
+                  <div>
+                    <div className="dash-card-title">Portfolio Performance</div>
+                    <div className="dash-card-sub">Portfolio vs VWCE</div>
+                  </div>
+                  <div style={{ color: 'var(--gold)', fontSize: '13px', fontWeight: 700, fontFamily: 'var(--serif)' }}>{fmt(totalNav)}</div>
                 </div>
-                <div style={{ color: 'var(--gold)', fontSize: '13px', fontWeight: 700, fontFamily: 'var(--serif)' }}>{fmt(totalNav)}</div>
-              </div>
-              {navHistory.length > 1 ? (
-                <ResponsiveContainer width="100%" height={200}>
-                  <AreaChart data={navHistory} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="navGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#c9a96e" stopOpacity={0.28} />
-                        <stop offset="100%" stopColor="#c9a96e" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="date" tickFormatter={fmtShort} tick={{ fill: 'var(--ink-dim)', fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-                    <YAxis hide domain={['auto', 'auto']} />
-                    <Tooltip content={<NavTooltip />} />
-                    <Area type="monotone" dataKey="nav" stroke="#c9a96e" strokeWidth={1.5} fill="url(#navGrad)" dot={false} activeDot={{ r: 4, fill: '#c9a96e', stroke: 'var(--navy)', strokeWidth: 2 }} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
                 <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-dim)', fontSize: '13px', fontStyle: 'italic' }}>
                   Not enough snapshot data yet
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Recent Research */}
             <div className="adm-card dash-card" style={{ padding: '22px 24px' }}>

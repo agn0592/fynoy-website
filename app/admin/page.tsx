@@ -38,6 +38,8 @@ interface Case {
 interface PortfolioSnapshot {
   snapshot_date: string
   total_nav: number
+  benchmark_value: number | null
+  daily_twr: number | null
 }
 
 export default async function AdminPage() {
@@ -63,9 +65,8 @@ export default async function AdminPage() {
       .order('date_of_case', { ascending: false }),
     supabase
       .from('portfolio_snapshots')
-      .select('snapshot_date, total_nav')
-      .order('snapshot_date', { ascending: true })
-      .limit(60),
+      .select('snapshot_date, total_nav, benchmark_value, daily_twr')
+      .order('snapshot_date', { ascending: true }),
     supabase
       .from('settings')
       .select('value')
@@ -109,11 +110,16 @@ export default async function AdminPage() {
     ? (Date.now() - new Date(lastSyncedAt).getTime()) / 3_600_000
     : null
 
-  // --- NAV history for chart ---
-  const navHistory = snapshots.map((s) => ({
-    date: s.snapshot_date,
-    nav: s.total_nav ?? 0,
-  }))
+  // --- NAV history for chart (TWR-indexed portfolio % + raw benchmark) ---
+  let twrFactor = 1
+  const navHistory = snapshots.map((s) => {
+    twrFactor *= (1 + (s.daily_twr ?? 0) / 100)
+    return {
+      date: s.snapshot_date,
+      nav: twrFactor * 100,
+      benchmark: s.benchmark_value ?? 0,
+    }
+  })
 
   // --- Case pipeline ---
   const activeCases = cases.filter((c) => c.status === 'Active')
