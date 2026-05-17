@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Fynoy Capital',
     short_name: 'Fynoy',
-    description: 'Independent equity research & investment dashboard',
+    description: 'Transparant portfolio dashboard — Fynoy Capital belegt met eigen geld en deelt elke trade realtime.',
     start_url: '/dashboard',
     scope: '/',
     display: 'standalone',
