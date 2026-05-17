@@ -29,8 +29,8 @@ export default function InstallPrompt() {
   useEffect(() => {
     // Already running as installed PWA
     if (window.matchMedia('(display-mode: standalone)').matches) return
-    // Previously dismissed (new key — clears old dismissals)
-    if (localStorage.getItem('pwa-v2-dismissed') === '1') return
+    // iOS Safari private browsing throws on localStorage access — guard it
+    try { if (localStorage.getItem('pwa-v2-dismissed') === '1') return } catch { /* continue */ }
 
     // iPadOS 13+ reports as MacIntel but has touch points
     const ios =
@@ -63,7 +63,7 @@ export default function InstallPrompt() {
 
   function dismiss() {
     setVisible(false)
-    localStorage.setItem('pwa-v2-dismissed', '1')
+    try { localStorage.setItem('pwa-v2-dismissed', '1') } catch { /* ignore */ }
   }
 
   async function install() {
@@ -109,7 +109,7 @@ export default function InstallPrompt() {
                 </span>
               </span>
             ) : (
-              <span className="pwa-banner-sub">Instant access to your portfolio — no browser needed</span>
+              <span className="pwa-banner-sub">Instant access to our portfolio — no browser needed</span>
             )}
           </div>
         </div>
