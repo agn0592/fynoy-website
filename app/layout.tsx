@@ -1,5 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import PwaInit from "@/app/components/PwaInit";
+import InstallPrompt from "@/app/components/InstallPrompt";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://fynoy.com"),
@@ -14,6 +16,25 @@ export const metadata: Metadata = {
     locale: "en_GB",
     type: "website",
   },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Fynoy Capital",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    apple: "/fynoy-square.png",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0a0f1e",
 };
 
 export default function RootLayout({
@@ -31,7 +52,11 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <PwaInit />
+        <InstallPrompt />
+      </body>
     </html>
   );
 }
