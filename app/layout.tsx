@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     locale: "en_GB",
     type: "website",
   },
-  manifest: "/manifest.webmanifest",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -45,8 +45,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Explicit manifest link — ensures browsers pick up start_url=/dashboard */}
-        <link rel="manifest" href="/manifest.webmanifest" />
+        {/* Static manifest — ensures browsers pick up start_url=/dashboard */}
+        <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
