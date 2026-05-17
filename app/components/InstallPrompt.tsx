@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const LOGO = (
   <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
@@ -13,86 +13,73 @@ const LOGO = (
   </svg>
 )
 
-const IOS_SHARE = (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',flexShrink:0}}>
-    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-    <polyline points="16 6 12 2 8 6"/>
-    <line x1="12" y1="2" x2="12" y2="15"/>
-  </svg>
-)
-
 interface DeferredPromptEvent extends Event {
   prompt: () => Promise<void>
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
-type Mode = 'native' | 'ios' | 'android'
+declare global {
+  interface Window { __pwaDeferred?: DeferredPromptEvent }
+}
 
 export default function InstallPrompt() {
-  const [deferred, setDeferred] = useState<DeferredPromptEvent | null>(null)
-  const [mode, setMode] = useState<Mode | null>(null)
   const [visible, setVisible] = useState(false)
+  const [isIos, setIsIos] = useState(false)
   const [installing, setInstalling] = useState(false)
+  const deferredRef = useRef<DeferredPromptEvent | null>(null)
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    // Already running as installed PWA
     if (window.matchMedia('(display-mode: standalone)').matches) return
-    if (localStorage.getItem('pwa-dismissed') === '1') return
+    // Previously dismissed (new key — clears old dismissals)
+    if (localStorage.getItem('pwa-v2-dismissed') === '1') return
 
     // iPadOS 13+ reports as MacIntel but has touch points
     const ios =
       /iphone|ipad|ipod/i.test(navigator.userAgent) ||
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    setIsIos(ios)
 
-    if (ios) {
-      setMode('ios')
-      const t = setTimeout(() => setVisible(true), 2000)
-      return () => clearTimeout(t)
+    // Grab deferred prompt captured early by PwaInit (may already be set)
+    if (window.__pwaDeferred) {
+      deferredRef.current = window.__pwaDeferred
     }
 
-    let promptReceived = false
-
+    // Also listen in case it fires after we mount
     const handler = (e: Event) => {
       e.preventDefault()
-      setDeferred(e as DeferredPromptEvent)
-      setMode('native')
-      if (!promptReceived) {
-        promptReceived = true
-        setTimeout(() => setVisible(true), 1500)
-      }
+      deferredRef.current = e as DeferredPromptEvent
+      window.__pwaDeferred = e as DeferredPromptEvent
     }
-
     window.addEventListener('beforeinstallprompt', handler)
 
-    // Fallback: Android Chrome may not fire beforeinstallprompt on first visit
-    const fallback = setTimeout(() => {
-      if (!promptReceived) {
-        setMode('android')
-        setVisible(true)
-      }
-    }, 7000)
+    // Show banner after 2.5 s — works for iOS, Android, and desktop
+    const t = setTimeout(() => setVisible(true), 2500)
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler)
-      clearTimeout(fallback)
+      clearTimeout(t)
     }
   }, [])
 
   function dismiss() {
     setVisible(false)
-    localStorage.setItem('pwa-dismissed', '1')
+    localStorage.setItem('pwa-v2-dismissed', '1')
   }
 
   async function install() {
-    if (!deferred) return
+    const d = deferredRef.current
+    if (!d) return
     setInstalling(true)
-    await deferred.prompt()
-    const { outcome } = await deferred.userChoice
+    await d.prompt()
+    const { outcome } = await d.userChoice
     setInstalling(false)
     if (outcome === 'accepted') setVisible(false)
   }
 
-  if (!mode || !visible) return null
+  if (!visible) return null
+
+  const hasNativePrompt = !!deferredRef.current
 
   return (
     <div className="pwa-banner" role="region" aria-label="App installeren">
@@ -101,27 +88,29 @@ export default function InstallPrompt() {
           <span className="pwa-banner-icon">{LOGO}</span>
           <div className="pwa-banner-text">
             <span className="pwa-banner-title">Installeer Fynoy Capital</span>
-            {mode === 'ios' && (
+            {isIos ? (
               <span className="pwa-banner-sub">
-                Tik op {IOS_SHARE} hieronder, dan <em>Zet op beginscherm</em>
+                Tik op{' '}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                  <polyline points="16 6 12 2 8 6"/>
+                  <line x1="12" y1="2" x2="12" y2="15"/>
+                </svg>
+                {' '}en kies <em>Zet op beginscherm</em>
               </span>
-            )}
-            {mode === 'android' && (
+            ) : hasNativePrompt ? (
+              <span className="pwa-banner-sub">Direct toegang tot je portfolio, zonder browser</span>
+            ) : (
               <span className="pwa-banner-sub">
                 Tik op <em>⋮</em> in je browser → <em>App installeren</em>
-              </span>
-            )}
-            {mode === 'native' && (
-              <span className="pwa-banner-sub">
-                Direct toegang tot je portfolio, zonder browser
               </span>
             )}
           </div>
         </div>
         <div className="pwa-banner-actions">
-          {mode === 'native' && (
+          {!isIos && hasNativePrompt && (
             <button className="pwa-install-btn" onClick={install} disabled={installing}>
-              {installing ? 'Installeren…' : 'Installeer'}
+              {installing ? 'Bezig…' : 'Installeer'}
             </button>
           )}
           <button className="pwa-dismiss-btn" onClick={dismiss} aria-label="Sluiten">
