@@ -23,7 +23,7 @@ export default async function AICommentaryPage() {
 
   const { data: commentariesRaw } = await supabase
     .from('commentary')
-.select('id, content, created_at')
+    .select('id, content, created_at')
     .order('created_at', { ascending: false })
     .limit(10)
 
