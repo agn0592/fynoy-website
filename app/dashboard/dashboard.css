@@ -228,6 +228,11 @@
   border: 1px solid var(--line);
   border-radius: 2px;
   overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.25s ease;
+}
+.dash-card:hover {
+  border-color: rgba(232,228,220,0.14);
+  box-shadow: 0 1px 0 rgba(201,169,110,0.05) inset;
 }
 .dash-card-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -259,7 +264,14 @@
 .dash-stat-cell:nth-child(even) { border-right: 0 }
 .dash-stat-cell:nth-last-child(-n+2) { border-bottom: 0 }
 .dash-stat-cell.full-width {
-  grid-column: 1 / -1; border-right: 0;
+  grid-column: 1 / -1;
+  border-right: 0;
+  border-bottom: 0;
+}
+/* If the last cell is full-width, restore the bottom border on the
+   cell directly above it so the previous row stays symmetric. */
+.dash-stat-cell:nth-last-child(2):has(+ .full-width) {
+  border-bottom: 1px solid var(--line);
 }
 .dash-stat-cell:hover { background: rgba(201,169,110,0.025) }
 .dash-stat-label {

@@ -52,15 +52,24 @@ function MiniChart({ position }: { position: TimelinePosition }) {
 
   if (state === 'loading') {
     return (
-      <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-dim)', fontSize: 12 }}>
-        Loading price history…
+      <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-dim)', fontSize: 12, gap: 10 }} aria-live="polite">
+        <span className="dash-spinner" aria-hidden />
+        <span>Loading price history…</span>
+      </div>
+    )
+  }
+
+  if (state === 'error') {
+    return (
+      <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-dim)', fontSize: 12, fontStyle: 'italic' }} role="status">
+        Price history temporarily unavailable.
       </div>
     )
   }
 
   if (history.length === 0) {
     return (
-      <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-dim)', fontSize: 12, fontStyle: 'italic' }}>
+      <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-dim)', fontSize: 12, fontStyle: 'italic' }} role="status">
         No price history available.
       </div>
     )

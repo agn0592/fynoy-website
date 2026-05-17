@@ -37,6 +37,7 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
   const [expandedKey, setExpandedKey] = useState<string | null>(null)
   const [summaries, setSummaries] = useState<Record<string, string>>({})
   const [loadingKey, setLoadingKey] = useState<string | null>(null)
+  const [errorKeys, setErrorKeys] = useState<Record<string, boolean>>({})
 
   const totalPages = Math.ceil(trades.length / PAGE_SIZE)
   const pageData = trades.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
@@ -55,6 +56,7 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
 
     if (!summaries[key]) {
       setLoadingKey(key)
+      setErrorKeys(prev => ({ ...prev, [key]: false }))
       try {
         const res = await fetch('/api/cases/summary', {
           method: 'POST',
@@ -64,10 +66,12 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
             realized_pnl_pct: trade.realized_pnl_pct,
           }),
         })
+        if (!res.ok) throw new Error(`status ${res.status}`)
         const data = await res.json()
         if (data.summary) setSummaries(prev => ({ ...prev, [key]: data.summary }))
+        else throw new Error('empty')
       } catch {
-        // swallow
+        setErrorKeys(prev => ({ ...prev, [key]: true }))
       } finally {
         setLoadingKey(null)
       }
@@ -160,6 +164,10 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
                             <div style={{ color: 'var(--ink-dim)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 10 }}>
                               <span className="dash-spinner" aria-hidden />
                               <span>Loading analysis…</span>
+                            </div>
+                          ) : errorKeys[rowKey] ? (
+                            <div style={{ color: '#f87171', fontSize: 13 }}>
+                              Could not load analysis. <button type="button" onClick={() => handleRowClick(t, rowKey)} style={{ color: 'var(--gold)', background: 'none', border: 0, padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>Retry</button>
                             </div>
                           ) : summaries[rowKey] ? (
                             <div className="trade-detail-grid">

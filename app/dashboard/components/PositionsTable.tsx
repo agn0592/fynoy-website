@@ -33,6 +33,7 @@ export default function PositionsTable({ positions }: { positions: Position[] })
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [summaries, setSummaries] = useState<Record<string, string>>({})
   const [loadingId, setLoadingId] = useState<string | null>(null)
+  const [errorIds, setErrorIds] = useState<Record<string, boolean>>({})
 
   function handleSort(key: SortKey) {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
@@ -49,14 +50,18 @@ export default function PositionsTable({ positions }: { positions: Position[] })
 
     if (!summaries[tradingId]) {
       setLoadingId(tradingId)
+      setErrorIds(prev => ({ ...prev, [tradingId]: false }))
       try {
         const res = await fetch(`/api/cases/summary?trading_id=${encodeURIComponent(tradingId)}`)
+        if (!res.ok) throw new Error(`status ${res.status}`)
         const data = await res.json()
         if (data.summary) {
           setSummaries(prev => ({ ...prev, [tradingId]: data.summary }))
+        } else {
+          throw new Error('empty')
         }
       } catch {
-        // swallow, render fallback
+        setErrorIds(prev => ({ ...prev, [tradingId]: true }))
       } finally {
         setLoadingId(null)
       }
@@ -177,6 +182,10 @@ export default function PositionsTable({ positions }: { positions: Position[] })
                             <div style={{ color: 'var(--ink-dim)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 10 }}>
                               <span className="dash-spinner" aria-hidden />
                               <span>Loading analysis…</span>
+                            </div>
+                          ) : errorIds[pos.trading_id as string] ? (
+                            <div style={{ color: '#f87171', fontSize: 13 }}>
+                              Could not load analysis. <button type="button" onClick={() => handleRowClick(pos.trading_id)} style={{ color: 'var(--gold)', background: 'none', border: 0, padding: 0, cursor: 'pointer', textDecoration: 'underline' }}>Retry</button>
                             </div>
                           ) : summaries[pos.trading_id as string] ? (
                             <div className="trade-detail-grid">
