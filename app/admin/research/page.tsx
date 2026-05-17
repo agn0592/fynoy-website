@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { IconBriefcase, IconChart, IconPlus, IconStar } from '@/app/dashboard/components/Icons'
+import ResearchClient, { type CaseRow } from './_components/ResearchClient'
 
 function getServiceClient() {
   return createSupabaseClient(
@@ -8,31 +10,29 @@ function getServiceClient() {
   )
 }
 
-interface Case {
-  id: string
-  trading_id: string
-  company_name: string
-  ticker: string
-  sector: string | null
-  status: string
-  trigger_score: number | null
-  fundamental_score: number | null
-  valuation_score: number | null
-  conviction_score: number | null
-  technical_score: number | null
-  total_score: number | null
-}
-
 interface SearchParams {
   sector?: string
   status?: string
+  q?: string
 }
 
-function ScoreCell({ value, max }: { value: number | null; max: number }) {
-  if (value === null) return <span style={{ color: '#4b5563' }}>—</span>
-  const pct = (value / max) * 100
-  const color = pct >= 75 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444'
-  return <span style={{ color, fontWeight: 600 }}>{value}</span>
+const TOP_PICK_THRESHOLD = 35
+const MAX_TOTAL = 48
+
+type ChipKey = 'all' | 'active' | 'inactive' | 'top'
+
+function chipFromStatus(status: string | undefined): ChipKey {
+  if (status === 'Active') return 'active'
+  if (status === 'Not Active') return 'inactive'
+  if (status === 'top') return 'top'
+  return 'all'
+}
+
+function avgTier(avg: number): 'up' | 'dn' | 'neutral' {
+  const pct = (avg / MAX_TOTAL) * 100
+  if (pct >= 75) return 'up'
+  if (pct < 50) return 'dn'
+  return 'neutral'
 }
 
 export default async function ResearchPage({
@@ -40,256 +40,177 @@ export default async function ResearchPage({
 }: {
   searchParams: Promise<SearchParams>
 }) {
-  const { sector, status } = await searchParams
+  const { sector, status, q } = await searchParams
   const supabase = getServiceClient()
 
+  // Server-side text/sector filtering for the initial payload.
   let query = supabase
     .from('cases')
-    .select('id, trading_id, company_name, ticker, sector, status, trigger_score, fundamental_score, valuation_score, conviction_score, technical_score, total_score')
-    .order('total_score', { ascending: false })
+    .select(
+      'id, trading_id, company_name, ticker, sector, status, trigger_score, fundamental_score, valuation_score, conviction_score, technical_score, total_score, date_of_case'
+    )
+    .order('total_score', { ascending: false, nullsFirst: false })
 
   if (sector && sector.trim() !== '') {
-    query = query.ilike('sector', `%${sector}%`)
+    query = query.eq('sector', sector)
   }
-  if (status && (status === 'Active' || status === 'Not Active')) {
-    query = query.eq('status', status)
+  if (q && q.trim() !== '') {
+    const term = q.replace(/[%,]/g, '').trim()
+    if (term.length > 0) {
+      query = query.or(`company_name.ilike.%${term}%,ticker.ilike.%${term}%`)
+    }
   }
 
-  const { data: casesRaw } = await query
-  const cases: Case[] = casesRaw ?? []
+  const { data: casesRaw, error } = await query
 
-  // Unique sectors for filter dropdown
-  const { data: allCasesRaw } = await supabase.from('cases').select('sector')
+  if (error) {
+    return (
+      <>
+        <div className="dash-page-head">
+          <div className="dash-page-title-block">
+            <h1 className="dash-page-title">
+              <em>Research</em>
+            </h1>
+            <div className="dash-page-sub">All cases ranked by total score. Top picks border gold.</div>
+          </div>
+        </div>
+        <div className="dash-alert alert-error">
+          <div className="dash-alert-title">Failed to load cases</div>
+          <div className="dash-alert-body">{error.message}</div>
+        </div>
+      </>
+    )
+  }
+
+  const cases: CaseRow[] = (casesRaw ?? []) as CaseRow[]
+
+  // Sectors list — derive from full table so the dropdown isn't filtered down by current query
+  const { data: sectorRows } = await supabase.from('cases').select('sector')
   const sectors = Array.from(
-    new Set((allCasesRaw ?? []).map((c) => c.sector).filter(Boolean) as string[])
-  ).sort()
+    new Set(
+      (sectorRows ?? [])
+        .map((r) => r.sector)
+        .filter((s): s is string => typeof s === 'string' && s.trim() !== '')
+    )
+  ).sort((a, b) => a.localeCompare(b))
+
+  // KPI calculations across the (server-filtered) result set
+  const totalCases = cases.length
+  const topPicks = cases.filter((c) => (c.total_score ?? 0) >= TOP_PICK_THRESHOLD).length
+  const scoredCases = cases.filter((c) => typeof c.total_score === 'number') as CaseRow[]
+  const avgTotal =
+    scoredCases.length === 0
+      ? 0
+      : scoredCases.reduce((sum, c) => sum + (c.total_score ?? 0), 0) / scoredCases.length
+
+  // Most-researched sector
+  const sectorCounts = new Map<string, number>()
+  for (const c of cases) {
+    if (c.sector) sectorCounts.set(c.sector, (sectorCounts.get(c.sector) ?? 0) + 1)
+  }
+  let topSector: { name: string; count: number } | null = null
+  for (const [name, count] of sectorCounts) {
+    if (!topSector || count > topSector.count) topSector = { name, count }
+  }
+
+  const avgAccent = scoredCases.length === 0 ? 'neutral' : avgTier(avgTotal)
+  const initialChip = chipFromStatus(status)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Header */}
-      <div>
-        <h1 style={{ color: '#fff', fontSize: '24px', fontWeight: 700, margin: '0 0 4px' }}>
-          Research
-        </h1>
-        <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>
-          All cases ranked by total score. Gold border = total score ≥ 35.
-        </p>
+    <>
+      <div className="dash-page-head">
+        <div className="dash-page-title-block">
+          <h1 className="dash-page-title">
+            <em>Research</em>
+          </h1>
+          <div className="dash-page-sub">
+            All cases ranked by total score. Top picks border gold.
+          </div>
+        </div>
+        <div className="dash-page-actions">
+          <Link href="/admin/cases" className="dash-btn btn-ghost">
+            <IconBriefcase width={14} height={14} />
+            Open Cases →
+          </Link>
+          <Link href="/admin/cases/new" className="dash-btn btn-gold">
+            <IconPlus width={14} height={14} />
+            New Case
+          </Link>
+        </div>
       </div>
 
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <form method="GET" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <select
-            name="sector"
-            defaultValue={sector ?? ''}
-            style={{
-              background: '#0f1117',
-              border: '1px solid #2a2d3e',
-              borderRadius: '6px',
-              color: '#d1d5db',
-              fontSize: '13px',
-              padding: '6px 12px',
-              cursor: 'pointer',
-            }}
-          >
-            <option value="">All Sectors</option>
-            {sectors.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-          <select
-            name="status"
-            defaultValue={status ?? ''}
-            style={{
-              background: '#0f1117',
-              border: '1px solid #2a2d3e',
-              borderRadius: '6px',
-              color: '#d1d5db',
-              fontSize: '13px',
-              padding: '6px 12px',
-              cursor: 'pointer',
-            }}
-          >
-            <option value="">All Statuses</option>
-            <option value="Active">Active</option>
-            <option value="Not Active">Not Active</option>
-          </select>
-          <button
-            type="submit"
-            style={{
-              background: '#3b82f6',
-              border: 'none',
-              borderRadius: '6px',
-              color: '#fff',
-              fontSize: '13px',
-              fontWeight: 600,
-              padding: '6px 16px',
-              cursor: 'pointer',
-            }}
-          >
-            Filter
-          </button>
-          {(sector || status) && (
-            <Link
-              href="/admin/research"
-              style={{
-                color: '#6b7280',
-                textDecoration: 'none',
-                fontSize: '13px',
-              }}
-            >
-              Clear
-            </Link>
-          )}
-        </form>
-        <span style={{ color: '#6b7280', fontSize: '13px', marginLeft: 'auto' }}>
-          {cases.length} case{cases.length !== 1 ? 's' : ''}
-        </span>
-      </div>
-
-      {/* Table */}
+      {/* KPI strip */}
       <div
-        style={{
-          background: '#1a1d27',
-          border: '1px solid #2a2d3e',
-          borderRadius: '10px',
-          overflow: 'auto',
-        }}
+        className="adm-kpi-grid"
+        style={{ marginBottom: 16, gridTemplateColumns: 'repeat(4, 1fr)' }}
       >
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid #2a2d3e' }}>
-              {[
-                'Trading ID',
-                'Company',
-                'Ticker',
-                'Sector',
-                'Status',
-                `Trigger /7`,
-                `Fundamental /10`,
-                `Valuation /8`,
-                `Conviction /10`,
-                `Technical /6`,
-                `Total /48`,
-              ].map((col) => (
-                <th
-                  key={col}
-                  style={{
-                    padding: '12px 16px',
-                    textAlign: 'left',
-                    color: '#6b7280',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {col}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {cases.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={11}
-                  style={{
-                    padding: '48px 16px',
-                    textAlign: 'center',
-                    color: '#6b7280',
-                    fontSize: '14px',
-                  }}
-                >
-                  No cases found.
-                </td>
-              </tr>
-            ) : (
-              cases.map((c, i) => {
-                const isTopPick = (c.total_score ?? 0) >= 35
-                return (
-                  <tr
-                    key={c.id}
-                    style={{
-                      borderBottom: i < cases.length - 1 ? '1px solid #2a2d3e' : 'none',
-                      borderLeft: isTopPick ? '3px solid #f59e0b' : '3px solid transparent',
-                    }}
-                  >
-                    <td style={{ padding: '12px 16px' }}>
-                      <Link
-                        href={`/admin/cases/${c.id}`}
-                        style={{
-                          color: '#3b82f6',
-                          textDecoration: 'none',
-                          fontSize: '12px',
-                          fontFamily: 'monospace',
-                        }}
-                      >
-                        {c.trading_id}
-                      </Link>
-                    </td>
-                    <td style={{ padding: '12px 16px', color: '#fff', fontSize: '14px' }}>
-                      <Link
-                        href={`/admin/cases/${c.id}`}
-                        style={{ color: '#fff', textDecoration: 'none' }}
-                      >
-                        {c.company_name}
-                      </Link>
-                    </td>
-                    <td style={{ padding: '12px 16px', color: '#d1d5db', fontSize: '13px', fontFamily: 'monospace' }}>
-                      {c.ticker}
-                    </td>
-                    <td style={{ padding: '12px 16px', color: '#9ca3af', fontSize: '13px' }}>
-                      {c.sector ?? '—'}
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span
-                        style={{
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: 600,
-                          background: c.status === 'Active' ? '#22c55e20' : '#6b728020',
-                          color: c.status === 'Active' ? '#22c55e' : '#9ca3af',
-                        }}
-                      >
-                        {c.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <ScoreCell value={c.trigger_score} max={7} />
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <ScoreCell value={c.fundamental_score} max={10} />
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <ScoreCell value={c.valuation_score} max={8} />
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <ScoreCell value={c.conviction_score} max={10} />
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <ScoreCell value={c.technical_score} max={6} />
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span
-                        style={{
-                          color: isTopPick ? '#f59e0b' : '#fff',
-                          fontWeight: 700,
-                          fontSize: '15px',
-                        }}
-                      >
-                        {c.total_score ?? '—'}
-                      </span>
-                    </td>
-                  </tr>
-                )
-              })
-            )}
-          </tbody>
-        </table>
+        <div className="adm-kpi kpi-neutral">
+          <div className="adm-kpi-label">
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <IconChart width={11} height={11} /> Total Cases
+            </span>
+          </div>
+          <div className="adm-kpi-val">{totalCases}</div>
+          <div className="adm-kpi-sub">
+            {topPicks > 0 ? `${topPicks} flagged as top pick` : 'No top picks yet'}
+          </div>
+        </div>
+
+        <div className={`adm-kpi${topPicks > 0 ? ' kpi-up' : ''}`}>
+          <div className="adm-kpi-label">
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <IconStar width={11} height={11} /> Top Picks ≥{TOP_PICK_THRESHOLD}
+            </span>
+          </div>
+          <div
+            className="adm-kpi-val"
+            style={topPicks > 0 ? { color: 'var(--gold)' } : undefined}
+          >
+            {topPicks}
+          </div>
+          <div className="adm-kpi-sub">
+            {totalCases > 0
+              ? `${((topPicks / totalCases) * 100).toFixed(0)}% of researched cases`
+              : '—'}
+          </div>
+        </div>
+
+        <div
+          className={`adm-kpi${avgAccent === 'up' ? ' kpi-up' : avgAccent === 'dn' ? ' kpi-dn' : ' kpi-neutral'}`}
+        >
+          <div className="adm-kpi-label">Avg Total Score</div>
+          <div
+            className={`adm-kpi-val${avgAccent === 'up' ? ' up' : avgAccent === 'dn' ? ' dn' : ''}`}
+          >
+            {scoredCases.length === 0 ? '—' : `${avgTotal.toFixed(1)}/${MAX_TOTAL}`}
+          </div>
+          <div className="adm-kpi-sub">
+            {scoredCases.length === 0
+              ? 'No scored cases'
+              : `Across ${scoredCases.length} scored case${scoredCases.length === 1 ? '' : 's'}`}
+          </div>
+        </div>
+
+        <div className="adm-kpi">
+          <div className="adm-kpi-label">Most-Researched Sector</div>
+          <div className="adm-kpi-val" style={{ fontSize: 18 }}>
+            {topSector ? topSector.name : '—'}
+          </div>
+          <div className="adm-kpi-sub">
+            {topSector
+              ? `${topSector.count} case${topSector.count === 1 ? '' : 's'} researched`
+              : 'No sector data'}
+          </div>
+        </div>
       </div>
-    </div>
+
+      <ResearchClient
+        cases={cases}
+        sectors={sectors}
+        initialChip={initialChip}
+        initialSector={sector ?? ''}
+        initialQuery={q ?? ''}
+      />
+    </>
   )
 }
