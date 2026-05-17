@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164 } from "@/lib/constants";
 
 const LOGO_SVG = (
   <svg viewBox="0 0 60 60" fill="none">
@@ -76,15 +77,15 @@ export default function Footer() {
           </div>
           <div>
             <h5>Legal</h5>
-            <Link href="/legal?tab=privacy">Privacy Policy</Link>
-            <Link href="/legal?tab=terms">Terms &amp; Conditions</Link>
-            <Link href="/legal?tab=cookies">Cookie Policy</Link>
-            <Link href="/legal?tab=disclaimer">Disclaimer</Link>
+            <Link href="/legal#privacy">Privacy Policy</Link>
+            <Link href="/legal#terms">Terms &amp; Conditions</Link>
+            <Link href="/legal#cookies">Cookie Policy</Link>
+            <Link href="/legal#disclaimer">Disclaimer</Link>
           </div>
           <div>
             <h5>Contact</h5>
-            <a href="mailto:info@fynoy.com">info@fynoy.com</a>
-            <a href="https://wa.me/31682074482" target="_blank" rel="noopener noreferrer">+31 6 82074482</a>
+            <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+            <a href={`https://wa.me/${CONTACT_PHONE_E164}`} target="_blank" rel="noopener noreferrer">{CONTACT_PHONE_DISPLAY}</a>
             <Link href="/contact">Rotterdam, Netherlands</Link>
             <span style={{ display: "block", padding: "6px 0", fontSize: 14, color: "var(--ink-mute)" }}>KvK 86136062</span>
           </div>

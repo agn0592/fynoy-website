@@ -63,6 +63,14 @@ export default function PositionsTable({ positions }: { positions: Position[] })
     }
   }
 
+  function handleRowKey(e: React.KeyboardEvent<HTMLTableRowElement>, tradingId: string | null) {
+    if (!tradingId) return
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleRowClick(tradingId)
+    }
+  }
+
   const sorted = [...positions].sort((a, b) => {
     const av = a[sortKey], bv = b[sortKey]
     if (typeof av === 'string' && typeof bv === 'string')
@@ -80,13 +88,34 @@ export default function PositionsTable({ positions }: { positions: Position[] })
           <div className="dash-card-sub">{positions.length} active {positions.length === 1 ? 'holding' : 'holdings'}</div>
         </div>
       </div>
-      <div style={{ overflowX: 'auto', marginTop: 12 }}>
+      <div className="dash-table-wrap">
         <table className="dash-table">
           <thead>
             <tr>
-              <th className={`dash-th${sortKey === 'symbol' ? ' sorted' : ''}`} onClick={() => handleSort('symbol')}>Symbol{arrow('symbol')}</th>
-              <th className={`dash-th${sortKey === 'pct_of_nav' ? ' sorted' : ''}`} onClick={() => handleSort('pct_of_nav')}>Weight{arrow('pct_of_nav')}</th>
-              <th className={`dash-th${sortKey === 'unrealized_pnl_pct' ? ' sorted' : ''}`} onClick={() => handleSort('unrealized_pnl_pct')}>Return{arrow('unrealized_pnl_pct')}</th>
+              <th
+                scope="col"
+                tabIndex={0}
+                aria-sort={sortKey === 'symbol' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                className={`dash-th${sortKey === 'symbol' ? ' sorted' : ''}`}
+                onClick={() => handleSort('symbol')}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('symbol') } }}
+              >Symbol{arrow('symbol')}</th>
+              <th
+                scope="col"
+                tabIndex={0}
+                aria-sort={sortKey === 'pct_of_nav' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                className={`dash-th${sortKey === 'pct_of_nav' ? ' sorted' : ''}`}
+                onClick={() => handleSort('pct_of_nav')}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('pct_of_nav') } }}
+              >Weight{arrow('pct_of_nav')}</th>
+              <th
+                scope="col"
+                tabIndex={0}
+                aria-sort={sortKey === 'unrealized_pnl_pct' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                className={`dash-th${sortKey === 'unrealized_pnl_pct' ? ' sorted' : ''}`}
+                onClick={() => handleSort('unrealized_pnl_pct')}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('unrealized_pnl_pct') } }}
+              >Return{arrow('unrealized_pnl_pct')}</th>
             </tr>
           </thead>
           <tbody>
@@ -106,8 +135,12 @@ export default function PositionsTable({ positions }: { positions: Position[] })
                   <tr
                     className="dash-tr"
                     onClick={() => handleRowClick(pos.trading_id)}
+                    onKeyDown={(e) => handleRowKey(e, pos.trading_id)}
                     style={{ cursor: isClickable ? 'pointer' : 'default' }}
-                    aria-expanded={isExpanded ? 'true' : 'false'}
+                    tabIndex={isClickable ? 0 : undefined}
+                    role={isClickable ? 'button' : undefined}
+                    aria-expanded={isClickable ? (isExpanded ? 'true' : 'false') : undefined}
+                    aria-label={isClickable ? `Position ${pos.symbol} — expand analysis` : undefined}
                   >
                     <td className="dash-td">
                       <span className="dash-symbol">{pos.symbol}</span>
@@ -139,9 +172,12 @@ export default function PositionsTable({ positions }: { positions: Position[] })
                   {isExpanded && (
                     <tr>
                       <td colSpan={3} style={{ padding: 0 }}>
-                        <div className="trade-detail-panel">
+                        <div className="trade-detail-panel" aria-live="polite">
                           {loadingId === pos.trading_id ? (
-                            <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>Loading analysis…</div>
+                            <div style={{ color: 'var(--ink-dim)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <span className="dash-spinner" aria-hidden />
+                              <span>Loading analysis…</span>
+                            </div>
                           ) : summaries[pos.trading_id as string] ? (
                             <div className="trade-detail-grid">
                               <div className="dash-commentary-body" style={{ fontSize: 13 }}>

@@ -47,7 +47,20 @@ export default function AICommentary({ commentary, updatedAt }: AICommentaryProp
               </ReactMarkdown>
             </div>
           )
-          : <div className="dash-commentary-empty">No commentary available yet.</div>
+          : (
+            <div className="dash-commentary-skeleton" aria-hidden>
+              <div className="dash-skeleton-line w-30" />
+              <div className="dash-skeleton-line w-90" />
+              <div className="dash-skeleton-line w-80" />
+              <div className="dash-skeleton-line w-70" />
+              <div className="dash-skeleton-line w-25" style={{ marginTop: 16 }} />
+              <div className="dash-skeleton-line w-90" />
+              <div className="dash-skeleton-line w-60" />
+              <p className="dash-commentary-empty" style={{ marginTop: 16 }}>
+                The first daily commentary will appear after tonight&apos;s sync.
+              </p>
+            </div>
+          )
         }
       </div>
     </div>

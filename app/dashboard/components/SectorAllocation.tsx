@@ -52,38 +52,45 @@ export default function SectorAllocation({ data }: { data: SectorData[] }) {
   const enriched = data.map(d => ({ ...d, pct: total > 0 ? (d.value / total) * 100 : 0 }))
 
   return (
-    <div className="dash-panel">
-      <div className="dash-panel-title">Sector Allocation</div>
-      <div className="dash-panel-sub">Portfolio weight</div>
-
-      {data.length === 0 ? (
-        <div style={{ color: 'var(--ink-dim)', fontSize: 14, textAlign: 'center', padding: '40px 0', fontStyle: 'italic', fontFamily: 'var(--serif)' }}>
-          No sector data
+    <div className="dash-card">
+      <div className="dash-card-header">
+        <div>
+          <div className="dash-card-title">Sector Allocation</div>
+          <div className="dash-card-sub">Portfolio weight</div>
         </div>
-      ) : (
-        <>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie data={enriched} dataKey="value" nameKey="sector" cx="50%" cy="50%"
-                innerRadius={62} outerRadius={90} strokeWidth={2} stroke="var(--navy-2)" paddingAngle={2}>
-                {enriched.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                <CenterLabel count={enriched.length} />
-              </Pie>
-              <Tooltip content={<SectorTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
+      </div>
 
-          <div className="sector-legend">
-            {enriched.map((d, i) => (
-              <div key={d.sector} className="sector-row">
-                <div className="sector-dot" style={{ background: COLORS[i % COLORS.length] }} />
-                <span className="sector-name">{d.sector}</span>
-                <span className="sector-pct">{d.pct.toFixed(1)}%</span>
-              </div>
-            ))}
+      <div className="dash-card-body">
+        {data.length === 0 ? (
+          <div style={{ color: 'var(--ink-dim)', fontSize: 14, textAlign: 'center', padding: '40px 0', fontStyle: 'italic', fontFamily: 'var(--serif)' }}>
+            No sector data
           </div>
-        </>
-      )}
+        ) : (
+          <>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={enriched} dataKey="value" nameKey="sector" cx="50%" cy="50%"
+                  innerRadius={62} outerRadius={90} strokeWidth={2} stroke="var(--navy-2)" paddingAngle={2}
+                  isAnimationActive={true} animationBegin={120} animationDuration={700}>
+                  {enriched.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  <CenterLabel count={enriched.length} />
+                </Pie>
+                <Tooltip content={<SectorTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+
+            <div className="sector-legend">
+              {enriched.map((d, i) => (
+                <div key={d.sector} className="sector-row">
+                  <div className="sector-dot" style={{ background: COLORS[i % COLORS.length] }} />
+                  <span className="sector-name">{d.sector}</span>
+                  <span className="sector-pct">{d.pct.toFixed(1)}%</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }

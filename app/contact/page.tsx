@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import { WA_ICON } from "../components/WaIcon";
 import Reveal from "../components/Reveal";
 import HeroOrbs from "../components/HeroOrbs";
+import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164, WA_GENERAL } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -43,8 +44,8 @@ export default function ContactPage() {
                     {[
                       { label: "Location", main: "Rotterdam", sub: "Netherlands" },
                       { label: "Registration", main: "KvK 86136062", sub: null },
-                      { label: "Email", main: null, link: { href: "mailto:info@fynoy.com", text: "info@fynoy.com" } },
-                      { label: "WhatsApp", main: null, link: { href: "https://wa.me/31682074482", text: "+31 6 82074482", external: true } },
+                      { label: "Email", main: null, link: { href: `mailto:${CONTACT_EMAIL}`, text: CONTACT_EMAIL } },
+                      { label: "WhatsApp", main: null, link: { href: `https://wa.me/${CONTACT_PHONE_E164}`, text: CONTACT_PHONE_DISPLAY, external: true } },
                     ].map((row, i) => (
                       <div key={i} className="info-row">
                         <span className="label">{row.label}</span>
@@ -74,7 +75,7 @@ export default function ContactPage() {
                   <p className="muted" style={{ maxWidth: "36ch" }}>The fastest way to get in touch. Messages are read directly by the team.</p>
                   <div>
                     <a className="btn btn-primary" target="_blank" rel="noopener noreferrer"
-                      href="https://wa.me/31682074482?text=Hi%2C%20I%20have%20a%20question%20about%20Fynoy%20Capital.">
+                      href={WA_GENERAL}>
                       {WA_ICON} Message us on WhatsApp
                     </a>
                   </div>

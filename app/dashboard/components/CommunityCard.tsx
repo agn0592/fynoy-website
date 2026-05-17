@@ -1,7 +1,5 @@
 import { WA_ICON } from '@/app/components/WaIcon'
-
-const RESEARCH_WA = "https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group."
-const ANALYST_WA  = "https://wa.me/31682074482?text=Hi%2C%20I'm%20interested%20in%20collaborating%20as%20a%20trader%20with%20Fynoy%20Capital."
+import { WA_RESEARCH as RESEARCH_WA, WA_ANALYST as ANALYST_WA } from '@/lib/constants'
 
 const ResearchIcon = (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>

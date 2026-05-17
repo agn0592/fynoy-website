@@ -74,6 +74,14 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
     }
   }
 
+  function handleRowKey(e: React.KeyboardEvent<HTMLTableRowElement>, trade: ClosedTrade, key: string) {
+    if (!trade.trading_id) return
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleRowClick(trade, key)
+    }
+  }
+
   return (
     <div className="dash-card">
       <div className="dash-card-header">
@@ -90,15 +98,15 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
           </div>
         </div>
       </div>
-      <div style={{ overflowX: 'auto', marginTop: 12 }}>
+      <div className="dash-table-wrap">
         <table className="dash-table">
           <thead>
             <tr>
-              <th className="dash-th">Symbol</th>
-              <th className="dash-th">Entry</th>
-              <th className="dash-th">Exit</th>
-              <th className="dash-th">Return</th>
-              <th className="dash-th">Held</th>
+              <th scope="col" className="dash-th">Symbol</th>
+              <th scope="col" className="dash-th">Entry</th>
+              <th scope="col" className="dash-th">Exit</th>
+              <th scope="col" className="dash-th">Return</th>
+              <th scope="col" className="dash-th">Held</th>
             </tr>
           </thead>
           <tbody>
@@ -117,8 +125,12 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
                   <tr
                     className="dash-tr"
                     onClick={() => handleRowClick(t, rowKey)}
+                    onKeyDown={(e) => handleRowKey(e, t, rowKey)}
                     style={{ cursor: isClickable ? 'pointer' : 'default' }}
-                    aria-expanded={isExpanded ? 'true' : 'false'}
+                    tabIndex={isClickable ? 0 : undefined}
+                    role={isClickable ? 'button' : undefined}
+                    aria-expanded={isClickable ? (isExpanded ? 'true' : 'false') : undefined}
+                    aria-label={isClickable ? `Closed trade ${t.symbol} — expand analysis` : undefined}
                   >
                     <td className="dash-td">
                       <span className="dash-symbol">{t.symbol}</span>
@@ -143,9 +155,12 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
                   {isExpanded && (
                     <tr>
                       <td colSpan={5} style={{ padding: 0 }}>
-                        <div className="trade-detail-panel">
+                        <div className="trade-detail-panel" aria-live="polite">
                           {loadingKey === rowKey ? (
-                            <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>Loading analysis…</div>
+                            <div style={{ color: 'var(--ink-dim)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <span className="dash-spinner" aria-hidden />
+                              <span>Loading analysis…</span>
+                            </div>
                           ) : summaries[rowKey] ? (
                             <div className="trade-detail-grid">
                               <div className="dash-commentary-body" style={{ fontSize: 13 }}>

@@ -5,6 +5,7 @@ import SidebarNav from './components/SidebarNav'
 import SidebarLogo from './components/SidebarLogo'
 import SignOutButton from './components/SignOutButton'
 import ThemeToggle from './components/ThemeToggle'
+import MobileBottomNav from './components/MobileBottomNav'
 import './dashboard.css'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -23,13 +24,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="dash-shell">
-      {/* ── Sidebar ── */}
-      <aside className="dash-sidebar">
+      {/* ── Sidebar (desktop) ── */}
+      <aside className="dash-sidebar" aria-label="Primary navigation">
         <Link href="/" className="dash-sb-logo" aria-label="Back to homepage">
           <SidebarLogo />
         </Link>
 
-        <nav className="dash-sb-nav">
+        <nav className="dash-sb-nav" aria-label="Dashboard sections">
           <SidebarNav />
         </nav>
 
@@ -43,6 +44,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="dash-content">
         <header className="dash-topbar">
           <div className="dash-topbar-left">
+            <Link href="/" className="dash-topbar-mobile-logo" aria-label="Back to homepage">
+              <SidebarLogo />
+            </Link>
             <span className="dash-topbar-title">Portfolio <em>Overview</em></span>
           </div>
           <div className="dash-topbar-right">
@@ -50,7 +54,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <Link href="/admin" className="dash-admin-pill">Admin ↗</Link>
             )}
             <div className="dash-topbar-user">
-              <div className="dash-avatar">{initial}</div>
+              <div className="dash-avatar" aria-hidden>{initial}</div>
               <span className="dash-topbar-name">{displayName}</span>
             </div>
           </div>
@@ -60,6 +64,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {children}
         </main>
       </div>
+
+      {/* ── Mobile bottom nav (replaces sidebar on phones) ── */}
+      <MobileBottomNav />
     </div>
   )
 }

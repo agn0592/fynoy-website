@@ -27,10 +27,12 @@ export default function ThemeToggle() {
 
   return (
     <button
+      type="button"
       onClick={toggle}
       className="dash-sb-signout"
       title={light ? 'Switch to dark mode' : 'Switch to light mode'}
       aria-label={light ? 'Switch to dark mode' : 'Switch to light mode'}
+      aria-pressed={light}
     >
       {light ? (
         /* Moon icon */

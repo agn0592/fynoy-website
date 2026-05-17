@@ -4,14 +4,13 @@ import Footer from "../components/Footer";
 import { WA_ICON } from "../components/WaIcon";
 import Reveal from "../components/Reveal";
 import HeroOrbs from "../components/HeroOrbs";
+import { WA_ANALYST as ANALYST_WA } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Become an analyst — Fynoy Capital",
   description:
     "We're looking for analysts to write weekly research reports, present stock pitches, and build experience in a transparent investment team.",
 };
-
-const ANALYST_WA = "https://wa.me/31682074482?text=Hi%2C%20I'm%20interested%20in%20collaborating%20as%20a%20trader%20with%20Fynoy%20Capital.";
 
 const PROFILE = [
   { title: "Analytical mind", desc: "Interested in fundamental analysis and writing structured investment theses." },

@@ -164,7 +164,7 @@ export default function RegisterPage() {
 
                 <p style={{ marginTop: 16, fontSize: 12, color: 'var(--ink-dim)', lineHeight: 1.6 }}>
                   By creating an account you agree to our{' '}
-                  <Link href="/legal?tab=privacy" style={{ color: 'var(--ink-mute)' }}>privacy policy</Link>.
+                  <Link href="/legal#privacy" style={{ color: 'var(--ink-mute)' }}>privacy policy</Link>.
                 </p>
               </form>
             </div>

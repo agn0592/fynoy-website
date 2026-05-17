@@ -5,14 +5,13 @@ import { WA_ICON } from "../components/WaIcon";
 import Reveal from "../components/Reveal";
 import HeroOrbs from "../components/HeroOrbs";
 import Link from "next/link";
+import { WA_RESEARCH as RESEARCH_WA } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Join — follow our portfolio for free",
   description:
     "Create a free account and follow the Fynoy Capital portfolio in real time. Optional: join the WhatsApp community for analyses and pitches.",
 };
-
-const RESEARCH_WA = "https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.";
 
 const CHECK_SVG = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
