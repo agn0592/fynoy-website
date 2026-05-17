@@ -69,11 +69,11 @@ export default function DownloadAppPage() {
               on iPhone, Android or desktop — as a full app.
             </p>
             <div className="hero-cta">
-              <Link className="btn btn-primary" href="/">
-                Open fynoy.com
-              </Link>
-              <Link className="btn btn-outline" href="/dashboard">
+              <Link className="btn btn-primary" href="/dashboard">
                 To the dashboard
+              </Link>
+              <Link className="btn btn-outline" href="/auth/register">
+                Create free account
               </Link>
             </div>
           </div>
