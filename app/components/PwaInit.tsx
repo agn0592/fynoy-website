@@ -13,7 +13,7 @@ export default function PwaInit() {
     // can read it from window.__pwaDeferred even if it fired before mounting
     const handler = (e: Event) => {
       e.preventDefault()
-      ;(window as Window & { __pwaDeferred?: Event }).__pwaDeferred = e
+      ;(window as Window & { __pwaDeferred?: unknown }).__pwaDeferred = e
     }
     window.addEventListener('beforeinstallprompt', handler)
     return () => window.removeEventListener('beforeinstallprompt', handler)
