@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createSessionClient } from '@/lib/supabase/server'
 
 export const maxDuration = 60
 
@@ -8,7 +9,7 @@ export const maxDuration = 60
 const BUNDESBANK_URL = 'https://api.statistiken.bundesbank.de/rest/data/BBK01/WT1010?format=csv'
 const SERIES_LABEL = 'bundesbank-WT1010'
 
-function isAuthorized(request: NextRequest): boolean {
+async function isAuthorized(request: NextRequest): Promise<boolean> {
   const auth = request.headers.get('authorization')
   if (auth && process.env.CRON_SECRET && auth === `Bearer ${process.env.CRON_SECRET}`) {
     return true
@@ -17,11 +18,23 @@ function isAuthorized(request: NextRequest): boolean {
   if (manual && process.env.IBKR_SYNC_SECRET && manual === process.env.IBKR_SYNC_SECRET) {
     return true
   }
-  return false
+  const supabase = await createSessionClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return false
+  const service = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+  const { data: profile } = await service
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+  return profile?.role === 'admin'
 }
 
 async function handle(request: NextRequest) {
-  if (!isAuthorized(request)) {
+  if (!(await isAuthorized(request))) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
