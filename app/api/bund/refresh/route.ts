@@ -4,10 +4,10 @@ import { createClient as createSessionClient } from '@/lib/supabase/server'
 
 export const maxDuration = 60
 
-// Bundesbank Time Series WT1010: yield on listed Federal securities,
-// 10-year residual maturity, daily. Free, no auth required.
-const BUNDESBANK_URL = 'https://api.statistiken.bundesbank.de/rest/data/BBK01/WT1010?format=csv'
-const SERIES_LABEL = 'bundesbank-WT1010'
+// Bundesbank Time Series — yield on listed Federal securities, 10Y residual
+// maturity, daily. SDMX format (the older BBK01/WT1010 URL was retired).
+const BUNDESBANK_URL = 'https://api.statistiken.bundesbank.de/rest/data/BBSIS/D.I.ZAR.ZI.EUR.S1311.B.A604.R10XX.R.A.A._Z._Z.A?format=csv&lang=en'
+const SERIES_LABEL = 'bundesbank-BBSIS-10Y'
 
 async function isAuthorized(request: NextRequest): Promise<boolean> {
   const auth = request.headers.get('authorization')
