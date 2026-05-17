@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import ReactMarkdown from 'react-markdown'
+import { IconMessage, IconRefresh, IconAlertCircle } from '@/app/dashboard/components/Icons'
 
 interface Commentary {
   id: string
@@ -21,6 +23,31 @@ function formatDate(d: string): string {
     minute: '2-digit',
   })
 }
+
+function relTime(iso: string): string {
+  const date = new Date(iso)
+  const sec = Math.round((Date.now() - date.getTime()) / 1000)
+  if (sec < 60) return 'just now'
+  const min = Math.round(sec / 60)
+  if (min < 60) return `${min}m ago`
+  const hr = Math.round(min / 60)
+  if (hr < 24) return `${hr}h ago`
+  const days = Math.round(hr / 24)
+  if (days < 7) return `${days}d ago`
+  return formatDate(iso)
+}
+
+const MARKDOWN_COMPONENTS = {
+  h1: ({ children }: { children?: React.ReactNode }) => <h1 className="commentary-h1">{children}</h1>,
+  h2: ({ children }: { children?: React.ReactNode }) => <h2 className="commentary-h2">{children}</h2>,
+  h3: ({ children }: { children?: React.ReactNode }) => <h3 className="commentary-h3">{children}</h3>,
+  p:  ({ children }: { children?: React.ReactNode }) => <p  className="commentary-p">{children}</p>,
+  ul: ({ children }: { children?: React.ReactNode }) => <ul className="commentary-ul">{children}</ul>,
+  li: ({ children }: { children?: React.ReactNode }) => <li className="commentary-li">{children}</li>,
+  strong: ({ children }: { children?: React.ReactNode }) => <strong className="commentary-strong">{children}</strong>,
+  em: ({ children }: { children?: React.ReactNode }) => <em className="commentary-em">{children}</em>,
+  hr: () => <hr className="commentary-hr" />,
+} as const
 
 export default function CommentaryClient({ initialCommentaries }: CommentaryClientProps) {
   const [commentaries, setCommentaries] = useState<Commentary[]>(initialCommentaries)
@@ -44,13 +71,12 @@ export default function CommentaryClient({ initialCommentaries }: CommentaryClie
         return
       }
 
-      // Prepend new commentary to the list
       const newEntry: Commentary = {
-        id: Date.now().toString(),
+        id: data.id ?? Date.now().toString(),
         content: data.content,
         created_at: new Date().toISOString(),
       }
-      setCommentaries((prev) => [newEntry, ...prev].slice(0, 5))
+      setCommentaries((prev) => [newEntry, ...prev].slice(0, 10))
     } catch {
       setError('Network error. Please try again.')
     } finally {
@@ -59,149 +85,86 @@ export default function CommentaryClient({ initialCommentaries }: CommentaryClie
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Generate button + error */}
-      <div
-        style={{
-          background: '#1a1d27',
-          border: '1px solid #2a2d3e',
-          borderRadius: '10px',
-          padding: '24px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}
-      >
-        <div>
-          <h2 style={{ color: '#fff', fontSize: '16px', fontWeight: 600, margin: '0 0 4px' }}>
-            Generate Commentary
-          </h2>
-          <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>
-            Calls Claude to analyse current portfolio and generate institutional commentary.
-          </p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {error && (
-            <span style={{ color: '#ef4444', fontSize: '13px' }}>{error}</span>
-          )}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Generate panel */}
+      <div className="dash-card">
+        <div className="dash-card-header">
+          <div>
+            <div className="dash-card-title">Generate Commentary</div>
+            <div className="dash-card-sub">Claude analyses the live portfolio and writes institutional commentary.</div>
+          </div>
           <button
+            type="button"
             onClick={handleGenerate}
             disabled={generating}
-            style={{
-              background: generating ? '#1e3a5f' : '#3b82f6',
-              border: 'none',
-              borderRadius: '6px',
-              color: '#fff',
-              fontSize: '14px',
-              fontWeight: 600,
-              padding: '10px 24px',
-              cursor: generating ? 'not-allowed' : 'pointer',
-              opacity: generating ? 0.7 : 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
+            className="dash-btn btn-gold"
           >
-            {generating && (
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: '14px',
-                  height: '14px',
-                  border: '2px solid #ffffff40',
-                  borderTopColor: '#fff',
-                  borderRadius: '50%',
-                  animation: 'spin 0.8s linear infinite',
-                }}
-              />
+            {generating ? (
+              <span style={{
+                display: 'inline-block', width: 12, height: 12,
+                border: '2px solid rgba(26,20,10,0.3)',
+                borderTopColor: '#1a140a',
+                borderRadius: '50%',
+                animation: 'fyn-spin 0.8s linear infinite',
+              }} />
+            ) : (
+              <IconRefresh width={13} height={13} />
             )}
-            {generating ? 'Generating...' : 'Generate Commentary'}
+            {generating ? 'Generating…' : 'Generate now'}
           </button>
         </div>
+        {error && (
+          <div className="dash-alert alert-error" style={{ margin: '16px 20px 20px' }}>
+            <div className="dash-alert-title">
+              <IconAlertCircle width={12} height={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />
+              Generation failed
+            </div>
+            <div className="dash-alert-body">{error}</div>
+          </div>
+        )}
       </div>
 
       {/* Commentaries */}
       {commentaries.length === 0 ? (
-        <div
-          style={{
-            background: '#1a1d27',
-            border: '1px solid #2a2d3e',
-            borderRadius: '10px',
-            padding: '48px',
-            textAlign: 'center',
-            color: '#6b7280',
-            fontSize: '14px',
-            fontStyle: 'italic',
-          }}
-        >
-          No commentary yet. Click &quot;Generate Commentary&quot; to create the first one.
+        <div className="dash-card">
+          <div className="dash-card-body dash-empty" style={{ padding: '48px 20px' }}>
+            <IconMessage width={28} height={28} style={{ marginBottom: 12, color: 'var(--ink-dim)' }} />
+            <div>No commentary yet. Click &quot;Generate now&quot; to create the first one.</div>
+          </div>
         </div>
       ) : (
         commentaries.map((c, i) => (
           <div
             key={c.id}
-            style={{
-              background: '#1a1d27',
-              border: '1px solid #2a2d3e',
-              borderRadius: '10px',
-              padding: '24px',
-              borderLeft: i === 0 ? '3px solid #3b82f6' : '3px solid #2a2d3e',
-            }}
+            className="dash-commentary"
+            style={i === 0 ? undefined : { opacity: 0.95 }}
           >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px',
-                gap: '12px',
-                flexWrap: 'wrap',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <h3 style={{ color: '#fff', fontSize: '14px', fontWeight: 600, margin: 0 }}>
-                  {i === 0 ? 'Latest Commentary' : `Commentary ${i + 1}`}
-                </h3>
-                {i === 0 && (
-                  <span
-                    style={{
-                      background: '#3b82f620',
-                      border: '1px solid #3b82f640',
-                      borderRadius: '4px',
-                      color: '#3b82f6',
-                      fontSize: '11px',
-                      fontWeight: 600,
-                      padding: '1px 8px',
-                    }}
-                  >
-                    Latest
-                  </span>
-                )}
+            <div className="dash-commentary-inner">
+              <div className="dash-commentary-header">
+                <div>
+                  <h3 className="dash-commentary-title">
+                    {i === 0 ? 'Latest Commentary' : `Commentary #${commentaries.length - i}`}
+                  </h3>
+                  <div className="dash-commentary-sub">
+                    AI-generated · {relTime(c.created_at)}
+                  </div>
+                </div>
+                <div className="dash-commentary-date">
+                  {formatDate(c.created_at)}
+                </div>
               </div>
-              <span style={{ color: '#6b7280', fontSize: '12px' }}>
-                {formatDate(c.created_at)}
-              </span>
-            </div>
-            <div
-              style={{
-                color: '#d1d5db',
-                fontSize: '14px',
-                lineHeight: '1.7',
-                whiteSpace: 'pre-wrap',
-              }}
-            >
-              {c.content}
+              <div className="dash-commentary-body">
+                <ReactMarkdown components={MARKDOWN_COMPONENTS}>
+                  {c.content}
+                </ReactMarkdown>
+              </div>
             </div>
           </div>
         ))
       )}
 
       <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes fyn-spin { to { transform: rotate(360deg); } }
       `}</style>
     </div>
   )

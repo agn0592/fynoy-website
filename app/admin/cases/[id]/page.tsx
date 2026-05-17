@@ -1,11 +1,22 @@
 import Link from 'next/link'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
+import type { ReactNode } from 'react'
+import {
+  IconArrowLeft,
+  IconCalendar,
+  IconEdit,
+  IconStar,
+  IconTrendingDown,
+  IconTrendingUp,
+} from '@/app/dashboard/components/Icons'
+import { Field } from '../_components/Field'
+import { ScoreBadge, scoreClass } from '../_components/ScoreBadge'
 
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   )
 }
 
@@ -13,66 +24,118 @@ interface OpenPosition {
   id: string
   trading_id: string | null
   symbol: string
-  entry_price_actual: number
-  current_price: number
-  position_size_actual: number
-  pct_of_nav: number
-  unrealized_pnl: number
-  unrealized_pnl_pct: number
+  entry_price_actual: number | null
+  current_price: number | null
+  position_size_actual: number | null
+  pct_of_nav: number | null
+  unrealized_pnl: number | null
+  unrealized_pnl_pct: number | null
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function fmtCurrency(v: number | null | undefined): string {
+  if (v === null || v === undefined) return '—'
+  return `€${Number(v).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
+
+function fmtPct(v: number | null | undefined): string {
+  if (v === null || v === undefined) return '—'
+  return `${Number(v).toFixed(2)}%`
+}
+
+function fmtNum(v: number | null | undefined): string {
+  if (v === null || v === undefined) return '—'
+  return Number(v).toLocaleString('en-GB')
+}
+
+function fmtDate(d: string | null | undefined): string {
+  if (!d) return '—'
+  return new Date(d).toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function SectionCard({
+  title,
+  sub,
+  right,
+  children,
+}: {
+  title: string
+  sub?: string
+  right?: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <div className="dash-card">
+      <div className="dash-card-header" style={{ paddingBottom: 14, borderBottom: '1px solid var(--line)' }}>
+        <div>
+          <h2 className="dash-card-title">{title}</h2>
+          {sub && <div className="dash-card-sub">{sub}</div>}
+        </div>
+        {right}
+      </div>
+      <div className="dash-card-body">
+        <div className="dash-form-grid">{children}</div>
+      </div>
+    </div>
+  )
+}
+
+function ScoreChip({
+  label,
+  value,
+  max,
+}: {
+  label: string
+  value: number | null
+  max: number
+}) {
+  const cls = scoreClass(value, max)
+  const pct = value !== null ? Math.max(0, Math.min(100, (value / max) * 100)) : 0
+  const fill = cls === 'high' ? 'var(--dash-green)' : cls === 'low' ? 'var(--dash-red)' : 'var(--gold)'
   return (
     <div
       style={{
-        background: '#1a1d27',
-        border: '1px solid #2a2d3e',
-        borderRadius: '10px',
-        padding: '24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 8,
+        padding: '12px 14px',
+        background: 'var(--navy-3)',
+        border: '1px solid var(--line)',
+        borderRadius: 2,
+        minWidth: 130,
+        flex: '1 1 130px',
       }}
     >
-      <h2
+      <div
         style={{
-          color: '#3b82f6',
-          fontSize: '14px',
-          fontWeight: 600,
+          fontSize: 9,
+          letterSpacing: '0.18em',
           textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-          margin: '0 0 20px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid #2a2d3e',
+          color: 'var(--ink-dim)',
+          fontWeight: 500,
         }}
       >
-        {title}
-      </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
-        {children}
-      </div>
-    </div>
-  )
-}
-
-function Field({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div>
-      <div style={{ color: '#6b7280', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
         {label}
       </div>
-      <div style={{ color: '#d1d5db', fontSize: '14px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
-        {value ?? <span style={{ color: '#4b5563', fontStyle: 'italic' }}>—</span>}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <ScoreBadge value={value} max={max} />
       </div>
+      <span className="weight-bar-track" style={{ width: '100%', height: 4, background: 'rgba(232,228,220,0.07)' }}>
+        <span
+          style={{
+            display: 'block',
+            height: '100%',
+            width: `${pct}%`,
+            background: fill,
+            borderRadius: 1,
+            transition: 'width 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+          }}
+        />
+      </span>
     </div>
-  )
-}
-
-function ScoreBadge({ value, max }: { value: number | null; max: number }) {
-  if (value === null) return <span style={{ color: '#4b5563', fontStyle: 'italic' }}>—</span>
-  const pct = (value / max) * 100
-  const color = pct >= 75 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444'
-  return (
-    <span style={{ color, fontSize: '16px', fontWeight: 700 }}>
-      {value}/{max}
-    </span>
   )
 }
 
@@ -84,360 +147,451 @@ export default async function CaseDetailPage({
   const { id } = await params
   const supabase = getServiceClient()
 
-  const [{ data: caseData }, { data: openPositionsRaw }] = await Promise.all([
-    supabase.from('cases').select('*').eq('id', id).single(),
-    supabase.from('open_positions').select('*'),
-  ])
+  const { data: caseData } = await supabase
+    .from('cases')
+    .select('*')
+    .eq('id', id)
+    .single()
 
-  if (!caseData) {
-    notFound()
+  if (!caseData) notFound()
+
+  // Linked open position (best-effort; ignore errors)
+  let linkedPosition: OpenPosition | null = null
+  if (caseData.trading_id) {
+    const { data: posRaw } = await supabase
+      .from('open_positions')
+      .select('*')
+      .eq('trading_id', caseData.trading_id)
+      .maybeSingle()
+    linkedPosition = (posRaw as OpenPosition | null) ?? null
   }
 
-  const openPositions: OpenPosition[] = openPositionsRaw ?? []
-  const linkedPosition = openPositions.find(
-    (p) => p.trading_id === caseData.trading_id
-  ) ?? null
+  const risks: string[] = Array.isArray(caseData.risks) ? caseData.risks : []
+  const catalysts: string[] = Array.isArray(caseData.catalysts) ? caseData.catalysts : []
 
-  const risks: string[] = caseData.risks ?? []
-  const catalysts: string[] = caseData.catalysts ?? []
+  const totalScore: number | null = caseData.total_score ?? null
+  const totalCls = scoreClass(totalScore, 48)
+  const totalColor =
+    totalCls === 'high'
+      ? 'var(--dash-green)'
+      : totalCls === 'low'
+        ? 'var(--dash-red)'
+        : 'var(--gold)'
+  const isTopPick = (totalScore ?? 0) >= 35
+  const isActive = caseData.status === 'Active'
+
+  const pnl = linkedPosition?.unrealized_pnl ?? null
+  const pnlPos = pnl !== null && pnl >= 0
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+    <>
+      {/* Page head */}
+      <div className="dash-page-head">
+        <div className="dash-page-title-block">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
             <span
               style={{
-                fontFamily: 'monospace',
-                color: '#3b82f6',
-                fontSize: '13px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                fontFamily: 'var(--serif)',
+                color: 'var(--gold)',
+                fontSize: 12,
                 padding: '3px 10px',
-                border: '1px solid #3b82f640',
-                borderRadius: '4px',
-                background: '#3b82f610',
+                border: '1px solid var(--gold-line)',
+                background: 'rgba(201,169,110,0.06)',
+                borderRadius: 2,
+                letterSpacing: '0.06em',
               }}
             >
               {caseData.trading_id}
             </span>
-            <span
-              style={{
-                padding: '3px 10px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                fontWeight: 600,
-                background: caseData.status === 'Active' ? '#22c55e20' : '#6b728020',
-                border: `1px solid ${caseData.status === 'Active' ? '#22c55e40' : '#6b728040'}`,
-                color: caseData.status === 'Active' ? '#22c55e' : '#9ca3af',
-              }}
-            >
+            <span className={`status-badge ${isActive ? 'active' : 'inactive'}`}>
               {caseData.status ?? 'Not Active'}
             </span>
+            {isTopPick && (
+              <span className="status-badge warning" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <IconStar width={11} height={11} />
+                Top Pick
+              </span>
+            )}
           </div>
-          <h1 style={{ color: '#fff', fontSize: '28px', fontWeight: 700, margin: '0 0 4px' }}>
-            {caseData.company_name}
+          <h1 className="dash-page-title">
+            {caseData.company_name ?? <em>Unnamed</em>}
           </h1>
-          <p style={{ color: '#9ca3af', fontSize: '15px', margin: 0 }}>
-            {caseData.ticker}
-            {caseData.sector ? ` · ${caseData.sector}` : ''}
-            {caseData.industry ? ` · ${caseData.industry}` : ''}
-          </p>
+          <div
+            className="dash-page-sub"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 4 }}
+          >
+            <span style={{ color: 'var(--ink-mute)', fontFamily: 'var(--serif)' }}>{caseData.ticker ?? '—'}</span>
+            {caseData.sector && <span>· {caseData.sector}</span>}
+            {caseData.industry && <span>· {caseData.industry}</span>}
+            {caseData.date_of_case && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginLeft: 4 }}>
+                <IconCalendar width={11} height={11} />
+                {fmtDate(caseData.date_of_case)}
+              </span>
+            )}
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-          {caseData.total_score !== null && (
-            <div
-              style={{
-                background: '#1a1d27',
-                border: '1px solid #2a2d3e',
-                borderRadius: '10px',
-                padding: '12px 20px',
-                textAlign: 'center',
-              }}
-            >
-              <div style={{ color: '#6b7280', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
-                Total Score
-              </div>
-              <ScoreBadge value={caseData.total_score} max={48} />
-            </div>
-          )}
-          <Link
-            href={`/admin/cases/${id}/edit`}
-            style={{
-              background: '#3b82f6',
-              color: '#fff',
-              textDecoration: 'none',
-              padding: '8px 18px',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: 600,
-            }}
-          >
-            Edit
+        <div className="dash-page-actions">
+          <Link href="/admin/cases" className="dash-btn btn-ghost">
+            <IconArrowLeft width={14} height={14} />
+            Back
           </Link>
-          <Link
-            href="/admin/cases"
-            style={{
-              background: 'transparent',
-              border: '1px solid #2a2d3e',
-              color: '#9ca3af',
-              textDecoration: 'none',
-              padding: '8px 18px',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: 500,
-            }}
-          >
-            Back to Cases
+          <Link href={`/admin/cases/${id}/edit`} className="dash-btn btn-gold">
+            <IconEdit width={14} height={14} />
+            Edit Case
           </Link>
         </div>
       </div>
 
-      {/* Linked Position */}
-      {linkedPosition && (
-        <div
-          style={{
-            background: '#1a1d27',
-            border: '1px solid #22c55e40',
-            borderRadius: '10px',
-            padding: '20px 24px',
-          }}
-        >
-          <h2 style={{ color: '#22c55e', fontSize: '14px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 16px' }}>
-            Linked Open Position
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px' }}>
-            <Field label="Symbol" value={linkedPosition.symbol} />
-            <Field label="Entry Price" value={`€${linkedPosition.entry_price_actual?.toFixed(2)}`} />
-            <Field label="Current Price" value={`€${linkedPosition.current_price?.toFixed(2)}`} />
-            <Field label="Position Size" value={linkedPosition.position_size_actual?.toLocaleString()} />
-            <Field label="% of NAV" value={`${linkedPosition.pct_of_nav?.toFixed(2)}%`} />
-            <Field
-              label="Unrealized PnL"
-              value={
-                <span style={{ color: (linkedPosition.unrealized_pnl ?? 0) >= 0 ? '#22c55e' : '#ef4444' }}>
-                  €{linkedPosition.unrealized_pnl?.toFixed(2)} ({linkedPosition.unrealized_pnl_pct?.toFixed(2)}%)
-                </span>
-              }
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Section 1 — Case Metadata */}
-      <Section title="Case Metadata">
-        <Field label="Company Name" value={caseData.company_name} />
-        <Field label="Ticker" value={caseData.ticker} />
-        <Field label="Sector" value={caseData.sector} />
-        <Field label="Industry" value={caseData.industry} />
-        <Field label="Country" value={caseData.country_of_incorporation} />
-        <Field label="Current Phase" value={caseData.current_phase} />
-        <Field
-          label="Date of Case"
-          value={
-            caseData.date_of_case
-              ? new Date(caseData.date_of_case).toLocaleDateString('en-GB', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                })
-              : null
-          }
-        />
-        <Field label="Status" value={caseData.status} />
-      </Section>
-
-      {/* Section 2 — Investment Trigger */}
-      <Section title="Investment Trigger">
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Event Details" value={caseData.event_details} />
-        </div>
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Brand Summary" value={caseData.brand_summary} />
-        </div>
-        <Field label="Brand Type" value={caseData.brand_type} />
-        <Field label="Impact of News" value={caseData.impact_of_news} />
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Initial Market Assessment" value={caseData.initial_market_assessment} />
-        </div>
-        <Field label="Trigger Score" value={<ScoreBadge value={caseData.trigger_score} max={7} />} />
-      </Section>
-
-      {/* Section 3 — Fundamental Analysis */}
-      <Section title="Fundamental Analysis">
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Company Fundamentals" value={caseData.company_fundamentals} />
-        </div>
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Business Model Explanation" value={caseData.business_model_explanation} />
-        </div>
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Key Products & Services" value={caseData.key_products_services} />
-        </div>
-        <Field label="Business Model Outlook" value={caseData.business_model_outlook} />
-        <Field label="Earnings Quality" value={caseData.earnings_quality} />
-        <Field label="Competitive Advantage" value={caseData.competitive_advantage} />
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Competitive Advantage Defined" value={caseData.competitive_advantage_defined} />
-        </div>
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Market Position" value={caseData.market_position} />
-        </div>
-        <Field label="ESG / Governance Score" value={<ScoreBadge value={caseData.esg_governance_quality_score} max={10} />} />
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="ESG / Governance Explanation" value={caseData.esg_governance_explanation} />
-        </div>
-        <Field label="Net Debt / EBITDA" value={caseData.net_debt_ebitda} />
-        <Field label="EPS" value={caseData.eps} />
-        <Field label="Operating Margin" value={caseData.operating_margin} />
-        <Field label="Layered FCF TTM" value={caseData.layered_fcf_ttm} />
-        <Field label="Fundamental Score" value={<ScoreBadge value={caseData.fundamental_score} max={10} />} />
-      </Section>
-
-      {/* Section 4 — Valuation Analysis */}
-      <Section title="Valuation Analysis">
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Valuation Metrics vs Peers" value={caseData.valuation_metrics_peers} />
-        </div>
-        <Field label="Current P/E" value={caseData.current_pe} />
-        <Field label="Forward P/E" value={caseData.forward_pe} />
-        <Field label="EV/EBITDA" value={caseData.ev_ebitda} />
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Current vs Historical Multiples" value={caseData.current_vs_historical_multiples} />
-        </div>
-        <Field label="Top 3 Competitors" value={caseData.top_3_competitors} />
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Prior Valuation Assessment" value={caseData.prior_valuation_assessment} />
-        </div>
-        <Field label="Analyst 1Y Price Target" value={caseData.analyst_1y_price_target ? `€${caseData.analyst_1y_price_target}` : null} />
-        <Field label="Valuation Score" value={<ScoreBadge value={caseData.valuation_score} max={8} />} />
-      </Section>
-
-      {/* Section 5 — Conviction & Risks */}
-      <Section title="Conviction & Risks">
-        <div>
-          <Field
-            label="Risks"
-            value={
-              risks.length > 0 ? (
-                <ul style={{ margin: 0, paddingLeft: '16px' }}>
-                  {risks.map((r, i) => (
-                    <li key={i} style={{ marginBottom: '4px' }}>{r}</li>
-                  ))}
-                </ul>
-              ) : null
-            }
-          />
-        </div>
-        <div>
-          <Field
-            label="Catalysts"
-            value={
-              catalysts.length > 0 ? (
-                <ul style={{ margin: 0, paddingLeft: '16px' }}>
-                  {catalysts.map((c, i) => (
-                    <li key={i} style={{ marginBottom: '4px' }}>{c}</li>
-                  ))}
-                </ul>
-              ) : null
-            }
-          />
-        </div>
-        <Field label="Conviction Score" value={<ScoreBadge value={caseData.conviction_score} max={10} />} />
-      </Section>
-
-      {/* Section 6 — Technical Analysis */}
-      <Section title="Technical Analysis">
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Primary Trend" value={caseData.primary_trend} />
-        </div>
-        <div style={{ gridColumn: '1 / -1' }}>
-          <Field label="Overall Chart Assessment" value={caseData.overall_chart_assessment} />
-        </div>
-        <Field label="TradingView TA Score" value={caseData.tradingview_ta_score} />
-        <Field label="Technical Score" value={<ScoreBadge value={caseData.technical_score} max={6} />} />
-        <Field label="52-Week Low" value={caseData.week_52_low ? `€${caseData.week_52_low}` : null} />
-        <Field label="52-Week High" value={caseData.week_52_high ? `€${caseData.week_52_high}` : null} />
-      </Section>
-
-      {/* Section 7 — Execution Plan */}
-      <Section title="Execution Plan">
-        <Field label="Entry Price Target" value={caseData.entry_price_target ? `€${caseData.entry_price_target}` : null} />
-        <Field label="Take Profit" value={caseData.take_profit ? `€${caseData.take_profit}` : null} />
-        <Field label="Stop Loss" value={caseData.stop_loss ? `€${caseData.stop_loss}` : null} />
-        <Field label="Leverage" value={caseData.leverage ? `${caseData.leverage}x` : null} />
-        <Field label="Risk/Reward Ratio" value={caseData.risk_reward_ratio ? `${Number(caseData.risk_reward_ratio).toFixed(2)}` : null} />
-        <Field label="Expected Holding Period" value={caseData.expected_holding_period_months ? `${caseData.expected_holding_period_months} months` : null} />
-        <Field label="Rematch" value={caseData.rematch === true ? 'Yes' : caseData.rematch === false ? 'No' : null} />
-        {caseData.rematch === false && (
-          <Field label="Why Not Rematch" value={caseData.why_not_rematch} />
-        )}
-      </Section>
-
-      {/* Section 8 — Final Score */}
+      {/* Final Score banner */}
       <div
+        className="dash-card"
         style={{
-          background: '#1a1d27',
-          border: '1px solid #2a2d3e',
-          borderRadius: '10px',
-          padding: '24px',
+          marginBottom: 16,
+          background: 'var(--navy-2)',
+          borderLeft: `2px solid ${totalColor}`,
         }}
       >
-        <h2
+        <div
+          className="dash-card-body"
           style={{
-            color: '#3b82f6',
-            fontSize: '14px',
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-            margin: '0 0 20px',
-            paddingBottom: '12px',
-            borderBottom: '1px solid #2a2d3e',
+            display: 'flex',
+            gap: 28,
+            flexWrap: 'wrap',
+            alignItems: 'center',
           }}
         >
-          Final Score
-        </h2>
-        <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ color: '#6b7280', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 180 }}>
+            <div
+              style={{
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--ink-dim)',
+                fontWeight: 500,
+                marginBottom: 6,
+              }}
+            >
               Total Score
             </div>
             <div
               style={{
-                color: '#fff',
-                fontSize: '48px',
-                fontWeight: 700,
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(40px, 6vw, 60px)',
+                fontWeight: 600,
+                color: totalColor,
                 lineHeight: 1,
+                letterSpacing: '-0.02em',
               }}
             >
-              {caseData.total_score ?? '—'}
-              <span style={{ color: '#6b7280', fontSize: '24px' }}>/48</span>
+              {totalScore ?? '—'}
+              <span style={{ color: 'var(--ink-dim)', fontSize: '0.4em', marginLeft: 4 }}>/ 48</span>
             </div>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ color: '#6b7280', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-              Confidence Score
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 140 }}>
+            <div
+              style={{
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--ink-dim)',
+                fontWeight: 500,
+                marginBottom: 6,
+              }}
+            >
+              Confidence
             </div>
             <div
               style={{
-                color: '#3b82f6',
-                fontSize: '36px',
-                fontWeight: 700,
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(28px, 4vw, 40px)',
+                fontWeight: 600,
+                color: 'var(--ink)',
                 lineHeight: 1,
+                letterSpacing: '-0.02em',
               }}
             >
               {caseData.confidence_score ?? '—'}
-              <span style={{ color: '#6b7280', fontSize: '18px' }}>/10</span>
+              <span style={{ color: 'var(--ink-dim)', fontSize: '0.5em', marginLeft: 4 }}>/ 10</span>
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px', flex: 1 }}>
-            <Field label="Trigger" value={<ScoreBadge value={caseData.trigger_score} max={7} />} />
-            <Field label="Fundamental" value={<ScoreBadge value={caseData.fundamental_score} max={10} />} />
-            <Field label="Valuation" value={<ScoreBadge value={caseData.valuation_score} max={8} />} />
-            <Field label="Conviction" value={<ScoreBadge value={caseData.conviction_score} max={10} />} />
-            <Field label="Technical" value={<ScoreBadge value={caseData.technical_score} max={6} />} />
+          <div
+            style={{
+              display: 'flex',
+              gap: 8,
+              flex: 1,
+              flexWrap: 'wrap',
+              minWidth: 280,
+            }}
+          >
+            <ScoreChip label="Trigger" value={caseData.trigger_score} max={7} />
+            <ScoreChip label="Fundamental" value={caseData.fundamental_score} max={10} />
+            <ScoreChip label="Valuation" value={caseData.valuation_score} max={8} />
+            <ScoreChip label="Conviction" value={caseData.conviction_score} max={10} />
+            <ScoreChip label="Technical" value={caseData.technical_score} max={6} />
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Linked Open Position */}
+      {linkedPosition && (
+        <div
+          className="dash-card"
+          style={{
+            marginBottom: 16,
+            borderLeft: '2px solid var(--dash-green)',
+          }}
+        >
+          <div
+            className="dash-card-header"
+            style={{ paddingBottom: 14, borderBottom: '1px solid var(--line)' }}
+          >
+            <div>
+              <h2 className="dash-card-title">Linked Position</h2>
+              <div className="dash-card-sub">
+                Live position tied to this case via {caseData.trading_id}
+              </div>
+            </div>
+            <span
+              className={`ret-badge ${pnlPos ? 'up' : 'dn'}`}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
+            >
+              {pnlPos ? <IconTrendingUp width={11} height={11} /> : <IconTrendingDown width={11} height={11} />}
+              {fmtPct(linkedPosition.unrealized_pnl_pct)}
+            </span>
+          </div>
+          <div className="dash-card-body">
+            <div className="dash-form-grid">
+              <Field label="Symbol" value={<span className="dash-symbol">{linkedPosition.symbol}</span>} />
+              <Field label="Entry Price" value={fmtCurrency(linkedPosition.entry_price_actual)} />
+              <Field label="Current Price" value={fmtCurrency(linkedPosition.current_price)} />
+              <Field label="Position Size" value={fmtNum(linkedPosition.position_size_actual)} />
+              <Field label="% of NAV" value={fmtPct(linkedPosition.pct_of_nav)} />
+              <Field
+                label="Unrealized P&L"
+                value={
+                  <span style={{ color: pnlPos ? 'var(--dash-green)' : 'var(--dash-red)', fontFamily: 'var(--serif)' }}>
+                    {fmtCurrency(linkedPosition.unrealized_pnl)}
+                  </span>
+                }
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sections grid */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <SectionCard title="Case Metadata" sub="Identification" >
+          <Field label="Company Name" value={caseData.company_name} />
+          <Field label="Ticker" value={<span className="dash-symbol">{caseData.ticker ?? '—'}</span>} />
+          <Field label="Sector" value={caseData.sector} />
+          <Field label="Industry" value={caseData.industry} />
+          <Field label="Country" value={caseData.country_of_incorporation} />
+          <Field label="Current Phase" value={caseData.current_phase} />
+          <Field label="Date of Case" value={fmtDate(caseData.date_of_case)} />
+          <Field label="Status" value={
+            <span className={`status-badge ${isActive ? 'active' : 'inactive'}`}>{caseData.status ?? 'Not Active'}</span>
+          } />
+        </SectionCard>
+
+        <SectionCard
+          title="Investment Trigger"
+          sub="Event narrative & catalyst score"
+          right={<ScoreBadge value={caseData.trigger_score} max={7} />}
+        >
+          <Field label="Event Details" value={caseData.event_details} spanAll />
+          <Field label="Brand Summary" value={caseData.brand_summary} spanAll />
+          <Field label="Brand Type" value={caseData.brand_type} />
+          <Field label="Impact of News" value={caseData.impact_of_news} />
+          <Field label="Initial Market Assessment" value={caseData.initial_market_assessment} spanAll />
+        </SectionCard>
+
+        <SectionCard
+          title="Fundamental Analysis"
+          sub="Business quality & financial profile"
+          right={<ScoreBadge value={caseData.fundamental_score} max={10} />}
+        >
+          <Field label="Company Fundamentals" value={caseData.company_fundamentals} spanAll />
+          <Field label="Business Model Explanation" value={caseData.business_model_explanation} spanAll />
+          <Field label="Key Products & Services" value={caseData.key_products_services} spanAll />
+          <Field label="Business Model Outlook" value={caseData.business_model_outlook} />
+          <Field label="Earnings Quality" value={caseData.earnings_quality} />
+          <Field label="Competitive Advantage" value={caseData.competitive_advantage} />
+          <Field label="Market Position" value={caseData.market_position} />
+          <Field label="Competitive Advantage Defined" value={caseData.competitive_advantage_defined} spanAll />
+          <Field
+            label="ESG / Governance Score"
+            value={<ScoreBadge value={caseData.esg_governance_quality_score} max={10} />}
+          />
+          <Field label="ESG / Governance Explanation" value={caseData.esg_governance_explanation} spanAll />
+          <Field label="Net Debt / EBITDA" value={caseData.net_debt_ebitda} />
+          <Field label="EPS" value={caseData.eps} />
+          <Field label="Operating Margin" value={caseData.operating_margin} />
+          <Field label="Layered FCF TTM" value={caseData.layered_fcf_ttm} />
+        </SectionCard>
+
+        <SectionCard
+          title="Valuation Analysis"
+          sub="Multiples vs peers & target price"
+          right={<ScoreBadge value={caseData.valuation_score} max={8} />}
+        >
+          <Field label="Valuation Metrics vs Peers" value={caseData.valuation_metrics_peers} spanAll />
+          <Field label="Current P/E" value={caseData.current_pe} />
+          <Field label="Forward P/E" value={caseData.forward_pe} />
+          <Field label="EV / EBITDA" value={caseData.ev_ebitda} />
+          <Field
+            label="Analyst 1Y Target"
+            value={caseData.analyst_1y_price_target !== null && caseData.analyst_1y_price_target !== undefined ? fmtCurrency(caseData.analyst_1y_price_target) : null}
+          />
+          <Field label="Top 3 Competitors" value={caseData.top_3_competitors} />
+          <Field label="Current vs Historical Multiples" value={caseData.current_vs_historical_multiples} spanAll />
+          <Field label="Prior Valuation Assessment" value={caseData.prior_valuation_assessment} spanAll />
+        </SectionCard>
+
+        <SectionCard
+          title="Conviction & Risks"
+          sub="What could go right; what could go wrong"
+          right={<ScoreBadge value={caseData.conviction_score} max={10} />}
+        >
+          <Field
+            label="Risks"
+            spanAll
+            value={
+              risks.length > 0 ? (
+                <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {risks.map((r, i) => (
+                    <li
+                      key={i}
+                      style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 13, color: 'var(--ink)' }}
+                    >
+                      <span
+                        style={{
+                          color: 'var(--gold)',
+                          marginTop: 6,
+                          width: 4,
+                          height: 4,
+                          borderRadius: '50%',
+                          background: 'var(--gold)',
+                          flexShrink: 0,
+                        }}
+                        aria-hidden
+                      />
+                      <span style={{ flex: 1, lineHeight: 1.55 }}>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null
+            }
+          />
+          <Field
+            label="Catalysts"
+            spanAll
+            value={
+              catalysts.length > 0 ? (
+                <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {catalysts.map((c, i) => (
+                    <li
+                      key={i}
+                      style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 13, color: 'var(--ink)' }}
+                    >
+                      <span
+                        style={{
+                          color: 'var(--gold)',
+                          marginTop: 6,
+                          width: 4,
+                          height: 4,
+                          borderRadius: '50%',
+                          background: 'var(--gold)',
+                          flexShrink: 0,
+                        }}
+                        aria-hidden
+                      />
+                      <span style={{ flex: 1, lineHeight: 1.55 }}>{c}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null
+            }
+          />
+        </SectionCard>
+
+        <SectionCard
+          title="Technical Analysis"
+          sub="Trend & chart positioning"
+          right={<ScoreBadge value={caseData.technical_score} max={6} />}
+        >
+          <Field label="Primary Trend" value={caseData.primary_trend} spanAll />
+          <Field label="Overall Chart Assessment" value={caseData.overall_chart_assessment} spanAll />
+          <Field label="TradingView TA Score" value={caseData.tradingview_ta_score} />
+          <Field
+            label="52-Week Low"
+            value={caseData.week_52_low !== null && caseData.week_52_low !== undefined ? fmtCurrency(caseData.week_52_low) : null}
+          />
+          <Field
+            label="52-Week High"
+            value={caseData.week_52_high !== null && caseData.week_52_high !== undefined ? fmtCurrency(caseData.week_52_high) : null}
+          />
+        </SectionCard>
+
+        <SectionCard title="Execution Plan" sub="Entry, exits, and leverage">
+          <Field
+            label="Entry Price Target"
+            value={caseData.entry_price_target !== null && caseData.entry_price_target !== undefined ? fmtCurrency(caseData.entry_price_target) : null}
+          />
+          <Field
+            label="Take Profit"
+            value={
+              caseData.take_profit !== null && caseData.take_profit !== undefined ? (
+                <span style={{ color: 'var(--dash-green)', fontFamily: 'var(--serif)' }}>{fmtCurrency(caseData.take_profit)}</span>
+              ) : null
+            }
+          />
+          <Field
+            label="Stop Loss"
+            value={
+              caseData.stop_loss !== null && caseData.stop_loss !== undefined ? (
+                <span style={{ color: 'var(--dash-red)', fontFamily: 'var(--serif)' }}>{fmtCurrency(caseData.stop_loss)}</span>
+              ) : null
+            }
+          />
+          <Field
+            label="Leverage"
+            value={caseData.leverage !== null && caseData.leverage !== undefined ? `${caseData.leverage}x` : null}
+          />
+          <Field
+            label="Risk / Reward"
+            value={
+              caseData.risk_reward_ratio !== null && caseData.risk_reward_ratio !== undefined
+                ? `${Number(caseData.risk_reward_ratio).toFixed(2)} : 1`
+                : null
+            }
+          />
+          <Field
+            label="Holding Period"
+            value={
+              caseData.expected_holding_period_months !== null && caseData.expected_holding_period_months !== undefined
+                ? `${caseData.expected_holding_period_months} months`
+                : null
+            }
+          />
+          <Field
+            label="Re-match"
+            value={
+              caseData.rematch === true ? (
+                <span className="status-badge active">Yes</span>
+              ) : caseData.rematch === false ? (
+                <span className="status-badge inactive">No</span>
+              ) : null
+            }
+          />
+          {caseData.rematch === false && (
+            <Field label="Why Not Re-match" value={caseData.why_not_rematch} spanAll />
+          )}
+        </SectionCard>
+      </div>
+    </>
   )
 }

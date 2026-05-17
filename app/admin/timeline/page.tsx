@@ -1,279 +1,239 @@
-'use client'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { IconClock } from '@/app/dashboard/components/Icons'
+import TimelineClient, { type PositionTimelineRow } from './_components/TimelineClient'
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import type { Metadata } from 'next'
 
-interface PositionWithCase {
-  symbol: string
-  entry_date_actual: string | null
-  expected_holding_period_months: number | null
-}
+export const metadata: Metadata = { title: 'Timeline' }
 
-function getBarColor(entryDate: string, holdingMonths: number, today: Date): string {
-  const start = new Date(entryDate)
-  const end = new Date(start)
-  end.setMonth(end.getMonth() + holdingMonths)
-
-  const thirtyDaysBefore = new Date(end)
-  thirtyDaysBefore.setDate(thirtyDaysBefore.getDate() - 30)
-
-  if (today > end) return '#ef4444'
-  if (today >= thirtyDaysBefore) return '#f59e0b'
-  return '#22c55e'
-}
-
-export default function TimelinePage() {
-  const [positions, setPositions] = useState<PositionWithCase[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient()
-      const { data: posRaw } = await supabase
-        .from('open_positions')
-        .select('symbol, entry_date_actual, trading_id')
-
-      const { data: casesRaw } = await supabase
-        .from('cases')
-        .select('trading_id, expected_holding_period_months')
-
-      const caseMap = new Map<string, number>(
-        (casesRaw ?? []).map((c) => [c.trading_id, c.expected_holding_period_months ?? 12])
-      )
-
-      const combined: PositionWithCase[] = (posRaw ?? []).map((p) => ({
-        symbol: p.symbol,
-        entry_date_actual: p.entry_date_actual,
-        expected_holding_period_months: p.trading_id ? (caseMap.get(p.trading_id) ?? null) : null,
-      }))
-
-      setPositions(combined)
-      setLoading(false)
-    }
-    load()
-  }, [])
-
-  const today = new Date()
-
-  // Find timeline range
-  const validPositions = positions.filter(
-    (p) => p.entry_date_actual && p.expected_holding_period_months
+function getServiceClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
+}
 
-  const allDates: Date[] = []
-  for (const p of validPositions) {
-    const start = new Date(p.entry_date_actual!)
-    const end = new Date(start)
-    end.setMonth(end.getMonth() + p.expected_holding_period_months!)
-    allDates.push(start, end)
+const DAY_MS = 86_400_000
+const APPROACHING_DAYS = 30
+
+function endDateMsFromEntry(entryIso: number, holdingMonths: number): number {
+  const d = new Date(entryIso)
+  d.setMonth(d.getMonth() + holdingMonths)
+  return d.getTime()
+}
+
+export default async function TimelinePage() {
+  const supabase = getServiceClient()
+
+  const [posRes, casesRes] = await Promise.all([
+    supabase
+      .from('open_positions')
+      .select('symbol, entry_date_actual, trading_id'),
+    supabase
+      .from('cases')
+      .select('id, trading_id, expected_holding_period_months'),
+  ])
+
+  const caseByTradingId = new Map<string, { id: string; months: number | null }>()
+  for (const c of casesRes.data ?? []) {
+    if (c.trading_id) {
+      caseByTradingId.set(c.trading_id, {
+        id: c.id as string,
+        months: c.expected_holding_period_months as number | null,
+      })
+    }
   }
-  allDates.push(today)
 
-  const minDate = allDates.length > 0 ? new Date(Math.min(...allDates.map((d) => d.getTime()))) : today
-  const maxDate = allDates.length > 0 ? new Date(Math.max(...allDates.map((d) => d.getTime()))) : today
-
-  // Add 5% padding on each side
-  const range = maxDate.getTime() - minDate.getTime() || 1
-  const padded = range * 0.05
-  const timelineStart = new Date(minDate.getTime() - padded)
-  const timelineEnd = new Date(maxDate.getTime() + padded)
-  const totalRange = timelineEnd.getTime() - timelineStart.getTime()
-
-  function toPct(date: Date): number {
-    return ((date.getTime() - timelineStart.getTime()) / totalRange) * 100
+  const positions: PositionTimelineRow[] = []
+  for (const p of posRes.data ?? []) {
+    if (!p.symbol || !p.entry_date_actual) continue
+    const match = p.trading_id ? caseByTradingId.get(p.trading_id) : undefined
+    const months = match?.months
+    if (typeof months !== 'number' || months <= 0) continue
+    const entryMs = new Date(p.entry_date_actual).getTime()
+    if (!Number.isFinite(entryMs)) continue
+    positions.push({
+      symbol: p.symbol,
+      trading_id: p.trading_id ?? null,
+      caseId: match?.id ?? null,
+      entry_date_actual: p.entry_date_actual,
+      expected_holding_period_months: months,
+      entry_iso: entryMs,
+      end_iso: endDateMsFromEntry(entryMs, months),
+    })
   }
 
-  const todayPct = toPct(today)
+  // Stable order — closest expiry first
+  positions.sort((a, b) => a.end_iso - b.end_iso)
 
-  function formatDate(d: Date): string {
-    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  // Render today on the server but the client will treat this as a static reference
+  // (the timeline doesn't need to react to time-of-day changes).
+  const todayMs = Date.now()
+
+  // KPIs
+  const activeCount = positions.length
+
+  let closest: PositionTimelineRow | null = null
+  let pastTarget = 0
+  let timeRemainingSum = 0
+  let timeRemainingCount = 0
+
+  for (const p of positions) {
+    const remaining = p.end_iso - todayMs
+    if (remaining < 0) {
+      pastTarget++
+    } else {
+      timeRemainingSum += remaining
+      timeRemainingCount++
+    }
+    if (remaining >= 0) {
+      if (!closest || p.end_iso < closest.end_iso) closest = p
+    }
   }
 
-  if (loading) {
-    return (
-      <div style={{ color: '#6b7280', fontSize: '14px', padding: '48px 0', textAlign: 'center' }}>
-        Loading timeline...
-      </div>
-    )
-  }
+  const avgDaysRemaining =
+    timeRemainingCount === 0 ? null : Math.round(timeRemainingSum / timeRemainingCount / DAY_MS)
+
+  const closestDays = closest ? Math.max(0, Math.round((closest.end_iso - todayMs) / DAY_MS)) : null
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div>
-        <h1 style={{ color: '#fff', fontSize: '24px', fontWeight: 700, margin: '0 0 4px' }}>
-          Position Timeline
-        </h1>
-        <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>
-          Horizontal timeline bars for each open position. Vertical line = today.
-        </p>
+    <>
+      <div className="dash-page-head">
+        <div className="dash-page-title-block">
+          <h1 className="dash-page-title">
+            Position <em>Timeline</em>
+          </h1>
+          <div className="dash-page-sub">Visual map of expected holding periods.</div>
+        </div>
+        <div className="dash-page-actions">
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              color: 'var(--ink-dim)',
+              fontSize: 12,
+            }}
+          >
+            <IconClock width={14} height={14} />
+            {activeCount} tracked
+          </span>
+        </div>
       </div>
 
-      {/* Legend */}
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-        {[
-          { color: '#22c55e', label: 'On track (>30d remaining)' },
-          { color: '#f59e0b', label: 'Approaching end (≤30d)' },
-          { color: '#ef4444', label: 'Past target end date' },
-        ].map((l) => (
-          <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '12px', height: '12px', borderRadius: '2px', background: l.color }} />
-            <span style={{ color: '#9ca3af', fontSize: '12px' }}>{l.label}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Timeline */}
+      {/* KPI strip */}
       <div
-        style={{
-          background: '#1a1d27',
-          border: '1px solid #2a2d3e',
-          borderRadius: '10px',
-          padding: '24px',
-          overflowX: 'auto',
-        }}
+        className="adm-kpi-grid"
+        style={{ marginBottom: 16, gridTemplateColumns: 'repeat(4, 1fr)' }}
       >
-        {validPositions.length === 0 ? (
-          <div style={{ color: '#6b7280', fontSize: '14px', textAlign: 'center', padding: '32px 0' }}>
-            No positions with entry date and holding period data found.
+        <div className="adm-kpi kpi-neutral">
+          <div className="adm-kpi-label">Active positions</div>
+          <div className="adm-kpi-val">{activeCount}</div>
+          <div className="adm-kpi-sub">With entry date & holding period</div>
+        </div>
+
+        <div
+          className={`adm-kpi${
+            closest && closestDays !== null && closestDays <= APPROACHING_DAYS ? ' kpi-dn' : ''
+          }`}
+        >
+          <div className="adm-kpi-label">Closest to expiry</div>
+          <div className="adm-kpi-val" style={{ fontSize: 18 }}>
+            {closest ? closest.symbol : '—'}
           </div>
-        ) : (
-          <div style={{ minWidth: '600px' }}>
-            {/* Date axis labels */}
-            <div style={{ position: 'relative', height: '24px', marginBottom: '8px', marginLeft: '100px' }}>
-              <span
-                style={{
-                  position: 'absolute',
-                  left: '0%',
-                  color: '#6b7280',
-                  fontSize: '11px',
-                  transform: 'translateX(-50%)',
-                }}
-              >
-                {formatDate(timelineStart)}
-              </span>
-              <span
-                style={{
-                  position: 'absolute',
-                  left: '50%',
-                  color: '#6b7280',
-                  fontSize: '11px',
-                  transform: 'translateX(-50%)',
-                }}
-              >
-                {formatDate(new Date((timelineStart.getTime() + timelineEnd.getTime()) / 2))}
-              </span>
-              <span
-                style={{
-                  position: 'absolute',
-                  left: '100%',
-                  color: '#6b7280',
-                  fontSize: '11px',
-                  transform: 'translateX(-100%)',
-                }}
-              >
-                {formatDate(timelineEnd)}
-              </span>
-            </div>
-
-            {/* Position rows */}
-            {validPositions.map((p) => {
-              const start = new Date(p.entry_date_actual!)
-              const end = new Date(start)
-              end.setMonth(end.getMonth() + p.expected_holding_period_months!)
-              const startPct = toPct(start)
-              const endPct = toPct(end)
-              const barColor = getBarColor(p.entry_date_actual!, p.expected_holding_period_months!, today)
-              const widthPct = endPct - startPct
-
-              return (
-                <div
-                  key={p.symbol}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginBottom: '12px',
-                    gap: '0',
-                  }}
-                >
-                  {/* Symbol label */}
-                  <div
-                    style={{
-                      width: '100px',
-                      minWidth: '100px',
-                      color: '#fff',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      fontFamily: 'monospace',
-                      paddingRight: '12px',
-                      textAlign: 'right',
-                    }}
-                  >
-                    {p.symbol}
-                  </div>
-
-                  {/* Bar track */}
-                  <div
-                    style={{
-                      flex: 1,
-                      position: 'relative',
-                      height: '32px',
-                      background: '#0f1117',
-                      borderRadius: '4px',
-                      border: '1px solid #2a2d3e',
-                    }}
-                  >
-                    {/* Position bar */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        left: `${startPct}%`,
-                        width: `${widthPct}%`,
-                        top: '4px',
-                        bottom: '4px',
-                        background: barColor,
-                        borderRadius: '3px',
-                        opacity: 0.85,
-                      }}
-                      title={`${p.symbol}: ${formatDate(start)} → ${formatDate(end)} (${p.expected_holding_period_months}mo)`}
-                    />
-
-                    {/* Today line */}
-                    {todayPct >= 0 && todayPct <= 100 && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          left: `${todayPct}%`,
-                          top: 0,
-                          bottom: 0,
-                          width: '2px',
-                          background: '#fff',
-                          opacity: 0.6,
-                          zIndex: 2,
-                        }}
-                        title={`Today: ${formatDate(today)}`}
-                      />
-                    )}
-                  </div>
-
-                  {/* End date label */}
-                  <div
-                    style={{
-                      width: '110px',
-                      minWidth: '110px',
-                      color: barColor,
-                      fontSize: '11px',
-                      paddingLeft: '10px',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {formatDate(end)}
-                  </div>
-                </div>
-              )
-            })}
+          <div className="adm-kpi-sub">
+            {closest && closestDays !== null
+              ? `${closestDays} day${closestDays === 1 ? '' : 's'} remaining`
+              : 'No upcoming expiries'}
           </div>
-        )}
+        </div>
+
+        <div className={`adm-kpi${pastTarget > 0 ? ' kpi-dn' : ' kpi-neutral'}`}>
+          <div className="adm-kpi-label">Past target</div>
+          <div
+            className={`adm-kpi-val${pastTarget > 0 ? ' dn' : ''}`}
+          >
+            {pastTarget}
+          </div>
+          <div className="adm-kpi-sub">
+            {pastTarget === 0 ? 'All within window' : 'Beyond expected window'}
+          </div>
+        </div>
+
+        <div className="adm-kpi">
+          <div className="adm-kpi-label">Avg time remaining</div>
+          <div className="adm-kpi-val">
+            {avgDaysRemaining === null ? '—' : `${avgDaysRemaining}d`}
+          </div>
+          <div className="adm-kpi-sub">
+            {avgDaysRemaining === null
+              ? 'No upcoming windows'
+              : `Across ${timeRemainingCount} active position${timeRemainingCount === 1 ? '' : 's'}`}
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Legend (visual only) */}
+      <div
+        className="dash-chips"
+        style={{ marginBottom: 16 }}
+        aria-label="Timeline legend"
+      >
+        <span
+          className="dash-chip is-active"
+          style={{ cursor: 'default', borderColor: 'var(--gold-line)', color: 'var(--gold)' }}
+        >
+          <span
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 2,
+              background: 'linear-gradient(90deg, var(--gold), #e8c98a)',
+            }}
+          />
+          On track
+        </span>
+        <span
+          className="dash-chip"
+          style={{
+            cursor: 'default',
+            color: 'var(--dash-orange)',
+            borderColor: 'rgba(251,146,60,0.32)',
+            background: 'rgba(251,146,60,0.06)',
+          }}
+        >
+          <span
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 2,
+              background: 'var(--dash-orange)',
+            }}
+          />
+          Approaching end (≤{APPROACHING_DAYS}d)
+        </span>
+        <span
+          className="dash-chip"
+          style={{
+            cursor: 'default',
+            color: 'var(--dash-red)',
+            borderColor: 'rgba(248,113,113,0.32)',
+            background: 'rgba(248,113,113,0.06)',
+          }}
+        >
+          <span
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 2,
+              background: 'var(--dash-red)',
+            }}
+          />
+          Past target
+        </span>
+      </div>
+
+      <TimelineClient positions={positions} todayMs={todayMs} />
+    </>
   )
 }

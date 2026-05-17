@@ -10,6 +10,19 @@ import RiskMetrics from './components/RiskMetrics'
 import RiskAdjustedReturn from './components/RiskAdjustedReturn'
 import ActivityFeed, { type ActivityEvent } from './components/ActivityFeed'
 import PositionTimeline, { type TimelinePosition } from './components/PositionTimeline'
+import AdvancedMetrics from './components/AdvancedMetrics'
+import DrawdownChart from './components/DrawdownChart'
+import MonthlyHeatmap from './components/MonthlyHeatmap'
+import ConcentrationCard from './components/ConcentrationCard'
+import QuickActions from './components/QuickActions'
+import {
+  computeMetrics,
+  drawdownSeries,
+  monthlyReturns,
+  fmtPct,
+  fmtRatio,
+  type PositionInput,
+} from '@/lib/analytics'
 import { computeRiskMetrics, alignRiskFreeRates } from '@/lib/risk-metrics'
 
 function getServiceClient() {
@@ -77,11 +90,19 @@ export default async function DashboardPage() {
   const realizedYtd = closedTrades.filter(t => t.exit_date >= ytdStart).reduce((s, t) => s + (t.realized_pnl ?? 0), 0)
   const realizedYtdPct = totalNav > 0 ? (realizedYtd / totalNav) * 100 : 0
 
-  let twrFactor = 1
-  const chartData = snapshots.map(s => {
-    twrFactor *= (1 + (s.daily_twr ?? 0) / 100)
-    return { date: s.snapshot_date, nav: twrFactor * 100, benchmark: s.benchmark_value ?? 0 }
-  })
+  const { chartData, twrFactor } = snapshots.reduce<{
+    chartData: { date: string; nav: number; benchmark: number }[]
+    twrFactor: number
+  }>((acc, s) => {
+    const nextFactor = acc.twrFactor * (1 + (s.daily_twr ?? 0) / 100)
+    acc.chartData.push({
+      date: s.snapshot_date,
+      nav: nextFactor * 100,
+      benchmark: s.benchmark_value ?? 0,
+    })
+    acc.twrFactor = nextFactor
+    return acc
+  }, { chartData: [], twrFactor: 1 })
 
   const firstBenchmark = snapshots.find(s => (s.benchmark_value ?? 0) > 0)
   const lastBenchmark = [...snapshots].reverse().find(s => (s.benchmark_value ?? 0) > 0)
@@ -89,6 +110,17 @@ export default async function DashboardPage() {
     ? ((lastBenchmark.benchmark_value - firstBenchmark.benchmark_value) / firstBenchmark.benchmark_value) * 100
     : null
   const alphaPct = vwcePct !== null ? (twrFactor - 1) * 100 - vwcePct : null
+
+  // ── Advanced analytics ─────────────────────────────────────────────
+  const metrics = computeMetrics(snapshots)
+  const drawdownData = drawdownSeries(snapshots)
+  const monthlyData = monthlyReturns(snapshots)
+  const concentrationPositions: PositionInput[] = openPositions.map(p => ({
+    symbol: p.symbol,
+    pct_of_nav: p.pct_of_nav,
+    current_price: p.current_price,
+    position_size_actual: p.position_size_actual,
+  }))
 
   // ── Capped M² (risk-adjusted return) ──────────────────────────────
   const rfAligned = alignRiskFreeRates(
@@ -225,33 +257,77 @@ export default async function DashboardPage() {
   const commentary = commentaryResult.data?.content ?? null
   const commentaryUpdatedAt = commentaryResult.data?.created_at ?? null
 
+  // ── KPI strip values ───────────────────────────────────────────────
+  const twrPct = metrics.twrPct
+  const twrCls = twrPct > 0 ? 'up' : twrPct < 0 ? 'dn' : 'neutral'
+  const realizedCls = realizedYtdPct > 0 ? 'up' : realizedYtdPct < 0 ? 'dn' : 'neutral'
+  const sharpe = metrics.sharpeRatio
+  const sharpeCls = isFinite(sharpe)
+    ? sharpe >= 1.5
+      ? 'up'
+      : sharpe >= 0.5
+        ? 'neutral'
+        : 'dn'
+    : 'neutral'
+  const maxDDCls = metrics.maxDrawdownPct < 0 ? 'dn' : 'neutral'
+
   return (
     <>
+      {/* ── KPI strip ─────────────────────────────────────────────── */}
+      <div className="adm-kpi-grid" style={{ marginBottom: 16 }}>
+        <div className={`adm-kpi kpi-${twrCls}`}>
+          <div className="adm-kpi-label">Total Return</div>
+          <div className={`adm-kpi-val ${twrCls === 'up' ? 'up' : twrCls === 'dn' ? 'dn' : ''}`}>
+            {fmtPct(twrPct)}
+          </div>
+          <div className="adm-kpi-sub">TWR since inception</div>
+        </div>
+        <div className={`adm-kpi kpi-${realizedCls}`}>
+          <div className="adm-kpi-label">YTD Realized</div>
+          <div className={`adm-kpi-val ${realizedCls === 'up' ? 'up' : realizedCls === 'dn' ? 'dn' : ''}`}>
+            {fmtPct(realizedYtdPct)}
+          </div>
+          <div className="adm-kpi-sub">{tradesYtd} trades closed</div>
+        </div>
+        <div className="adm-kpi kpi-neutral">
+          <div className="adm-kpi-label">Open Positions</div>
+          <div className="adm-kpi-val">{openPositions.length}</div>
+          <div className="adm-kpi-sub">Active holdings</div>
+        </div>
+        <div className={`adm-kpi kpi-${sharpeCls}`}>
+          <div className="adm-kpi-label">Sharpe</div>
+          <div className={`adm-kpi-val ${sharpeCls === 'up' ? 'up' : sharpeCls === 'dn' ? 'dn' : ''}`}>
+            {fmtRatio(sharpe)}
+          </div>
+          <div className="adm-kpi-sub">Annualized</div>
+        </div>
+        <div className={`adm-kpi kpi-${maxDDCls}`}>
+          <div className="adm-kpi-label">Max DD</div>
+          <div className={`adm-kpi-val ${maxDDCls === 'dn' ? 'dn' : ''}`}>
+            {metrics.maxDrawdownPct.toFixed(2)}%
+          </div>
+          <div className="adm-kpi-sub">{metrics.maxDrawdownDays}d duration</div>
+        </div>
+      </div>
+
       {/* Two-column app grid */}
       <div className="dash-grid">
 
-        {/* ── Left column: chart + positions + trade history + timeline ── */}
+        {/* ── Left column: chart + advanced metrics + drawdown + positions + history + timeline + heatmap + activity ── */}
         <div className="dash-col">
-          <div id="performance">
-            <PerformanceChart data={chartData} />
-          </div>
-          <div id="holdings">
-            <PositionsTable positions={positionRows} />
-          </div>
-          <div id="history">
-            <ClosedTradesTable trades={closedRows} />
-          </div>
+          <PerformanceChart data={chartData} />
+          <AdvancedMetrics metrics={metrics} />
+          <DrawdownChart series={drawdownData} />
+          <PositionsTable positions={positionRows} />
+          <ClosedTradesTable trades={closedRows} />
           {timelinePositions.length > 0 && (
-            <div id="timeline">
-              <PositionTimeline positions={timelinePositions} />
-            </div>
+            <PositionTimeline positions={timelinePositions} />
           )}
-          <div id="activity">
-            <ActivityFeed events={recentActivity} />
-          </div>
+          <MonthlyHeatmap months={monthlyData} />
+          <ActivityFeed events={recentActivity} />
         </div>
 
-        {/* ── Right column: stats + sector + risk ── */}
+        {/* ── Right column: summary + risk + sector + concentration ── */}
         <div className="dash-col">
           <PortfolioSummary
             unrealizedPnlPct={unrealizedPct}
@@ -262,7 +338,6 @@ export default async function DashboardPage() {
             alphaPct={alphaPct}
             inceptionDate="1 Jan 2026"
           />
-          <SectorAllocation data={sectorData} />
           <RiskMetrics
             winRate={winRate}
             avgReturn={avgReturn}
@@ -272,6 +347,8 @@ export default async function DashboardPage() {
             tradesYtd={tradesYtd}
             totalTrades={closedWithPnl.length}
           />
+          <SectorAllocation data={sectorData} />
+          <ConcentrationCard positions={concentrationPositions} />
         </div>
 
       </div>
@@ -288,12 +365,17 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Full-width commentary ── */}
-      <div className="dash-full" id="commentary">
+      <div className="dash-full">
         <AICommentary commentary={commentary} updatedAt={commentaryUpdatedAt} />
       </div>
 
+      {/* ── Quick actions ── */}
+      <div className="dash-full">
+        <QuickActions />
+      </div>
+
       {/* ── Community CTAs ── */}
-      <div className="dash-full" id="community">
+      <div className="dash-full">
         <CommunityCard />
       </div>
     </>

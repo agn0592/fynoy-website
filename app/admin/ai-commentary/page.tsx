@@ -1,6 +1,10 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import CommentaryClient from './CommentaryClient'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'AI Commentary' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,22 +25,24 @@ export default async function AICommentaryPage() {
     .from('commentary')
     .select('id, content, created_at')
     .order('created_at', { ascending: false })
-    .limit(5)
+    .limit(10)
 
   const commentaries: Commentary[] = commentariesRaw ?? []
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div>
-        <h1 style={{ color: '#fff', fontSize: '24px', fontWeight: 700, margin: '0 0 4px' }}>
-          AI Commentary
-        </h1>
-        <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>
-          Generate and view AI-powered portfolio commentary using Claude.
-        </p>
+    <>
+      <div className="dash-page-head">
+        <div className="dash-page-title-block">
+          <h1 className="dash-page-title">
+            AI <em>Commentary</em>
+          </h1>
+          <div className="dash-page-sub">
+            Generate and view AI-powered portfolio commentary using Claude.
+          </div>
+        </div>
       </div>
 
       <CommentaryClient initialCommentaries={commentaries} />
-    </div>
+    </>
   )
 }
