@@ -6,8 +6,10 @@ import SidebarNav from './components/SidebarNav'
 import SidebarLogo from './components/SidebarLogo'
 import MobileBottomNav from './components/MobileBottomNav'
 import TopBar from './components/TopBar'
+import SageBubble from './components/SageBubble'
 import { buildNotifications } from '@/lib/notifications'
 import './dashboard.css'
+import '@/app/components/agent-chat.css'
 
 function getServiceClient() {
   return createSupabaseClient(
@@ -86,6 +88,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
         {/* ── Mobile bottom nav ── */}
         <MobileBottomNav variant="member" />
       </div>
+
+      {/* ── Floating Sage agent (read-only Q&A) ── */}
+      {user && <SageBubble />}
     </div>
   )
 }
