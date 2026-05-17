@@ -141,7 +141,7 @@ export default function PositionsTable({ positions }: { positions: Position[] })
                       <td colSpan={3} style={{ padding: 0 }}>
                         <div className="trade-detail-panel">
                           {loadingId === pos.trading_id ? (
-                            <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>Analyse laden…</div>
+                            <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>Loading analysis…</div>
                           ) : summaries[pos.trading_id as string] ? (
                             <div className="trade-detail-grid">
                               <div className="dash-commentary-body" style={{ fontSize: 13 }}>
@@ -165,7 +165,7 @@ export default function PositionsTable({ positions }: { positions: Position[] })
                               </div>
                             </div>
                           ) : (
-                            <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>Geen case analyse beschikbaar.</div>
+                            <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>No case analysis available.</div>
                           )}
                         </div>
                       </td>

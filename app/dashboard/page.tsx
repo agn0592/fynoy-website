@@ -176,7 +176,7 @@ export default async function DashboardPage() {
         date: p.entry_date_actual,
         type: 'position_opened',
         symbol: p.symbol,
-        label: `Positie geopend: ${p.symbol}`,
+        label: `Position opened: ${p.symbol}`,
       })
     }
   }
@@ -188,7 +188,7 @@ export default async function DashboardPage() {
         type: 'position_closed',
         symbol: t.symbol,
         pct,
-        label: `Trade gesloten: ${t.symbol} ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`,
+        label: `Trade closed: ${t.symbol} ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`,
       })
     }
   }
@@ -196,7 +196,7 @@ export default async function DashboardPage() {
     activityEvents.push({
       date: commentaryResult.data.created_at,
       type: 'commentary_updated',
-      label: 'Portfolio commentary bijgewerkt',
+      label: 'Portfolio commentary updated',
     })
   }
   activityEvents.sort((a, b) => b.date.localeCompare(a.date))

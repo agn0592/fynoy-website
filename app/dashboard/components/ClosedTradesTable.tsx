@@ -145,7 +145,7 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
                       <td colSpan={5} style={{ padding: 0 }}>
                         <div className="trade-detail-panel">
                           {loadingKey === rowKey ? (
-                            <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>Analyse laden…</div>
+                            <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>Loading analysis…</div>
                           ) : summaries[rowKey] ? (
                             <div className="trade-detail-grid">
                               <div className="dash-commentary-body" style={{ fontSize: 13 }}>
@@ -155,13 +155,13 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
                               </div>
                               <div className="trade-detail-targets">
                                 <div className={`trade-target ${t.realized_pnl_pct >= 0 ? 'up' : 'dn'}`}>
-                                  <span className="trade-target-label">Resultaat</span>
+                                  <span className="trade-target-label">Result</span>
                                   <span className="trade-target-val">{fmtPct(t.realized_pnl_pct)}</span>
                                 </div>
                               </div>
                             </div>
                           ) : (
-                            <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>Geen case analyse beschikbaar.</div>
+                            <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>No case analysis available.</div>
                           )}
                         </div>
                       </td>

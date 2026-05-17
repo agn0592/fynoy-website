@@ -32,18 +32,18 @@ const ITEMS: CommunityCardItem[] = [
   {
     icon: ResearchIcon,
     eyebrow: 'Research community',
-    title: 'Volg de research',
-    body: 'Lees wekelijkse stock analyses, woon pitches bij en stel vragen aan het team.',
+    title: 'Follow the research',
+    body: 'Read weekly stock analyses, attend pitches, and ask the team questions.',
     href: RESEARCH_WA,
-    cta: 'Word lid via WhatsApp',
+    cta: 'Join via WhatsApp',
   },
   {
     icon: AnalystIcon,
-    eyebrow: 'Word analist',
-    title: 'Word analist',
-    body: 'Schrijf research reports, presenteer stock pitches en bouw ervaring op in een echt investment team.',
+    eyebrow: 'Become an analyst',
+    title: 'Become an analyst',
+    body: 'Write research reports, present stock pitches, and build experience inside a real investment team.',
     href: ANALYST_WA,
-    cta: 'Solliciteer via WhatsApp',
+    cta: 'Apply via WhatsApp',
   },
 ]
 

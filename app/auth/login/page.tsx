@@ -8,19 +8,19 @@ import Nav from '@/app/components/Nav'
 import HeroOrbs from '@/app/components/HeroOrbs'
 
 const ERROR_MAP: Record<string, string> = {
-  'Invalid login credentials': 'Onjuist e-mailadres of wachtwoord.',
-  'Email not confirmed': 'Bevestig eerst je e-mailadres via de link in je inbox.',
-  'Too many requests': 'Te veel pogingen. Probeer het over een paar minuten opnieuw.',
+  'Invalid login credentials': 'Incorrect email or password.',
+  'Email not confirmed': 'Please confirm your email address using the link in your inbox first.',
+  'Too many requests': 'Too many attempts. Try again in a few minutes.',
 }
 
 function mapError(message: string | undefined): string {
-  if (!message) return 'Er is iets misgegaan. Probeer het opnieuw.'
+  if (!message) return 'Something went wrong. Please try again.'
   if (ERROR_MAP[message]) return ERROR_MAP[message]
   const lower = message.toLowerCase()
   if (lower.includes('rate')) return ERROR_MAP['Too many requests']
   if (lower.includes('not confirm')) return ERROR_MAP['Email not confirmed']
   if (lower.includes('invalid login') || lower.includes('invalid credentials')) return ERROR_MAP['Invalid login credentials']
-  return 'Er is iets misgegaan. Probeer het opnieuw.'
+  return 'Something went wrong. Please try again.'
 }
 
 function LoginForm() {
@@ -83,7 +83,7 @@ function LoginForm() {
       )}
 
       <div className="auth-input-group">
-        <label className="auth-label" htmlFor="email">E-mailadres</label>
+        <label className="auth-label" htmlFor="email">Email address</label>
         <input
           id="email"
           type="email"
@@ -92,11 +92,11 @@ function LoginForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="auth-input"
-          placeholder="jij@voorbeeld.com"
+          placeholder="you@example.com"
         />
       </div>
       <div className="auth-input-group">
-        <label className="auth-label" htmlFor="password">Wachtwoord</label>
+        <label className="auth-label" htmlFor="password">Password</label>
         <input
           id="password"
           type="password"
@@ -112,7 +112,7 @@ function LoginForm() {
             href="/auth/forgot-password"
             style={{ color: 'var(--gold)', fontSize: 12, letterSpacing: '0.02em' }}
           >
-            Wachtwoord vergeten?
+            Forgot password?
           </Link>
         </div>
       </div>
@@ -123,7 +123,7 @@ function LoginForm() {
         className="btn btn-primary"
         style={{ width: '100%', justifyContent: 'center', marginTop: 8, padding: '14px 0', fontSize: 13 }}
       >
-        {loading ? 'Inloggen…' : 'Inloggen'}
+        {loading ? 'Signing in…' : 'Sign in'}
       </button>
     </form>
   )
@@ -143,18 +143,18 @@ export default function LoginPage() {
             <div style={{ position: 'relative', zIndex: 1 }}>
               <span className="eyebrow">Member portal</span>
               <h1 style={{ marginTop: 20, fontSize: 'clamp(32px,3.8vw,52px)', lineHeight: 1.08 }}>
-                Welkom<br />terug.
+                Welcome<br />back.
               </h1>
               <p className="lede" style={{ marginTop: 20, maxWidth: '30ch', color: 'var(--ink-mute)' }}>
-                Toegang tot het live portfolio dashboard met elke positie, elk rendement en de redenering achter elke trade.
+                Access the live portfolio dashboard with every position, every return, and the rationale behind every trade.
               </p>
               <div className="auth-features">
                 {[
-                  'Realtime open positions & rendementen',
-                  'Volledige trade redenering bij elke positie',
+                  'Realtime open positions & returns',
+                  'Full trade rationale per position',
                   'Performance vs VWCE benchmark',
-                  'Alle gesloten trades met exact rendement',
-                  'Sector allocatie & risico analyse',
+                  'Closed trades with exact return',
+                  'Sector allocation & risk view',
                 ].map((f) => (
                   <div key={f} className="auth-feature">
                     <span className="auth-feature-dot" />
@@ -168,11 +168,11 @@ export default function LoginPage() {
           {/* Right form panel */}
           <div className="auth-form-side">
             <div className="auth-card">
-              <h2 style={{ fontSize: 'clamp(22px,2.2vw,30px)', marginBottom: 6 }}>Inloggen</h2>
+              <h2 style={{ fontSize: 'clamp(22px,2.2vw,30px)', marginBottom: 6 }}>Sign in</h2>
               <p style={{ fontSize: 14, color: 'var(--ink-mute)', marginBottom: 32 }}>
-                Nog geen account?{' '}
+                No account?{' '}
                 <Link href="/auth/register" style={{ color: 'var(--gold)' }}>
-                  Maak er gratis een aan →
+                  Create one — it&apos;s free →
                 </Link>
               </p>
 

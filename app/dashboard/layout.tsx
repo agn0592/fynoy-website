@@ -25,7 +25,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="dash-shell">
       {/* ── Sidebar ── */}
       <aside className="dash-sidebar">
-        <Link href="/" className="dash-sb-logo" aria-label="Naar homepage">
+        <Link href="/" className="dash-sb-logo" aria-label="Back to homepage">
           <SidebarLogo />
         </Link>
 
