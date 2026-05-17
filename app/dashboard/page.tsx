@@ -71,7 +71,9 @@ export default async function DashboardPage() {
   const vwcePct = firstBenchmark && lastBenchmark && firstBenchmark !== lastBenchmark
     ? ((lastBenchmark.benchmark_value - firstBenchmark.benchmark_value) / firstBenchmark.benchmark_value) * 100
     : null
-  const alphaPct = vwcePct !== null ? (twrFactor - 1) * 100 - vwcePct : null: Record<string, string> = {
+  const alphaPct = vwcePct !== null ? (twrFactor - 1) * 100 - vwcePct : null
+
+  const SECTOR_FALLBACK: Record<string, string> = {
     I500: 'ETF', IBM: 'Technology', LLY: 'Healthcare',
     MSFT: 'Technology', ORCL: 'Technology', PLTR: 'Technology',
     V: 'Financials', RHM: 'Industrials', PANW: 'Technology',
