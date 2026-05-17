@@ -109,22 +109,6 @@ async function fetchIbkrXml(): Promise<string> {
   throw new Error('IBKR report not ready after 5 attempts')
 }
 
-// ── Yahoo Finance benchmark ──────────────────────────────────────────────────
-
-async function fetchBenchmarkPrice(): Promise<number> {
-  try {
-    const res = await fetch(
-      'https://query1.finance.yahoo.com/v8/finance/chart/VWCE.DE',
-      { headers: { 'User-Agent': 'Mozilla/5.0' } }
-    )
-    if (!res.ok) return 0
-    const data = await res.json()
-    return (data?.chart?.result?.[0]?.meta?.regularMarketPrice as number) ?? 0
-  } catch {
-    return 0
-  }
-}
-
 // ── main handler ─────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
@@ -290,17 +274,6 @@ export async function POST(request: NextRequest) {
       const { error } = await supabase.from('portfolio_snapshots').upsert(navRows, { onConflict: 'snapshot_date' })
       if (error) console.error('portfolio_snapshots batch upsert error:', error)
       else navCount = navRows.length
-    }
-
-    // ── Today's snapshot: add live benchmark ─────────────────────────────────
-    const today = new Date().toISOString().split('T')[0]
-    const benchmarkValue = await fetchBenchmarkPrice()
-
-    if (benchmarkValue > 0) {
-      await supabase.from('portfolio_snapshots').upsert(
-        { snapshot_date: today, benchmark_value: benchmarkValue },
-        { onConflict: 'snapshot_date' }
-      )
     }
 
     return Response.json({
