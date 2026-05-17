@@ -123,7 +123,7 @@ export default function AuditClient(props: AuditClientProps) {
 
   async function copyMigrationName() {
     try {
-      await navigator.clipboard.writeText('007_user_features.sql')
+      await navigator.clipboard.writeText('011_user_features.sql')
       setCopied(true)
       window.setTimeout(() => setCopied(false), 2000)
     } catch {
@@ -207,7 +207,7 @@ export default function AuditClient(props: AuditClientProps) {
                 borderRadius: 2,
               }}
             >
-              007_user_features.sql
+              011_user_features.sql
             </code>{' '}
             to enable the audit_log table. Synthetic events from existing data are shown below in
             the meantime.

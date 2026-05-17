@@ -35,7 +35,7 @@ function startOfMonthMs(): number {
 export default async function MembersPage() {
   const supabase = getServiceClient()
 
-  // Try to select with last_seen_at (may not exist if migration 007 not applied)
+  // Try to select with last_seen_at (may not exist if migration 011 not applied)
   let members: MemberRow[] = []
   let hasLastSeen = true
 
