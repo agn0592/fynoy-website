@@ -2,6 +2,8 @@
 
 import { Fragment, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
+import FavoriteToggle from './FavoriteToggle'
+import InfoTooltip from './InfoTooltip'
 
 interface Position {
   symbol: string
@@ -84,15 +86,32 @@ export default function PositionsTable({ positions }: { positions: Position[] })
         <table className="dash-table">
           <thead>
             <tr>
+              <th className="dash-th" style={{ width: 32, cursor: 'default', padding: '10px 6px' }} aria-label="Favorite" />
               <th className={`dash-th${sortKey === 'symbol' ? ' sorted' : ''}`} onClick={() => handleSort('symbol')}>Symbol{arrow('symbol')}</th>
-              <th className={`dash-th${sortKey === 'pct_of_nav' ? ' sorted' : ''}`} onClick={() => handleSort('pct_of_nav')}>Weight{arrow('pct_of_nav')}</th>
-              <th className={`dash-th${sortKey === 'unrealized_pnl_pct' ? ' sorted' : ''}`} onClick={() => handleSort('unrealized_pnl_pct')}>Return{arrow('unrealized_pnl_pct')}</th>
+              <th
+                className={`dash-th${sortKey === 'pct_of_nav' ? ' sorted' : ''}`}
+                onClick={() => handleSort('pct_of_nav')}
+              >
+                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  Weight{arrow('pct_of_nav')}
+                  <InfoTooltip term="weight" />
+                </span>
+              </th>
+              <th
+                className={`dash-th${sortKey === 'unrealized_pnl_pct' ? ' sorted' : ''}`}
+                onClick={() => handleSort('unrealized_pnl_pct')}
+              >
+                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  Return{arrow('unrealized_pnl_pct')}
+                  <InfoTooltip term="unrealized-pnl" />
+                </span>
+              </th>
             </tr>
           </thead>
           <tbody>
             {sorted.length === 0 ? (
               <tr>
-                <td colSpan={3} className="dash-td" style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--ink-dim)', fontStyle: 'italic', fontFamily: 'var(--serif)' }}>
+                <td colSpan={4} className="dash-td" style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--ink-dim)', fontStyle: 'italic', fontFamily: 'var(--serif)' }}>
                   No open positions
                 </td>
               </tr>
@@ -109,6 +128,9 @@ export default function PositionsTable({ positions }: { positions: Position[] })
                     style={{ cursor: isClickable ? 'pointer' : 'default' }}
                     aria-expanded={isExpanded ? 'true' : 'false'}
                   >
+                    <td className="dash-td" style={{ padding: '6px 4px', textAlign: 'center' }}>
+                      <FavoriteToggle kind="position" id={pos.symbol} />
+                    </td>
                     <td className="dash-td">
                       <span className="dash-symbol">{pos.symbol}</span>
                       {isClickable && (
@@ -138,7 +160,7 @@ export default function PositionsTable({ positions }: { positions: Position[] })
 
                   {isExpanded && (
                     <tr>
-                      <td colSpan={3} style={{ padding: 0 }}>
+                      <td colSpan={4} style={{ padding: 0 }}>
                         <div className="trade-detail-panel">
                           {loadingId === pos.trading_id ? (
                             <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>Loading analysis…</div>

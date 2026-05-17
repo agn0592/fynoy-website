@@ -160,7 +160,7 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
 
   function handleResetAll() {
     const ok = window.confirm(
-      'Weet je het zeker? Alle Fynoy-voorkeuren op dit apparaat worden gewist.',
+      'Are you sure? All Fynoy preferences on this device will be cleared.',
     )
     if (!ok) return
     const keys: string[] = []
@@ -176,7 +176,7 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
     setDisplay(DEFAULT_DISPLAY)
     setPrivacy(DEFAULT_PRIVACY)
     window.dispatchEvent(new CustomEvent<string>('fynoy:avatar-color', { detail: 'gold' }))
-    setResetMessage('Voorkeuren teruggezet naar de standaardwaarden.')
+    setResetMessage('Preferences reset to defaults.')
     window.setTimeout(() => setResetMessage(null), 3500)
     flashSaved()
   }
@@ -184,7 +184,7 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
   function handleExportCsv(e: React.MouseEvent) {
     e.preventDefault()
     const header = 'symbol,quantity,entry_price,current_price\n'
-    const sample = '# Placeholder export — koppel dit aan /api/portfolio/export in de toekomst.\n'
+    const sample = '# Placeholder export — wire this up to /api/portfolio/export in the future.\n'
     const blob = new Blob([header + sample], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -247,11 +247,11 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
                 <span className="dash-toggle-slider" />
               </label>
             </div>
-            <div className="dash-form-hint">Wisselt direct — opgeslagen onder fynoy-theme.</div>
+            <div className="dash-form-hint">Switches instantly — saved as fynoy-theme.</div>
           </div>
 
           <div className="dash-form-group span-2">
-            <span className="dash-form-label">Accentkleur</span>
+            <span className="dash-form-label">Accent color</span>
             <div
               role="radiogroup"
               aria-label="Accent color"
@@ -287,7 +287,7 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
                 )
               })}
             </div>
-            <div className="dash-form-hint">Wordt ook gebruikt voor je avatar in de hele app.</div>
+            <div className="dash-form-hint">Also used for your avatar across the app.</div>
           </div>
         </div>
       </section>
@@ -302,30 +302,30 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
           </div>
           {savedIndicator}
         </div>
-        <p className="dash-form-section-sub">Kies waarover je geïnformeerd wilt worden.</p>
+        <p className="dash-form-section-sub">Pick what you want to be notified about.</p>
 
         <div className="dash-form-grid">
           <ToggleRow
-            label="Positie gesloten"
-            hint="Melding wanneer een trade gesloten wordt."
+            label="Position closed"
+            hint="Alert when a trade is closed."
             checked={notif.positionClosed}
             onChange={(v) => updateNotif({ positionClosed: v })}
           />
           <ToggleRow
-            label="Nieuwe commentary"
-            hint="Bericht wanneer er een nieuwe portfolio-update is."
+            label="New commentary"
+            hint="Notify me when a new portfolio update is published."
             checked={notif.newCommentary}
             onChange={(v) => updateNotif({ newCommentary: v })}
           />
           <ToggleRow
             label="Sync alerts"
-            hint="Waarschuwing als data niet meer actueel is."
+            hint="Warn me when data goes stale."
             checked={notif.syncAlerts}
             onChange={(v) => updateNotif({ syncAlerts: v })}
           />
           <ToggleRow
             label="Weekly digest"
-            hint="Wekelijkse samenvatting per e-mail."
+            hint="Weekly email summary."
             checked={notif.weeklyDigest}
             onChange={(v) => updateNotif({ weeklyDigest: v })}
           />
@@ -339,11 +339,11 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
           </div>
           {savedIndicator}
         </div>
-        <p className="dash-form-section-sub">Hoe bedragen, datums en standaardperiodes worden getoond.</p>
+        <p className="dash-form-section-sub">How amounts, dates and default ranges are shown.</p>
 
         <div className="dash-form-grid">
           <div className="dash-form-group">
-            <label className="dash-form-label" htmlFor="display-currency">Valuta</label>
+            <label className="dash-form-label" htmlFor="display-currency">Currency</label>
             <select
               id="display-currency"
               className="dash-select"
@@ -357,7 +357,7 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
           </div>
 
           <div className="dash-form-group">
-            <label className="dash-form-label" htmlFor="display-date">Datumnotatie</label>
+            <label className="dash-form-label" htmlFor="display-date">Date format</label>
             <select
               id="display-date"
               className="dash-select"
@@ -370,7 +370,7 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
           </div>
 
           <div className="dash-form-group">
-            <label className="dash-form-label" htmlFor="display-range">Standaard tijdsbereik</label>
+            <label className="dash-form-label" htmlFor="display-range">Default time range</label>
             <select
               id="display-range"
               className="dash-select"
@@ -384,7 +384,7 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
               <option value="1Y">1Y</option>
               <option value="All">All</option>
             </select>
-            <div className="dash-form-hint">Gebruikt bij het openen van de performance-grafiek.</div>
+            <div className="dash-form-hint">Used when opening the performance chart.</div>
           </div>
         </div>
       </section>
@@ -399,18 +399,18 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
           </div>
           {savedIndicator}
         </div>
-        <p className="dash-form-section-sub">Bescherm gevoelige cijfers in publieke omgevingen.</p>
+        <p className="dash-form-section-sub">Hide sensitive numbers in public environments.</p>
 
         <div className="dash-form-grid">
           <ToggleRow
-            label="Privacy-modus"
-            hint="Alle bedragen worden vervangen door •••."
+            label="Privacy mode"
+            hint="All amounts are replaced with •••."
             checked={privacy.privacyMode}
             onChange={(v) => updatePrivacy({ privacyMode: v })}
           />
           <ToggleRow
-            label="Publiek profiel"
-            hint="Placeholder — wordt later geactiveerd."
+            label="Public profile"
+            hint="Placeholder — coming later."
             checked={privacy.publicProfile}
             onChange={(v) => updatePrivacy({ publicProfile: v })}
             disabled
@@ -425,7 +425,7 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
             letterSpacing: '0.04em',
           }}
         >
-          Sessie: <strong style={{ color: 'var(--ink-mute)' }}>{displayName}</strong>
+          Session: <strong style={{ color: 'var(--ink-mute)' }}>{displayName}</strong>
           {email && <> · <span style={{ color: 'var(--ink-mute)' }}>{email}</span></>}
           <> · <span className={`status-badge ${role === 'admin' ? 'info' : 'active'}`}>{role}</span></>
         </div>
@@ -437,12 +437,12 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
             <h2 className="dash-form-section-title">Data &amp; Export</h2>
           </div>
         </div>
-        <p className="dash-form-section-sub">Download je portefeuille of reset al je voorkeuren.</p>
+        <p className="dash-form-section-sub">Download your portfolio data or reset all your preferences.</p>
 
         {resetMessage && (
           <div className="dash-alert" style={{ marginBottom: 14 }} role="status">
             <div className="dash-alert-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <IconAlertCircle width={12} height={12} /> Reset uitgevoerd
+              <IconAlertCircle width={12} height={12} /> Reset complete
             </div>
             <div className="dash-alert-body">{resetMessage}</div>
           </div>
@@ -454,14 +454,14 @@ export default function SettingsClient({ displayName, email, role }: SettingsCli
             className="dash-btn btn-outline"
             onClick={handleExportCsv}
           >
-            <IconDownload width={14} height={14} /> Exporteer als CSV
+            <IconDownload width={14} height={14} /> Export as CSV
           </a>
           <button
             type="button"
             className="dash-btn btn-danger"
             onClick={handleResetAll}
           >
-            <IconRefresh width={14} height={14} /> Reset voorkeuren
+            <IconRefresh width={14} height={14} /> Reset preferences
           </button>
         </div>
       </section>

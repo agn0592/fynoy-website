@@ -1,4 +1,5 @@
 import { fmtPct } from '@/lib/analytics'
+import InfoTooltip from './InfoTooltip'
 
 interface MonthlyHeatmapProps {
   months: { year: number; month: number; pct: number }[]
@@ -48,7 +49,10 @@ export default function MonthlyHeatmap({ months }: MonthlyHeatmapProps) {
     <div className="dash-card">
       <div className="dash-card-header">
         <div>
-          <div className="dash-card-title">Monthly Returns</div>
+          <div className="dash-card-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
+            Monthly Returns
+            <InfoTooltip term="twr" />
+          </div>
           <div className="dash-card-sub">Compounded daily TWR by month</div>
         </div>
       </div>

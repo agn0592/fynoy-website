@@ -28,6 +28,7 @@ const MEMBER_PRIMARY: NavItem[] = [
   { href: '/dashboard/history',         label: 'Trade History', icon: <IconClock /> },
   { href: '/dashboard/performance',     label: 'Performance',   icon: <IconChart /> },
   { href: '/dashboard/commentary',      label: 'Commentary',    icon: <IconMessage /> },
+  { href: '/dashboard/favorites',       label: 'Favorites',     icon: <IconStar /> },
   { href: '/dashboard/watchlist',       label: 'Watchlist',     icon: <IconStar /> },
   { href: '/dashboard/insights',        label: 'Insights',      icon: <IconHelp /> },
 ]

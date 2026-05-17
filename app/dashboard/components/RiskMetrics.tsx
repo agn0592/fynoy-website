@@ -1,3 +1,5 @@
+import InfoTooltip from './InfoTooltip'
+
 interface BestWorstTrade { symbol: string; pct: number }
 
 interface RiskMetricsProps {
@@ -25,33 +27,48 @@ export default function RiskMetrics(props: RiskMetricsProps) {
       </div>
       <div className="dash-stats-stack" style={{ marginTop: 12 }}>
         <div className="dash-stat-cell">
-          <div className="dash-stat-label">Win rate</div>
+          <div className="dash-stat-label">
+            Win rate
+            <InfoTooltip term="win-rate" />
+          </div>
           <div className={`dash-stat-val ${winRate >= 50 ? 'up' : 'dn'}`}>
             {totalTrades > 0 ? `${winRate.toFixed(0)}%` : '—'}
           </div>
           <div className={`dash-stat-glow ${winRate >= 50 ? 'up' : 'dn'}`} />
         </div>
         <div className="dash-stat-cell">
-          <div className="dash-stat-label">Avg return</div>
+          <div className="dash-stat-label">
+            Avg return
+            <InfoTooltip term="avg-return" />
+          </div>
           <div className={`dash-stat-val ${avgReturn >= 0 ? 'up' : 'dn'}`}>
             {totalTrades > 0 ? fmtPct(avgReturn) : '—'}
           </div>
           <div className={`dash-stat-glow ${avgReturn >= 0 ? 'up' : 'dn'}`} />
         </div>
         <div className="dash-stat-cell">
-          <div className="dash-stat-label">Avg holding</div>
+          <div className="dash-stat-label">
+            Avg holding
+            <InfoTooltip term="avg-holding" />
+          </div>
           <div className="dash-stat-val flat">
             {totalTrades > 0 ? `${avgHoldingDays}d` : '—'}
           </div>
           <div className="dash-stat-glow flat" />
         </div>
         <div className="dash-stat-cell">
-          <div className="dash-stat-label">Trades YTD</div>
+          <div className="dash-stat-label">
+            Trades YTD
+            <InfoTooltip term="trades-ytd" />
+          </div>
           <div className="dash-stat-val flat">{tradesYtd}</div>
           <div className="dash-stat-glow flat" />
         </div>
         <div className="dash-stat-cell">
-          <div className="dash-stat-label">Best trade</div>
+          <div className="dash-stat-label">
+            Best trade
+            <InfoTooltip term="best-trade" />
+          </div>
           <div className="dash-stat-val up">
             {bestTrade ? fmtPct(bestTrade.pct) : '—'}
           </div>
@@ -63,7 +80,10 @@ export default function RiskMetrics(props: RiskMetricsProps) {
           <div className="dash-stat-glow up" />
         </div>
         <div className="dash-stat-cell">
-          <div className="dash-stat-label">Worst trade</div>
+          <div className="dash-stat-label">
+            Worst trade
+            <InfoTooltip term="worst-trade" />
+          </div>
           <div className="dash-stat-val dn">
             {worstTrade ? fmtPct(worstTrade.pct) : '—'}
           </div>

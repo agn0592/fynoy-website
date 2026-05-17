@@ -545,6 +545,12 @@ p { margin: 0 0 1em; color: var(--ink); font-weight: 400 }
 .pricing-feats .check {
   flex-shrink: 0;
   width: 18px; height: 18px;
+  min-height: 0;
+  padding: 0;
+  gap: 0;
+  flex-direction: row;
+  border-right: 0;
+  border-bottom: 0;
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 50%;
   background: rgba(201,169,110,0.10);

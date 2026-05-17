@@ -2,6 +2,9 @@
 
 import { Fragment, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
+import FavoriteToggle from './FavoriteToggle'
+import InfoTooltip from './InfoTooltip'
+import { closedTradeKey } from '@/lib/favorites'
 
 interface ClosedTrade {
   symbol: string
@@ -94,22 +97,34 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
         <table className="dash-table">
           <thead>
             <tr>
+              <th className="dash-th" style={{ width: 32, cursor: 'default', padding: '10px 6px' }} aria-label="Favorite" />
               <th className="dash-th">Symbol</th>
               <th className="dash-th">Entry</th>
               <th className="dash-th">Exit</th>
-              <th className="dash-th">Return</th>
-              <th className="dash-th">Held</th>
+              <th className="dash-th">
+                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  Return
+                  <InfoTooltip term="realized-pnl" />
+                </span>
+              </th>
+              <th className="dash-th">
+                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  Held
+                  <InfoTooltip term="holding-period" />
+                </span>
+              </th>
             </tr>
           </thead>
           <tbody>
             {pageData.length === 0 ? (
               <tr>
-                <td colSpan={5} className="dash-td" style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--ink-dim)', fontStyle: 'italic', fontFamily: 'var(--serif)' }}>
+                <td colSpan={6} className="dash-td" style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--ink-dim)', fontStyle: 'italic', fontFamily: 'var(--serif)' }}>
                   No closed trades
                 </td>
               </tr>
             ) : pageData.map((t, i) => {
               const rowKey = `${t.symbol}-${t.entry_date}-${t.exit_date}-${i}`
+              const favKey = closedTradeKey(t.symbol, t.entry_date, t.exit_date)
               const isClickable = !!t.trading_id
               const isExpanded = expandedKey === rowKey
               return (
@@ -120,6 +135,9 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
                     style={{ cursor: isClickable ? 'pointer' : 'default' }}
                     aria-expanded={isExpanded ? 'true' : 'false'}
                   >
+                    <td className="dash-td" style={{ padding: '6px 4px', textAlign: 'center' }}>
+                      <FavoriteToggle kind="closed" id={favKey} />
+                    </td>
                     <td className="dash-td">
                       <span className="dash-symbol">{t.symbol}</span>
                       {isClickable && (
@@ -142,7 +160,7 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
 
                   {isExpanded && (
                     <tr>
-                      <td colSpan={5} style={{ padding: 0 }}>
+                      <td colSpan={6} style={{ padding: 0 }}>
                         <div className="trade-detail-panel">
                           {loadingKey === rowKey ? (
                             <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>Loading analysis…</div>

@@ -496,6 +496,7 @@ body.dash-drawer-open { overflow: hidden }
 .dash-stat-label {
   font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--ink-dim); margin-bottom: 8px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 0;
 }
 .dash-stat-val {
   font-family: var(--serif); font-size: clamp(22px,2.4vw,28px);
@@ -558,6 +559,7 @@ body.dash-drawer-open { overflow: hidden }
   color: var(--ink-dim); font-size: 10px; font-weight: 600;
   text-transform: uppercase; letter-spacing: 0.08em;
   margin-bottom: 6px;
+  display: inline-flex; align-items: center;
 }
 .adm-kpi-val {
   color: var(--ink); font-size: 20px; font-weight: 600;
@@ -954,7 +956,8 @@ body.dash-drawer-open { overflow: hidden }
 .risk-adj-label {
   font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--ink-dim); margin-bottom: 8px; font-weight: 500;
-  display: flex; align-items: baseline; gap: 6px;
+  display: flex; align-items: center; gap: 6px;
+  flex-wrap: wrap;
 }
 .risk-adj-mute {
   font-size: 9px; color: var(--ink-dim);
