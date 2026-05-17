@@ -18,9 +18,7 @@ interface DeferredPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
-declare global {
-  interface Window { __pwaDeferred?: DeferredPromptEvent }
-}
+type AnyWindow = Window & { __pwaDeferred?: unknown }
 
 export default function InstallPrompt() {
   const [visible, setVisible] = useState(false)
@@ -41,15 +39,16 @@ export default function InstallPrompt() {
     setIsIos(ios)
 
     // Grab deferred prompt captured early by PwaInit (may already be set)
-    if (window.__pwaDeferred) {
-      deferredRef.current = window.__pwaDeferred
+    const w = window as AnyWindow
+    if (w.__pwaDeferred) {
+      deferredRef.current = w.__pwaDeferred as DeferredPromptEvent
     }
 
     // Also listen in case it fires after we mount
     const handler = (e: Event) => {
       e.preventDefault()
       deferredRef.current = e as DeferredPromptEvent
-      window.__pwaDeferred = e as DeferredPromptEvent
+      ;(window as AnyWindow).__pwaDeferred = e
     }
     window.addEventListener('beforeinstallprompt', handler)
 
