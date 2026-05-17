@@ -49,7 +49,7 @@ export default function PortfolioSummary({ unrealizedPnlPct, realizedPnlYtdPct, 
           </div>
           {alphaPct != null && vwcePct != null && (
             <div className="dash-stat-sub" style={{ fontSize: '10px', opacity: 0.45, marginTop: 2 }}>
-              VWCE {fmt(vwcePct)}
+              VWCE {fmt(vwcePct)} since inception
             </div>
           )}
           <div className={`dash-stat-glow ${aCls}`} />
