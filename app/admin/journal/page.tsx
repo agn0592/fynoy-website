@@ -1,6 +1,10 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import JournalClient from './JournalClient'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Journal' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -45,7 +49,7 @@ export default async function JournalPage() {
   ] = await Promise.all([
     supabase
       .from('journal')
-      .select('id, trading_id, entry_date, entry_type, notes, post_trade_reflection, created_at')
+.select('id, trading_id, entry_date, entry_type, notes, post_trade_reflection, created_at')
       .order('entry_date', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false }),
     supabase

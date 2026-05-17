@@ -4,6 +4,10 @@ import SectorAllocation from '@/app/dashboard/components/SectorAllocation'
 import PositionTimeline, { type TimelinePosition } from '@/app/dashboard/components/PositionTimeline'
 import { concentrationStats, fmtEUR, fmtNum } from '@/lib/analytics'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Holdings' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,7 +38,7 @@ interface CaseRow {
 
 const SECTOR_FALLBACK: Record<string, string> = {
   I500: 'ETF', IBM: 'Technology', LLY: 'Healthcare',
-  MSFT: 'Technology', ORCL: 'Technology', PLTR: 'Technology',
+MSFT: 'Technology', ORCL: 'Technology', PLTR: 'Technology',
   V: 'Financials', RHM: 'Industrials', PANW: 'Technology',
 }
 

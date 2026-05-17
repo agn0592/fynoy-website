@@ -2,6 +2,10 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { IconClock } from '@/app/dashboard/components/Icons'
 import TimelineClient, { type PositionTimelineRow } from './_components/TimelineClient'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Timeline' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

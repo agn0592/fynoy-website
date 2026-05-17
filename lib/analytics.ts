@@ -49,31 +49,34 @@ interface IndexedPoint {
 }
 
 export function indexSnapshots(snapshots: SnapshotInput[]): IndexedPoint[] {
-  let factor = 1
   const benchmarks = snapshots.map(s => s.benchmark_value ?? 0)
   const firstBench = benchmarks.find(v => v > 0) ?? 0
-  return snapshots.map((s, i) => {
-    factor *= 1 + (s.daily_twr ?? 0) / 100
-    return {
+  return snapshots.reduce<{ points: IndexedPoint[]; factor: number }>((acc, s, i) => {
+    const nextFactor = acc.factor * (1 + (s.daily_twr ?? 0) / 100)
+    acc.points.push({
       date: s.snapshot_date,
-      twrIndex: factor * 100,
+      twrIndex: nextFactor * 100,
       nav: s.total_nav ?? 0,
       benchmark: firstBench > 0 && benchmarks[i] > 0
         ? (benchmarks[i] / firstBench) * 100
         : null,
-    }
-  })
+    })
+    acc.factor = nextFactor
+    return acc
+  }, { points: [], factor: 1 }).points
 }
 
 /** Compute drawdown series in % from a TWR-indexed series */
 export function drawdownSeries(snapshots: SnapshotInput[]): { date: string; dd: number; underwater: boolean }[] {
   const idx = indexSnapshots(snapshots)
-  let peak = idx[0]?.twrIndex ?? 100
-  return idx.map(p => {
-    peak = Math.max(peak, p.twrIndex)
+  const initialPeak = idx[0]?.twrIndex ?? 100
+  return idx.reduce<{ items: { date: string; dd: number; underwater: boolean }[]; peak: number }>((acc, p) => {
+    const peak = Math.max(acc.peak, p.twrIndex)
     const dd = peak > 0 ? ((p.twrIndex - peak) / peak) * 100 : 0
-    return { date: p.date, dd, underwater: dd < -0.01 }
-  })
+    acc.items.push({ date: p.date, dd, underwater: dd < -0.01 })
+    acc.peak = peak
+    return acc
+  }, { items: [], peak: initialPeak }).items
 }
 
 /** Annualized stats from daily TWR series */
@@ -261,7 +264,7 @@ export function returnDistribution(trades: ClosedTradeInput[]): { bucket: string
     { range: [20, 50], label: '20 to 50%' },
     { range: [50, Infinity], label: '> 50%' },
   ]
-  const counts = buckets.map(b => 0)
+  const counts = buckets.map(() => 0)
   trades.forEach(t => {
     const pct = t.realized_pnl_pct ?? 0
     const i = buckets.findIndex(b => pct >= b.range[0] && pct < b.range[1])

@@ -1,6 +1,10 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import SettingsClient from './SettingsClient'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Settings' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,7 +15,7 @@ function getServiceClient() {
 export interface GeneralSettings {
   inception_date?: string | null
   currency?: 'EUR' | 'USD' | 'GBP'
-  benchmark?: string
+benchmark?: string
   risk_free_pct?: number
 }
 

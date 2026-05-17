@@ -1,6 +1,10 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import WatchlistClient from './WatchlistClient'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Watchlist' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,7 +15,7 @@ function getServiceClient() {
 export default async function WatchlistPage() {
   const service = getServiceClient()
   const { data } = await service.from('open_positions').select('symbol')
-  const heldSymbols = (data ?? [])
+const heldSymbols = (data ?? [])
     .map(r => (r?.symbol ?? '').toString().toUpperCase())
     .filter(s => s.length > 0)
 

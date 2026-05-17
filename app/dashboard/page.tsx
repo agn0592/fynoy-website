@@ -85,11 +85,19 @@ export default async function DashboardPage() {
   const realizedYtd = closedTrades.filter(t => t.exit_date >= ytdStart).reduce((s, t) => s + (t.realized_pnl ?? 0), 0)
   const realizedYtdPct = totalNav > 0 ? (realizedYtd / totalNav) * 100 : 0
 
-  let twrFactor = 1
-  const chartData = snapshots.map(s => {
-    twrFactor *= (1 + (s.daily_twr ?? 0) / 100)
-    return { date: s.snapshot_date, nav: twrFactor * 100, benchmark: s.benchmark_value ?? 0 }
-  })
+  const { chartData, twrFactor } = snapshots.reduce<{
+    chartData: { date: string; nav: number; benchmark: number }[]
+    twrFactor: number
+  }>((acc, s) => {
+    const nextFactor = acc.twrFactor * (1 + (s.daily_twr ?? 0) / 100)
+    acc.chartData.push({
+      date: s.snapshot_date,
+      nav: nextFactor * 100,
+      benchmark: s.benchmark_value ?? 0,
+    })
+    acc.twrFactor = nextFactor
+    return acc
+  }, { chartData: [], twrFactor: 1 })
 
   const firstBenchmark = snapshots.find(s => (s.benchmark_value ?? 0) > 0)
   const lastBenchmark = [...snapshots].reverse().find(s => (s.benchmark_value ?? 0) > 0)

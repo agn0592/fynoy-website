@@ -10,6 +10,10 @@ import {
 } from '@/lib/analytics'
 import AnalyticsView from './AnalyticsView'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Analytics' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

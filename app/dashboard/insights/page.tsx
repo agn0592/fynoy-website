@@ -3,6 +3,10 @@ import {
   IconTrendingUp, IconAlertCircle, IconStar,
 } from '@/app/dashboard/components/Icons'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Insights' }
+
 // ───────────────────────────────────────────────────────────────────
 // Static educational content for members.
 // Pure server component — no interactivity beyond <details>/<summary>.

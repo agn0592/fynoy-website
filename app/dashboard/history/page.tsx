@@ -4,6 +4,10 @@ import ClosedTradesTable from '@/app/dashboard/components/ClosedTradesTable'
 import { returnDistribution, holdingPeriodDistribution, fmtPct } from '@/lib/analytics'
 import { ReturnDistributionChart, HoldingPeriodChart } from './HistoryCharts'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Trade History' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,7 +28,6 @@ interface ClosedTrade {
 }
 
 type FilterKey = 'all' | 'winners' | 'losers' | 'year'
-
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'all',     label: 'All' },
   { key: 'winners', label: 'Winners' },

@@ -1,6 +1,10 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import MembersClient from './MembersClient'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Members' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -37,7 +41,7 @@ export default async function MembersPage() {
 
   const withLastSeen = await supabase
     .from('users')
-    .select('id, email, full_name, role, created_at, last_seen_at')
+.select('id, email, full_name, role, created_at, last_seen_at')
     .order('created_at', { ascending: false })
 
   if (withLastSeen.error) {

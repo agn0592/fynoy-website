@@ -3,6 +3,10 @@ import { createClient } from '@/lib/supabase/server'
 import { buildNotifications } from '@/lib/notifications'
 import NotificationsClient from './NotificationsClient'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Notifications' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

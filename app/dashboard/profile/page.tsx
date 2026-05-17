@@ -1,13 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 import ProfileForm from './ProfileForm'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Profile' }
+
 export default async function ProfilePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   const { data: profile } = user
     ? await supabase.from('users').select('id, email, full_name, role, created_at').eq('id', user.id).maybeSingle()
-    : { data: null }
+: { data: null }
 
   const fullName = profile?.full_name ?? ''
   const email = profile?.email ?? user?.email ?? ''

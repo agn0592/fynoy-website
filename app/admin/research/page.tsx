@@ -3,6 +3,10 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { IconBriefcase, IconChart, IconPlus, IconStar } from '@/app/dashboard/components/Icons'
 import ResearchClient, { type CaseRow } from './_components/ResearchClient'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Research' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

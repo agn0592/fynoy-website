@@ -1,6 +1,10 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import RebalancingView from './RebalancingView'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Rebalancing' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,7 +38,7 @@ export default async function RebalancingPage() {
     { data: settingsRaw },
   ] = await Promise.all([
     supabase.from('open_positions').select('trading_id, symbol, current_price, position_size_actual'),
-    supabase.from('cases').select('trading_id, sector'),
+supabase.from('cases').select('trading_id, sector'),
     supabase.from('settings').select('key, value').eq('key', 'target_allocation').maybeSingle(),
   ])
 

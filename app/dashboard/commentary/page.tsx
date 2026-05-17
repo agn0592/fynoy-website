@@ -2,6 +2,10 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import AICommentary from '@/app/dashboard/components/AICommentary'
 import CommentaryEntry from './CommentaryEntry'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Commentary' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

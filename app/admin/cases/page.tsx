@@ -8,6 +8,10 @@ import {
 } from '@/app/dashboard/components/Icons'
 import { scoreClass } from './_components/ScoreBadge'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Cases' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

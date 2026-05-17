@@ -7,6 +7,10 @@ import {
 } from '@/lib/analytics'
 import DrawdownChart from './DrawdownChart'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Performance' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

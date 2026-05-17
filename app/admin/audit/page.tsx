@@ -1,6 +1,10 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import AuditClient from './AuditClient'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Audit Log' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

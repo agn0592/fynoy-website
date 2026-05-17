@@ -1,6 +1,10 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import CommentaryClient from './CommentaryClient'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'AI Commentary' }
+
 function getServiceClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,7 +23,7 @@ export default async function AICommentaryPage() {
 
   const { data: commentariesRaw } = await supabase
     .from('commentary')
-    .select('id, content, created_at')
+.select('id, content, created_at')
     .order('created_at', { ascending: false })
     .limit(10)
 
