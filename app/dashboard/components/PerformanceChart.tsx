@@ -6,7 +6,7 @@ import {
   XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine,
 } from 'recharts'
 
-const VWCE_TOOLTIP = 'VWCE is de Vanguard FTSE All-World ETF — een wereldwijde index van ~3.700 aandelen uit zowel ontwikkelde als opkomende markten. Wij gebruiken VWCE als benchmark om onze performance te vergelijken met het wereldwijde marktrendement.'
+const VWCE_TOOLTIP = 'VWCE is the Vanguard FTSE All-World ETF — a global index of ~3,700 stocks across developed and emerging markets. We use VWCE as our benchmark to compare our performance against the global market return.'
 
 interface DataPoint { date: string; nav: number; benchmark: number }
 type FilterKey = '1M' | '3M' | '6M' | 'YTD' | '1Y' | 'All'
@@ -80,7 +80,7 @@ export default function PerformanceChart({ data }: { data: DataPoint[] }) {
               <span
                 role="button"
                 tabIndex={0}
-                aria-label="VWCE uitleg"
+                aria-label="VWCE explanation"
                 onMouseEnter={() => setTipOpen(true)}
                 onMouseLeave={() => setTipOpen(false)}
                 onFocus={() => setTipOpen(true)}

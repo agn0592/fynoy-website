@@ -23,6 +23,12 @@ ALTER TABLE public.cases
   ADD COLUMN IF NOT EXISTS risk_4                  text,
   ADD COLUMN IF NOT EXISTS ai_summary              text;
 
+-- The source CSV stores tradingview_ta_score as text ("Buy" / "Sell" /
+-- "Neutral"). The original schema (001) typed it as numeric — relax to
+-- text so the import works.
+ALTER TABLE public.cases
+  ALTER COLUMN tradingview_ta_score TYPE text USING tradingview_ta_score::text;
+
 -- conviction_score check constraint is already in 001 but ensure it exists
 DO $$
 BEGIN
@@ -38,6 +44,7 @@ END $$;
 -- Authenticated users need read access to case data for the member dashboard.
 -- (Cases were previously admin-only via 001 policies — relax SELECT for auth users.)
 DROP POLICY IF EXISTS "cases: admin can select" ON public.cases;
+DROP POLICY IF EXISTS "cases: authenticated can select" ON public.cases;
 CREATE POLICY "cases: authenticated can select"
   ON public.cases FOR SELECT
   USING (auth.uid() IS NOT NULL);

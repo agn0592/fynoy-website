@@ -49,7 +49,7 @@ export default function Footer() {
               <span className="brand-mark" aria-hidden="true" style={{ width: 24, height: 24 }}>{LOGO_SVG}</span>
               <span className="brand-name"><b>Fynoy</b><i>Capital</i></span>
             </Link>
-            <p className="foot-blurb">Transparant investment research — wij beleggen met eigen geld en delen elke trade realtime. Gevestigd in Rotterdam.</p>
+            <p className="foot-blurb">Transparent investment research — we invest with our own money and share every trade in real time. Based in Rotterdam.</p>
             <div className="social-links" style={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
               <a href="https://x.com/fynoycapital" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)" style={{ color: 'var(--ink)', transition: 'color 0.2s', opacity: 0.8 }}>
                 <XIcon style={{ width: 20, height: 20 }} />
@@ -71,7 +71,7 @@ export default function Footer() {
             <Link href="/about">About</Link>
             <Link href="/join">Join Us</Link>
             <Link href="/work-with-us">Work With Us</Link>
-            <Link href="/download-app">Installeer als app</Link>
+            <Link href="/download-app">Install as app</Link>
             <Link href="/contact">Contact</Link>
           </div>
           <div>
@@ -92,9 +92,9 @@ export default function Footer() {
         <div className="foot-bot">
           <div>© 2026 Fynoy Capital. All rights reserved.</div>
           <div className="disc">
-            Fynoy Capital deelt informatie en analyses uitsluitend ter educatie en transparantie. Wij faciliteren
-            geen automatisch handelen. Gebruikers plaatsen altijd zelf hun orders. Dit is geen beleggingsadvies.
-            Rendementen uit het verleden bieden geen garantie voor de toekomst.
+            Fynoy Capital shares information and analysis purely for education and transparency. We do not
+            facilitate automated trading. Users always place their own orders. Nothing on this site constitutes
+            investment advice. Past performance does not guarantee future results.
           </div>
         </div>
       </div>

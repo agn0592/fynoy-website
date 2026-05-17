@@ -7,9 +7,9 @@ import HeroOrbs from "../components/HeroOrbs";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Join — volg ons portfolio gratis",
+  title: "Join — follow our portfolio for free",
   description:
-    "Maak gratis een account aan en volg het Fynoy Capital portfolio realtime. Optioneel: word lid van de WhatsApp community voor analyses en pitches.",
+    "Create a free account and follow the Fynoy Capital portfolio in real time. Optional: join the WhatsApp community for analyses and pitches.",
 };
 
 const RESEARCH_WA = "https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.";
@@ -31,46 +31,44 @@ export default function JoinPage() {
           <div className="grid-bg" />
           <HeroOrbs />
           <div className="wrap" style={{ position: "relative", zIndex: 1 }}>
-            <span className="eyebrow" style={{ animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both" }}>
-              Volg ons portfolio
-            </span>
+            <span className="eyebrow" style={{ animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both" }}>Follow our portfolio</span>
             <h1 style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.1s" }}>
-              Volg ons portfolio.<br />Leer hoe wij <em className="it">denken.</em>
+              Follow the portfolio.<br />Learn how we <em className="it">think.</em>
             </h1>
             <p className="hero-sub lede" style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.25s" }}>
-              Gratis toegang tot realtime trades, analyses en de redenering achter elke beslissing.
+              Free access to realtime trades, analyses, and the reasoning behind every decision.
             </p>
             <div className="hero-cta" style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.45s" }}>
               <Link className="btn btn-primary" href="/auth/register">
-                Maak gratis account
+                Create free account
               </Link>
               <a className="btn btn-outline" target="_blank" rel="noopener noreferrer" href={RESEARCH_WA}>
-                {WA_ICON} Word lid community
+                {WA_ICON} Join community
               </a>
             </div>
           </div>
         </header>
 
-        {/* ── WAT JE KRIJGT ── */}
+        {/* ── WHAT YOU GET ── */}
         <section className="section">
           <div className="wrap">
             <Reveal>
-              <span className="eyebrow">Wat je krijgt</span>
-              <h2 style={{ marginTop: 24, maxWidth: '20ch' }}>Twee niveaus van betrokkenheid</h2>
+              <span className="eyebrow">What you get</span>
+              <h2 style={{ marginTop: 24, maxWidth: '20ch' }}>Two ways to be involved</h2>
             </Reveal>
             <div className="check-grid" style={{ marginTop: 48, gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <Reveal>
                 <div className="check">
                   <div className="check-circle">{CHECK_SVG}</div>
-                  <h3>Gratis account</h3>
-                  <p>Toegang tot het portfolio dashboard: alle open posities en rendementen, gesloten trades met exact rendement, performance vs VWCE, sector allocatie.</p>
+                  <h3>Free account</h3>
+                  <p>Access the portfolio dashboard: all open positions with live returns, closed trades with exact P&amp;L, performance vs VWCE and sector allocation.</p>
                 </div>
               </Reveal>
               <Reveal delay={100}>
                 <div className="check">
                   <div className="check-circle">{CHECK_SVG}</div>
-                  <h3>Community lid</h3>
-                  <p>Wekelijkse analyses, pitches en directe toegang tot het team. Stel vragen, draag bij, leer mee — via de WhatsApp groep.</p>
+                  <h3>Community member</h3>
+                  <p>Weekly analyses, pitches and direct access to the team. Ask questions, contribute, learn along — through the WhatsApp group.</p>
                 </div>
               </Reveal>
             </div>
@@ -81,14 +79,14 @@ export default function JoinPage() {
         <section className="section">
           <div className="wrap">
             <Reveal>
-              <span className="eyebrow">Hoe het werkt</span>
-              <h2 style={{ marginTop: 24, maxWidth: '20ch' }}>Drie stappen, geen verplichtingen</h2>
+              <span className="eyebrow">How it works</span>
+              <h2 style={{ marginTop: 24, maxWidth: '20ch' }}>Three steps, no commitments</h2>
             </Reveal>
             <div className="steps" style={{ marginTop: 48, gridTemplateColumns: 'repeat(3, 1fr)' }}>
               {[
-                { n: "1", title: "Maak gratis account", body: "In één minuut. Dashboard direct beschikbaar." },
-                { n: "2", title: "Word community lid", body: "Optioneel. WhatsApp groep voor analyses en pitches." },
-                { n: "3", title: "Leer en bouw je visie", body: "Volg de trades, lees de redenering, ontwikkel je eigen aanpak." },
+                { n: "1", title: "Create free account", body: "Takes a minute. Dashboard is available immediately." },
+                { n: "2", title: "Join the community", body: "Optional. WhatsApp group for analyses and pitches." },
+                { n: "3", title: "Learn and build your view", body: "Follow the trades, read the rationale, develop your own approach." },
               ].map((s, i) => (
                 <Reveal key={s.n} delay={i * 100}>
                   <div className="step">
@@ -107,12 +105,12 @@ export default function JoinPage() {
           <Reveal className="cta-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
               <span className="eyebrow">Portfolio dashboard</span>
-              <h2>Volg live. Gratis.</h2>
-              <p>Maak een gratis account en open de portfolio realtime — open posities, gesloten trades, performance vs VWCE.</p>
+              <h2>Track live. For free.</h2>
+              <p>Create a free account and follow the portfolio in real time — open positions, closed trades, performance vs VWCE.</p>
             </div>
             <div className="cta-foot">
               <Link className="btn btn-primary" href="/auth/register">
-                Maak gratis account →
+                Create free account →
               </Link>
             </div>
           </Reveal>
@@ -120,11 +118,11 @@ export default function JoinPage() {
             <div>
               <span className="eyebrow">Community</span>
               <h2>WhatsApp community</h2>
-              <p>Analyses, pitches en discussie met de groep. Geen automatische signals — gewoon analyses, vragen en antwoorden.</p>
+              <p>Analyses, pitches, and discussion with the group. No automated signals — analysis, questions, and answers.</p>
             </div>
             <div className="cta-foot">
               <a className="btn btn-on-gold" target="_blank" rel="noopener noreferrer" href={RESEARCH_WA}>
-                {WA_ICON} Word lid via WhatsApp
+                {WA_ICON} Join via WhatsApp
               </a>
             </div>
           </Reveal>

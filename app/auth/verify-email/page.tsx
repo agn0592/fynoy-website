@@ -18,7 +18,7 @@ function ResendBlock() {
   async function handleResend() {
     if (!email) {
       setStatus('error')
-      setErrorMsg('Vul je e-mailadres in.')
+      setErrorMsg('Enter your email address.')
       return
     }
     setStatus('sending')
@@ -38,7 +38,7 @@ function ResendBlock() {
   return (
     <div>
       <div className="auth-input-group">
-        <label className="auth-label" htmlFor="email">E-mailadres</label>
+        <label className="auth-label" htmlFor="email">Email address</label>
         <input
           id="email"
           type="email"
@@ -47,12 +47,12 @@ function ResendBlock() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="auth-input"
-          placeholder="jij@voorbeeld.com"
+          placeholder="you@example.com"
         />
       </div>
 
       {status === 'sent' && (
-        <p className="auth-success">Mail opnieuw verstuurd. Check je inbox en spam folder.</p>
+        <p className="auth-success">Email resent. Check your inbox and spam folder.</p>
       )}
       {status === 'error' && errorMsg && (
         <p className="auth-error">{errorMsg}</p>
@@ -65,7 +65,7 @@ function ResendBlock() {
         className="btn btn-outline"
         style={{ width: '100%', justifyContent: 'center', marginTop: 4, padding: '12px 0', fontSize: 13 }}
       >
-        {status === 'sending' ? 'Versturen…' : 'Verstuur opnieuw'}
+        {status === 'sending' ? 'Sending…' : 'Resend email'}
       </button>
     </div>
   )
@@ -82,12 +82,12 @@ export default function VerifyEmailPage() {
             <HeroOrbs />
             <div className="grid-bg" />
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <span className="eyebrow">Account aanmaken</span>
+              <span className="eyebrow">Create account</span>
               <h1 style={{ marginTop: 20, fontSize: 'clamp(32px,3.8vw,52px)', lineHeight: 1.08 }}>
-                Bijna<br />klaar.
+                Almost<br />there.
               </h1>
               <p className="lede" style={{ marginTop: 20, maxWidth: '30ch', color: 'var(--ink-mute)' }}>
-                Bevestig je e-mailadres en krijg direct toegang tot het portfolio dashboard.
+                Confirm your email address to unlock the portfolio dashboard.
               </p>
             </div>
           </div>
@@ -104,14 +104,14 @@ export default function VerifyEmailPage() {
               </div>
 
               <h2 style={{ fontSize: 'clamp(22px,2.2vw,30px)', marginBottom: 10 }}>
-                Check je inbox
+                Check your inbox
               </h2>
               <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-mute)', marginBottom: 12 }}>
-                We hebben een bevestigingslink gestuurd naar je e-mailadres. Klik op de link om je account
-                te activeren en toegang te krijgen tot het dashboard.
+                We&apos;ve sent a confirmation link to your email address. Click the link to activate your
+                account and unlock the dashboard.
               </p>
               <p style={{ fontSize: 13, color: 'var(--ink-dim)', marginBottom: 28 }}>
-                Geen mail ontvangen? Check je spam folder of stuur de mail opnieuw.
+                No email? Check your spam folder or resend it.
               </p>
 
               <Suspense fallback={null}>
@@ -120,7 +120,7 @@ export default function VerifyEmailPage() {
 
               <hr className="auth-divider" />
               <Link href="/auth/login" style={{ color: 'var(--gold)', fontSize: 13 }}>
-                ← Terug naar login
+                ← Back to sign in
               </Link>
             </div>
           </div>

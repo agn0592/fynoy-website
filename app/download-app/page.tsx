@@ -6,38 +6,38 @@ import HeroOrbs from "../components/HeroOrbs";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Fynoy als app",
+  title: "Install Fynoy as an app",
   description:
-    "Installeer Fynoy Capital als app op iPhone, Android of desktop. Geen App Store nodig — direct via je browser.",
+    "Install Fynoy Capital as an app on iPhone, Android or desktop. No App Store — directly from your browser.",
 };
 
 interface Step { n: string; title: string; body: string }
 
 const IOS_STEPS: Step[] = [
-  { n: "1", title: "Open fynoy.com in Safari", body: "De installatie werkt alleen via Safari op iOS. Andere browsers tonen de optie niet." },
-  { n: "2", title: "Tik op het Delen-icoon", body: "Het vierkant met pijltje omhoog, onderaan je scherm (of rechtsboven op iPad)." },
-  { n: "3", title: "Kies 'Zet op beginscherm'", body: "Scroll het deelmenu naar beneden tot je deze optie ziet." },
-  { n: "4", title: "Tik 'Voeg toe'", body: "De Fynoy Capital app verschijnt op je beginscherm. Geen App Store nodig." },
+  { n: "1", title: "Open fynoy.com in Safari", body: "Installation only works in Safari on iOS. Other browsers won't show the option." },
+  { n: "2", title: "Tap the Share icon", body: "The square-with-up-arrow icon at the bottom of the screen (or top right on iPad)." },
+  { n: "3", title: "Choose 'Add to Home Screen'", body: "Scroll down in the share sheet until you see it." },
+  { n: "4", title: "Tap 'Add'", body: "The Fynoy Capital app appears on your home screen. No App Store needed." },
 ]
 
 const ANDROID_STEPS: Step[] = [
-  { n: "1", title: "Open fynoy.com in Chrome", body: "Op Android werkt de installatie via Chrome of een andere Chromium-browser." },
-  { n: "2", title: "Tik de drie puntjes rechtsboven", body: "Het Chrome-menu opent zich." },
-  { n: "3", title: "Kies 'Toevoegen aan startscherm'", body: "Of 'App installeren' als die optie verschijnt." },
-  { n: "4", title: "Tik 'Toevoegen'", body: "Bevestig en de app verschijnt op je startscherm." },
+  { n: "1", title: "Open fynoy.com in Chrome", body: "On Android the installation flow works through Chrome or another Chromium browser." },
+  { n: "2", title: "Tap the three-dot menu", body: "Top right corner — opens the Chrome menu." },
+  { n: "3", title: "Choose 'Add to Home Screen'", body: "Or 'Install app' if that option appears." },
+  { n: "4", title: "Tap 'Add'", body: "Confirm and the app shows up on your home screen." },
 ]
 
 const DESKTOP_STEPS: Step[] = [
-  { n: "1", title: "Open fynoy.com in Chrome of Edge", body: "Werkt ook in andere Chromium-browsers zoals Brave." },
-  { n: "2", title: "Klik het installeer-icoon in de adresbalk", body: "Een klein scherm-icoon met pijltje aan de rechterkant van de URL." },
-  { n: "3", title: "Klik 'Installeren'", body: "De app opent in een eigen venster, los van de browser." },
+  { n: "1", title: "Open fynoy.com in Chrome or Edge", body: "Works in any Chromium-based browser including Brave." },
+  { n: "2", title: "Click the install icon in the URL bar", body: "A small screen-with-arrow icon on the right side of the address bar." },
+  { n: "3", title: "Click 'Install'", body: "The app opens in its own window, separate from the browser." },
 ]
 
 const BENEFITS = [
-  "Eigen icoon op je beginscherm",
-  "Volledig scherm — geen browser balken",
-  "Geen App Store, geen review",
-  "Werkt offline (beperkt) en update zichzelf",
+  "Own icon on your home screen",
+  "Full screen — no browser chrome",
+  "No App Store, no review",
+  "Works offline (limited) and updates itself",
 ]
 
 function StepCard({ step }: { step: Step }) {
@@ -60,20 +60,20 @@ export default function DownloadAppPage() {
           <div className="grid-bg" />
           <HeroOrbs />
           <div className="wrap" style={{ position: "relative", zIndex: 1 }}>
-            <span className="eyebrow">Installeer als app</span>
+            <span className="eyebrow">Install as an app</span>
             <h1 style={{ marginTop: 24, maxWidth: '18ch' }}>
-              Fynoy Capital op je <em className="it">telefoon.</em>
+              Fynoy Capital on your <em className="it">phone.</em>
             </h1>
             <p className="hero-sub lede">
-              Geen download via de App Store. Installeer Fynoy Capital direct vanuit je browser
-              op iPhone, Android of desktop — als volledige app.
+              No App Store download. Install Fynoy Capital straight from your browser
+              on iPhone, Android or desktop — as a full app.
             </p>
             <div className="hero-cta">
               <Link className="btn btn-primary" href="/">
                 Open fynoy.com
               </Link>
               <Link className="btn btn-outline" href="/dashboard">
-                Naar dashboard
+                To the dashboard
               </Link>
             </div>
           </div>
@@ -84,7 +84,7 @@ export default function DownloadAppPage() {
           <div className="wrap">
             <Reveal>
               <span className="eyebrow">iPhone (Safari)</span>
-              <h2 style={{ marginTop: 24, maxWidth: '20ch' }}>Installeer op iOS</h2>
+              <h2 style={{ marginTop: 24, maxWidth: '20ch' }}>Install on iOS</h2>
             </Reveal>
             <div className="steps" style={{ marginTop: 48 }}>
               {IOS_STEPS.map((s, i) => (
@@ -99,7 +99,7 @@ export default function DownloadAppPage() {
           <div className="wrap">
             <Reveal>
               <span className="eyebrow">Android (Chrome)</span>
-              <h2 style={{ marginTop: 24, maxWidth: '20ch' }}>Installeer op Android</h2>
+              <h2 style={{ marginTop: 24, maxWidth: '20ch' }}>Install on Android</h2>
             </Reveal>
             <div className="steps" style={{ marginTop: 48 }}>
               {ANDROID_STEPS.map((s, i) => (
@@ -114,7 +114,7 @@ export default function DownloadAppPage() {
           <div className="wrap">
             <Reveal>
               <span className="eyebrow">Desktop (Chrome / Edge)</span>
-              <h2 style={{ marginTop: 24, maxWidth: '20ch' }}>Installeer op desktop</h2>
+              <h2 style={{ marginTop: 24, maxWidth: '20ch' }}>Install on desktop</h2>
             </Reveal>
             <div className="steps" style={{ marginTop: 48, gridTemplateColumns: 'repeat(3,1fr)' }}>
               {DESKTOP_STEPS.map((s, i) => (
@@ -128,8 +128,8 @@ export default function DownloadAppPage() {
         <section className="section">
           <div className="wrap">
             <Reveal>
-              <span className="eyebrow">Voordelen</span>
-              <h2 style={{ marginTop: 24, maxWidth: '18ch' }}>Waarom installeren?</h2>
+              <span className="eyebrow">Benefits</span>
+              <h2 style={{ marginTop: 24, maxWidth: '18ch' }}>Why install?</h2>
             </Reveal>
             <div className="check-grid" style={{ marginTop: 48 }}>
               {BENEFITS.map((b, i) => (

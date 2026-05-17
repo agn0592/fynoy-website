@@ -25,13 +25,13 @@ export default function ActivityFeed({ events }: { events: ActivityEvent[] }) {
       <div className="dash-card-header">
         <div>
           <div className="dash-card-title">Activity</div>
-          <div className="dash-card-sub">Recente events</div>
+          <div className="dash-card-sub">Recent events</div>
         </div>
       </div>
 
       {events.length === 0 ? (
         <div className="dash-card-body" style={{ color: 'var(--ink-dim)', fontStyle: 'italic', fontFamily: 'var(--serif)', fontSize: 14 }}>
-          Nog geen activity.
+          No activity yet.
         </div>
       ) : (
         <ul className="activity-list">

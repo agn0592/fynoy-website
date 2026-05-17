@@ -46,6 +46,7 @@ const ADMIN_PRIMARY: NavItem[] = [
   { href: '/admin/rebalancing',      label: 'Rebalancing',    icon: <IconBalance /> },
   { href: '/admin/timeline',         label: 'Timeline',       icon: <IconClock /> },
   { href: '/admin/ai-commentary',    label: 'AI Commentary',  icon: <IconMessage /> },
+  { href: '/admin/risk-free-rate',   label: 'Risk-free Rate', icon: <IconBalance /> },
   { href: '/admin/journal',          label: 'Journal',        icon: <IconBook /> },
   { href: '/admin/members',          label: 'Members',        icon: <IconUsers /> },
   { href: '/admin/audit',            label: 'Audit Log',      icon: <IconActivity /> },

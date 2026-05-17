@@ -76,7 +76,7 @@ export default function Nav() {
             Login
           </Link>
           <Link href="/auth/register" className="nav-cta-primary">
-            Gratis account
+            Free account
           </Link>
         </div>
         <button
@@ -100,7 +100,7 @@ export default function Nav() {
           Login
         </Link>
         <Link href="/auth/register" onClick={closeDrawer} className="nav-drawer-login" style={{ color: 'var(--gold)' }}>
-          Gratis account →
+          Free account →
         </Link>
       </div>
     </nav>

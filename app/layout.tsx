@@ -6,11 +6,11 @@ import InstallPrompt from "@/app/components/InstallPrompt";
 export const metadata: Metadata = {
   metadataBase: new URL("https://fynoy.com"),
   title: {
-    default: "Fynoy Capital — wij beleggen met eigen geld, in de open lucht",
+    default: "Fynoy Capital — we invest with our own money, in the open",
     template: "%s — Fynoy Capital",
   },
   description:
-    "Fynoy Capital deelt zijn volledige portfolio realtime: elke trade, elke redenering, vs VWCE benchmark. Gratis te volgen. Geen advies — jij beslist zelf.",
+    "Fynoy Capital shares its full portfolio in real time: every trade, every rationale, benchmarked against VWCE. Free to follow. Not advice — you decide.",
   openGraph: {
     siteName: "Fynoy Capital",
     locale: "en_GB",

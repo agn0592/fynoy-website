@@ -20,7 +20,7 @@ export default function ResetPasswordPage() {
     const supabase = createClient()
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session) {
-        setError('Deze reset-link is niet meer geldig. Vraag een nieuwe aan.')
+        setError('This reset link is no longer valid. Request a new one.')
       }
       setReady(true)
     })
@@ -31,11 +31,11 @@ export default function ResetPasswordPage() {
     setError(null)
 
     if (password.length < 8) {
-      setError('Wachtwoord moet minimaal 8 tekens zijn.')
+      setError('Password must be at least 8 characters.')
       return
     }
     if (password !== confirm) {
-      setError('Wachtwoorden komen niet overeen.')
+      setError('Passwords do not match.')
       return
     }
 
@@ -45,7 +45,7 @@ export default function ResetPasswordPage() {
     setLoading(false)
 
     if (error) {
-      setError(error.message || 'Er is iets misgegaan. Probeer het opnieuw.')
+      setError(error.message || 'Something went wrong. Please try again.')
       return
     }
 
@@ -63,26 +63,26 @@ export default function ResetPasswordPage() {
             <HeroOrbs />
             <div className="grid-bg" />
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <span className="eyebrow">Nieuw wachtwoord</span>
+              <span className="eyebrow">New password</span>
               <h1 style={{ marginTop: 20, fontSize: 'clamp(32px,3.8vw,52px)', lineHeight: 1.08 }}>
-                Stel een<br />nieuw wachtwoord in.
+                Set a<br />new password.
               </h1>
               <p className="lede" style={{ marginTop: 20, maxWidth: '30ch', color: 'var(--ink-mute)' }}>
-                Kies een wachtwoord van minimaal 8 tekens. We loggen je daarna direct in.
+                Choose a password of at least 8 characters. We&apos;ll sign you in right after.
               </p>
             </div>
           </div>
 
           <div className="auth-form-side">
             <div className="auth-card">
-              <h2 style={{ fontSize: 'clamp(22px,2.2vw,30px)', marginBottom: 6 }}>Nieuw wachtwoord</h2>
+              <h2 style={{ fontSize: 'clamp(22px,2.2vw,30px)', marginBottom: 6 }}>New password</h2>
               <p style={{ fontSize: 14, color: 'var(--ink-mute)', marginBottom: 32 }}>
-                Minimaal 8 tekens.
+                At least 8 characters.
               </p>
 
               <form onSubmit={handleSubmit}>
                 <div className="auth-input-group">
-                  <label className="auth-label" htmlFor="password">Nieuw wachtwoord</label>
+                  <label className="auth-label" htmlFor="password">New password</label>
                   <input
                     id="password"
                     type="password"
@@ -92,11 +92,11 @@ export default function ResetPasswordPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="auth-input"
-                    placeholder="Min. 8 tekens"
+                    placeholder="Min. 8 characters"
                   />
                 </div>
                 <div className="auth-input-group">
-                  <label className="auth-label" htmlFor="confirm">Bevestig wachtwoord</label>
+                  <label className="auth-label" htmlFor="confirm">Confirm password</label>
                   <input
                     id="confirm"
                     type="password"
@@ -106,7 +106,7 @@ export default function ResetPasswordPage() {
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
                     className="auth-input"
-                    placeholder="Herhaal het nieuwe wachtwoord"
+                    placeholder="Repeat your new password"
                   />
                 </div>
 
@@ -118,13 +118,13 @@ export default function ResetPasswordPage() {
                   className="btn btn-primary"
                   style={{ width: '100%', justifyContent: 'center', marginTop: 8, padding: '14px 0', fontSize: 13 }}
                 >
-                  {loading ? 'Opslaan…' : 'Sla nieuw wachtwoord op'}
+                  {loading ? 'Saving…' : 'Save new password'}
                 </button>
               </form>
 
               <hr className="auth-divider" />
               <Link href="/auth/login" style={{ color: 'var(--gold)', fontSize: 13 }}>
-                ← Terug naar login
+                ← Back to sign in
               </Link>
             </div>
           </div>

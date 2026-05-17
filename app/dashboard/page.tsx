@@ -7,6 +7,7 @@ import ClosedTradesTable from './components/ClosedTradesTable'
 import AICommentary from './components/AICommentary'
 import CommunityCard from './components/CommunityCard'
 import RiskMetrics from './components/RiskMetrics'
+import RiskAdjustedReturn from './components/RiskAdjustedReturn'
 import ActivityFeed, { type ActivityEvent } from './components/ActivityFeed'
 import PositionTimeline, { type TimelinePosition } from './components/PositionTimeline'
 import AdvancedMetrics from './components/AdvancedMetrics'
@@ -22,6 +23,7 @@ import {
   fmtRatio,
   type PositionInput,
 } from '@/lib/analytics'
+import { computeRiskMetrics, alignRiskFreeRates } from '@/lib/risk-metrics'
 
 function getServiceClient() {
   return createSupabaseClient(
@@ -60,12 +62,14 @@ export default async function DashboardPage() {
     { data: closedTradesRaw },
     { data: snapshotsRaw },
     { data: casesRaw },
+    { data: rfRatesRaw },
     commentaryResult,
   ] = await Promise.all([
     supabase.from('open_positions').select('*'),
     supabase.from('closed_trades').select('*').order('exit_date', { ascending: false }),
     supabase.from('portfolio_snapshots').select('*').order('snapshot_date', { ascending: true }),
     supabase.from('cases').select('trading_id, sector, expected_holding_period_months, take_profit, stop_loss, entry_price_target'),
+    supabase.from('risk_free_rates').select('date, rate').order('date', { ascending: true }),
     supabase.from('commentary').select('content, created_at').order('created_at', { ascending: false }).limit(1).maybeSingle(),
   ])
 
@@ -73,6 +77,7 @@ export default async function DashboardPage() {
   const closedTrades: ClosedTrade[]   = closedTradesRaw ?? []
   const snapshots: PortfolioSnapshot[] = snapshotsRaw ?? []
   const cases: CaseRow[] = casesRaw ?? []
+  const rfRates: { date: string; rate: number }[] = (rfRatesRaw ?? []).map(r => ({ date: r.date, rate: Number(r.rate) }))
 
   const caseByTradingId = new Map<string, CaseRow>(cases.map(c => [c.trading_id, c]))
 
@@ -116,6 +121,21 @@ export default async function DashboardPage() {
     current_price: p.current_price,
     position_size_actual: p.position_size_actual,
   }))
+
+  // ── Capped M² (risk-adjusted return) ──────────────────────────────
+  const rfAligned = alignRiskFreeRates(
+    snapshots.map(s => s.snapshot_date),
+    rfRates,
+  )
+  const riskMetrics = computeRiskMetrics({
+    dailyTwrPct: snapshots.map(s => s.daily_twr ?? 0),
+    benchmarkValues: snapshots.map(s => s.benchmark_value ?? 0),
+    riskFreeAnnual: rfAligned,
+  })
+  const latestRf = rfRates.length > 0 ? rfRates[rfRates.length - 1] : null
+  const rfStale = latestRf
+    ? (new Date().getTime() - new Date(latestRf.date).getTime()) / 86_400_000 > 7
+    : true
 
   // ── Sector allocation ──────────────────────────────────────────────
   const SECTOR_FALLBACK: Record<string, string> = {
@@ -208,7 +228,7 @@ export default async function DashboardPage() {
         date: p.entry_date_actual,
         type: 'position_opened',
         symbol: p.symbol,
-        label: `Positie geopend: ${p.symbol}`,
+        label: `Position opened: ${p.symbol}`,
       })
     }
   }
@@ -220,7 +240,7 @@ export default async function DashboardPage() {
         type: 'position_closed',
         symbol: t.symbol,
         pct,
-        label: `Trade gesloten: ${t.symbol} ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`,
+        label: `Trade closed: ${t.symbol} ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`,
       })
     }
   }
@@ -228,7 +248,7 @@ export default async function DashboardPage() {
     activityEvents.push({
       date: commentaryResult.data.created_at,
       type: 'commentary_updated',
-      label: 'Portfolio commentary bijgewerkt',
+      label: 'Portfolio commentary updated',
     })
   }
   activityEvents.sort((a, b) => b.date.localeCompare(a.date))
@@ -331,6 +351,17 @@ export default async function DashboardPage() {
           <ConcentrationCard positions={concentrationPositions} />
         </div>
 
+      </div>
+
+      {/* ── Full-width risk-adjusted return (Capped M²) ── */}
+      <div className="dash-full" id="risk-adjusted">
+        <RiskAdjustedReturn
+          metrics={riskMetrics}
+          inceptionDate="1 Jan 2026"
+          rfSource="10Y Duitse Bund"
+          rfStale={rfStale}
+          benchmarkLabel="VWCE"
+        />
       </div>
 
       {/* ── Full-width commentary ── */}

@@ -20,7 +20,7 @@ export default function RiskMetrics(props: RiskMetricsProps) {
       <div className="dash-card-header">
         <div>
           <div className="dash-card-title">Risk &amp; Performance</div>
-          <div className="dash-card-sub">{totalTrades} gesloten trades</div>
+          <div className="dash-card-sub">{totalTrades} closed trades</div>
         </div>
       </div>
       <div className="dash-stats-stack" style={{ marginTop: 12 }}>

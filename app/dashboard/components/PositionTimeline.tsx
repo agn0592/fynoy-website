@@ -53,7 +53,7 @@ function MiniChart({ position }: { position: TimelinePosition }) {
   if (state === 'loading') {
     return (
       <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-dim)', fontSize: 12 }}>
-        Koersdata laden…
+        Loading price history…
       </div>
     )
   }
@@ -61,7 +61,7 @@ function MiniChart({ position }: { position: TimelinePosition }) {
   if (history.length === 0) {
     return (
       <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-dim)', fontSize: 12, fontStyle: 'italic' }}>
-        Geen koersdata beschikbaar.
+        No price history available.
       </div>
     )
   }
@@ -145,7 +145,7 @@ function TimelineRow({ position }: { position: TimelinePosition }) {
         <span className={`timeline-return ${currentPct >= 0 ? 'up' : 'dn'}`}>
           {currentPct >= 0 ? '+' : ''}{currentPct.toFixed(2)}%
         </span>
-        <span className="timeline-progress">{Math.round(progress)}% van houdperiode verstreken</span>
+        <span className="timeline-progress">{Math.round(progress)}% of holding period elapsed</span>
       </div>
       <div className="timeline-bar-track">
         <div className="timeline-bar-fill" style={{ width: `${progress}%` }} />
@@ -168,8 +168,8 @@ export default function PositionTimeline({ positions }: { positions: TimelinePos
     <div className="dash-card">
       <div className="dash-card-header">
         <div>
-          <div className="dash-card-title">Positie Timeline</div>
-          <div className="dash-card-sub">Voortgang &amp; koersverloop sinds entry</div>
+          <div className="dash-card-title">Position Timeline</div>
+          <div className="dash-card-sub">Progress &amp; price trajectory since entry</div>
         </div>
       </div>
       <div className="dash-card-body">

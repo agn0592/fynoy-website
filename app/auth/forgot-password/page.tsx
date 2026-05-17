@@ -29,11 +29,11 @@ export default function ForgotPasswordPage() {
     if (error) {
       const msg = error.message.toLowerCase()
       if (msg.includes('not found') || msg.includes('user') || msg.includes('email')) {
-        setError('We konden geen account vinden bij dit e-mailadres.')
+        setError('No account found for that email address.')
       } else if (msg.includes('rate')) {
-        setError('Te veel pogingen. Probeer het over een paar minuten opnieuw.')
+        setError('Too many attempts. Try again in a few minutes.')
       } else {
-        setError('Er is iets misgegaan. Probeer het opnieuw.')
+        setError('Something went wrong. Please try again.')
       }
       return
     }
@@ -50,32 +50,32 @@ export default function ForgotPasswordPage() {
             <HeroOrbs />
             <div className="grid-bg" />
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <span className="eyebrow">Wachtwoord vergeten</span>
+              <span className="eyebrow">Forgot password</span>
               <h1 style={{ marginTop: 20, fontSize: 'clamp(32px,3.8vw,52px)', lineHeight: 1.08 }}>
-                Geen zorgen.<br />Even resetten.
+                No worries.<br />Quick reset.
               </h1>
               <p className="lede" style={{ marginTop: 20, maxWidth: '30ch', color: 'var(--ink-mute)' }}>
-                Vul je e-mailadres in en we sturen je een link om een nieuw wachtwoord in te stellen.
+                Enter your email and we&apos;ll send you a link to set a new password.
               </p>
             </div>
           </div>
 
           <div className="auth-form-side">
             <div className="auth-card">
-              <h2 style={{ fontSize: 'clamp(22px,2.2vw,30px)', marginBottom: 6 }}>Wachtwoord resetten</h2>
+              <h2 style={{ fontSize: 'clamp(22px,2.2vw,30px)', marginBottom: 6 }}>Reset password</h2>
               <p style={{ fontSize: 14, color: 'var(--ink-mute)', marginBottom: 32 }}>
-                We sturen je een veilige link per mail.
+                We&apos;ll email you a secure link.
               </p>
 
               {sent ? (
                 <div className="auth-success">
-                  Check je inbox — we hebben een reset-link gestuurd naar <b>{email}</b>.
-                  De link is een uur geldig.
+                  Check your inbox — we&apos;ve sent a reset link to <b>{email}</b>.
+                  The link is valid for one hour.
                 </div>
               ) : (
                 <form onSubmit={handleSubmit}>
                   <div className="auth-input-group">
-                    <label className="auth-label" htmlFor="email">E-mailadres</label>
+                    <label className="auth-label" htmlFor="email">Email address</label>
                     <input
                       id="email"
                       type="email"
@@ -84,7 +84,7 @@ export default function ForgotPasswordPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="auth-input"
-                      placeholder="jij@voorbeeld.com"
+                      placeholder="you@example.com"
                     />
                   </div>
 
@@ -96,14 +96,14 @@ export default function ForgotPasswordPage() {
                     className="btn btn-primary"
                     style={{ width: '100%', justifyContent: 'center', marginTop: 8, padding: '14px 0', fontSize: 13 }}
                   >
-                    {loading ? 'Versturen…' : 'Verstuur reset-link'}
+                    {loading ? 'Sending…' : 'Send reset link'}
                   </button>
                 </form>
               )}
 
               <hr className="auth-divider" />
               <Link href="/auth/login" style={{ color: 'var(--gold)', fontSize: 13 }}>
-                ← Terug naar login
+                ← Back to sign in
               </Link>
             </div>
           </div>

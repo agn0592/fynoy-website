@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react'
 
 const PHRASES = [
-  'Eigen geld. Geen advies.',
-  'Elke trade openbaar.',
-  'Volledige redenering per positie.',
+  'Our own money. Not advice.',
+  'Every trade in the open.',
+  'Full reasoning per position.',
   'Performance vs VWCE.',
-  'Transparant. Realtime.',
+  'Transparent. Realtime.',
 ]
 
 export default function Typewriter() {
