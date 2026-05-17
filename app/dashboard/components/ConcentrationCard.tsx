@@ -1,4 +1,5 @@
 import { concentrationStats, type PositionInput } from '@/lib/analytics'
+import InfoTooltip from './InfoTooltip'
 
 interface ConcentrationCardProps {
   positions: PositionInput[]
@@ -52,25 +53,37 @@ export default function ConcentrationCard({ positions }: ConcentrationCardProps)
       </div>
       <div className="dash-stats-stack" style={{ marginTop: 12 }}>
         <div className="dash-stat-cell">
-          <div className="dash-stat-label">Top 1 weight</div>
+          <div className="dash-stat-label">
+            Top 1 weight
+            <InfoTooltip term="top-1" />
+          </div>
           <div className="dash-stat-val flat">{fmtWeight(stats.top1Pct)}</div>
           <div className="dash-stat-sub">{stats.largest?.symbol ?? '—'}</div>
           <div className="dash-stat-glow flat" />
         </div>
         <div className="dash-stat-cell">
-          <div className="dash-stat-label">Top 3 weights</div>
+          <div className="dash-stat-label">
+            Top 3 weights
+            <InfoTooltip term="top-3" />
+          </div>
           <div className="dash-stat-val flat">{fmtWeight(stats.top3Pct)}</div>
           <div className="dash-stat-sub">Combined</div>
           <div className="dash-stat-glow flat" />
         </div>
         <div className="dash-stat-cell">
-          <div className="dash-stat-label">Top 5 weights</div>
+          <div className="dash-stat-label">
+            Top 5 weights
+            <InfoTooltip term="top-5" />
+          </div>
           <div className="dash-stat-val flat">{fmtWeight(stats.top5Pct)}</div>
           <div className="dash-stat-sub">Combined</div>
           <div className="dash-stat-glow flat" />
         </div>
         <div className="dash-stat-cell">
-          <div className="dash-stat-label">Effective #</div>
+          <div className="dash-stat-label">
+            Effective #
+            <InfoTooltip term="effective-holdings" />
+          </div>
           <div className="dash-stat-val flat">
             {stats.effectiveCount >= 10
               ? stats.effectiveCount.toFixed(0)
@@ -80,7 +93,10 @@ export default function ConcentrationCard({ positions }: ConcentrationCardProps)
           <div className="dash-stat-glow flat" />
         </div>
         <div className="dash-stat-cell full-width">
-          <div className="dash-stat-label">HHI</div>
+          <div className="dash-stat-label">
+            HHI
+            <InfoTooltip term="hhi" />
+          </div>
           <div className="dash-stat-val flat">{stats.herfindahl.toFixed(0)}</div>
           <div className="dash-stat-sub">Index of concentration</div>
           <div className="dash-stat-glow flat" />

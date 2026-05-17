@@ -15,6 +15,7 @@ import DrawdownChart from './components/DrawdownChart'
 import MonthlyHeatmap from './components/MonthlyHeatmap'
 import ConcentrationCard from './components/ConcentrationCard'
 import QuickActions from './components/QuickActions'
+import InfoTooltip from './components/InfoTooltip'
 import {
   computeMetrics,
   drawdownSeries,
@@ -276,33 +277,33 @@ export default async function DashboardPage() {
       {/* ── KPI strip ─────────────────────────────────────────────── */}
       <div className="adm-kpi-grid" style={{ marginBottom: 16 }}>
         <div className={`adm-kpi kpi-${twrCls}`}>
-          <div className="adm-kpi-label">Total Return</div>
+          <div className="adm-kpi-label">Total Return <InfoTooltip term="total-return" inheritColor /></div>
           <div className={`adm-kpi-val ${twrCls === 'up' ? 'up' : twrCls === 'dn' ? 'dn' : ''}`}>
             {fmtPct(twrPct)}
           </div>
           <div className="adm-kpi-sub">TWR since inception</div>
         </div>
         <div className={`adm-kpi kpi-${realizedCls}`}>
-          <div className="adm-kpi-label">YTD Realized</div>
+          <div className="adm-kpi-label">YTD Realized <InfoTooltip term="ytd-realized" inheritColor /></div>
           <div className={`adm-kpi-val ${realizedCls === 'up' ? 'up' : realizedCls === 'dn' ? 'dn' : ''}`}>
             {fmtPct(realizedYtdPct)}
           </div>
           <div className="adm-kpi-sub">{tradesYtd} trades closed</div>
         </div>
         <div className="adm-kpi kpi-neutral">
-          <div className="adm-kpi-label">Open Positions</div>
+          <div className="adm-kpi-label">Open Positions <InfoTooltip term="open-positions" inheritColor /></div>
           <div className="adm-kpi-val">{openPositions.length}</div>
           <div className="adm-kpi-sub">Active holdings</div>
         </div>
         <div className={`adm-kpi kpi-${sharpeCls}`}>
-          <div className="adm-kpi-label">Sharpe</div>
+          <div className="adm-kpi-label">Sharpe <InfoTooltip term="sharpe" inheritColor /></div>
           <div className={`adm-kpi-val ${sharpeCls === 'up' ? 'up' : sharpeCls === 'dn' ? 'dn' : ''}`}>
             {fmtRatio(sharpe)}
           </div>
           <div className="adm-kpi-sub">Annualized</div>
         </div>
         <div className={`adm-kpi kpi-${maxDDCls}`}>
-          <div className="adm-kpi-label">Max DD</div>
+          <div className="adm-kpi-label">Max DD <InfoTooltip term="max-drawdown" inheritColor /></div>
           <div className={`adm-kpi-val ${maxDDCls === 'dn' ? 'dn' : ''}`}>
             {metrics.maxDrawdownPct.toFixed(2)}%
           </div>

@@ -14,7 +14,7 @@ interface MobileBottomNavProps {
 const MEMBER_ITEMS = [
   { href: '/dashboard',            label: 'Home',      icon: IconHome,   exact: true },
   { href: '/dashboard/holdings',   label: 'Holdings',  icon: IconGrid },
-  { href: '/dashboard/watchlist',  label: 'Watchlist', icon: IconStar },
+  { href: '/dashboard/favorites',  label: 'Favorites', icon: IconStar },
   { href: '/dashboard/commentary', label: 'Insights',  icon: IconMessage },
   { href: '/dashboard/profile',    label: 'Me',        icon: IconUser },
 ]

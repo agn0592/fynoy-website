@@ -3,6 +3,7 @@
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine,
 } from 'recharts'
+import InfoTooltip from './InfoTooltip'
 
 interface DrawdownPoint { date: string; dd: number; underwater: boolean }
 
@@ -33,7 +34,10 @@ export default function DrawdownChart({ series }: { series: DrawdownPoint[] }) {
     <div className="dash-card">
       <div className="dash-card-header">
         <div>
-          <div className="dash-card-title">Drawdown</div>
+          <div className="dash-card-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
+            Drawdown
+            <InfoTooltip term="drawdown" />
+          </div>
           <div className="dash-card-sub">Peak-to-trough loss over time</div>
         </div>
       </div>

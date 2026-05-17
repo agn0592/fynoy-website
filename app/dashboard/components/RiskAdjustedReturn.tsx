@@ -1,4 +1,5 @@
 import type { RiskMetricsResult } from '@/lib/risk-metrics'
+import InfoTooltip from './InfoTooltip'
 
 interface Props {
   metrics: RiskMetricsResult | null
@@ -61,40 +62,46 @@ export default function RiskAdjustedReturn({ metrics, inceptionDate, rfSource, r
 
       <div className="risk-adj-grid">
         <div className={`risk-adj-cell risk-adj-cell--primary`}>
-          <div className="risk-adj-label">M²</div>
+          <div className="risk-adj-label">M² <InfoTooltip term="capped-m2" /></div>
           <div className={`risk-adj-val ${m2Cls}`}>{pct(metrics.m2)}</div>
           <div className="risk-adj-sub">annualized</div>
           <div className={`dash-stat-glow ${m2Cls}`} />
         </div>
 
         <div className="risk-adj-cell">
-          <div className="risk-adj-label">M² alpha <span className="risk-adj-mute">vs {benchmarkLabel}</span></div>
+          <div className="risk-adj-label">
+            M² alpha <span className="risk-adj-mute">vs {benchmarkLabel}</span>
+            <InfoTooltip term="alpha" />
+          </div>
           <div className={`risk-adj-val ${alphaCls}`}>{pct(metrics.m2Alpha, { signed: true })}</div>
           <div className="risk-adj-sub">true outperformance</div>
           <div className={`dash-stat-glow ${alphaCls}`} />
         </div>
 
         <div className="risk-adj-cell">
-          <div className="risk-adj-label">Sharpe ratio</div>
+          <div className="risk-adj-label">Sharpe ratio <InfoTooltip term="sharpe" /></div>
           <div className={`risk-adj-val ${sharpeCls}`}>{num(metrics.sharpeRatio)}</div>
           <div className="risk-adj-sub">return per unit of risk</div>
           <div className={`dash-stat-glow ${sharpeCls}`} />
         </div>
 
         <div className="risk-adj-cell">
-          <div className="risk-adj-label">σ portfolio</div>
+          <div className="risk-adj-label">σ portfolio <InfoTooltip term="volatility" /></div>
           <div className="risk-adj-val flat">{pct(metrics.portfolioVolAnnual)}</div>
           <div className="risk-adj-sub">your volatility / yr</div>
         </div>
 
         <div className="risk-adj-cell">
-          <div className="risk-adj-label">σ {benchmarkLabel}</div>
+          <div className="risk-adj-label">σ {benchmarkLabel} <InfoTooltip term="volatility" /></div>
           <div className="risk-adj-val flat">{pct(metrics.benchmarkVolAnnual)}</div>
           <div className="risk-adj-sub">market volatility / yr</div>
         </div>
 
         <div className="risk-adj-cell">
-          <div className="risk-adj-label">R<sub>f</sub> <span className="risk-adj-mute">{rfSource}</span></div>
+          <div className="risk-adj-label">
+            R<sub>f</sub> <span className="risk-adj-mute">{rfSource}</span>
+            <InfoTooltip term="risk-free" />
+          </div>
           <div className="risk-adj-val flat">{pct(metrics.riskFreeAnnualUsed)}</div>
           <div className="risk-adj-sub">
             {rfStale ? 'data is stale' : 'risk-free rate'}
