@@ -358,7 +358,7 @@ export default async function DashboardPage() {
         <RiskAdjustedReturn
           metrics={riskMetrics}
           inceptionDate="1 Jan 2026"
-          rfSource="10Y Duitse Bund"
+          rfSource="10Y German Bund"
           rfStale={rfStale}
           benchmarkLabel="VWCE"
         />

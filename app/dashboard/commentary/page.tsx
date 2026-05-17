@@ -41,7 +41,7 @@ export default async function CommentaryArchivePage() {
       {items.length === 0 ? (
         <div className="dash-alert">
           <div className="dash-alert-title">No commentary yet</div>
-          <div className="dash-alert-body">Nog geen commentaar gepubliceerd — check binnenkort opnieuw.</div>
+          <div className="dash-alert-body">No commentary published yet — check back soon.</div>
         </div>
       ) : (
         <>

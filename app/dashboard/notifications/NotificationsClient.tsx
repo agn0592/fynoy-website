@@ -101,7 +101,7 @@ export default function NotificationsClient({ items }: { items: NotificationItem
       {filtered.length === 0 ? (
         <div className="dash-alert">
           <div className="dash-alert-title">All caught up</div>
-          <div className="dash-alert-body">Niets te melden — geen nieuwe events in deze categorie.</div>
+          <div className="dash-alert-body">Nothing to report — no new events in this category.</div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

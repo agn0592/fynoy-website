@@ -13,19 +13,19 @@ export default function DashboardNotFound() {
         fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 500,
         color: 'var(--ink)', margin: '0 0 6px',
       }}>
-        Pagina niet gevonden
+        Page not found
       </h2>
       <p style={{ color: 'var(--ink-mute)', fontSize: 14, margin: '0 0 24px', lineHeight: 1.6 }}>
-        Deze pagina bestaat niet of is verplaatst.
+        This page doesn&rsquo;t exist or has moved.
       </p>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
         <Link href="/dashboard" className="dash-btn btn-gold">
           <IconHome width={14} height={14} />
-          Naar dashboard
+          To the dashboard
         </Link>
         <Link href="/dashboard/insights" className="dash-btn btn-ghost">
           <IconArrowLeft width={14} height={14} />
-          Bekijk insights
+          See insights
         </Link>
       </div>
     </div>

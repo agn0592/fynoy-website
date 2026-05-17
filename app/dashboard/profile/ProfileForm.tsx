@@ -117,11 +117,11 @@ export default function ProfileForm({
     setError(null)
     const trimmed = fullName.trim()
     if (!trimmed) {
-      setError('Voer een geldige naam in.')
+      setError('Please enter a valid name.')
       return
     }
     if (!userId) {
-      setError('Geen actieve sessie gevonden. Log opnieuw in.')
+      setError('No active session found. Please sign in again.')
       return
     }
     setSaving(true)
@@ -136,7 +136,7 @@ export default function ProfileForm({
       flashSaved()
       router.refresh()
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Het opslaan is mislukt.'
+      const msg = err instanceof Error ? err.message : 'Saving failed.'
       setError(msg)
     } finally {
       setSaving(false)
@@ -165,7 +165,7 @@ export default function ProfileForm({
       {error && (
         <div className="dash-alert alert-error" style={{ marginBottom: 16 }} role="alert">
           <div className="dash-alert-title" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <IconAlertCircle width={12} height={12} /> Er ging iets mis
+            <IconAlertCircle width={12} height={12} /> Something went wrong
           </div>
           <div className="dash-alert-body">{error}</div>
         </div>
@@ -228,13 +228,13 @@ export default function ProfileForm({
       <form onSubmit={handleSubmit}>
         <section className="dash-form-section">
           <h2 className="dash-form-section-title">Identity</h2>
-          <p className="dash-form-section-sub">Hoe wij je naam tonen in commentaar, signalen en notificaties.</p>
+          <p className="dash-form-section-sub">How we display your name in commentary, alerts and notifications.</p>
 
           <div className="dash-form-grid">
             <div className="dash-form-group span-2">
               <label className="dash-form-label" htmlFor="profile-full-name">
                 <IconUser width={11} height={11} style={{ verticalAlign: '-1px', marginRight: 4 }} />
-                Volledige naam <span className="req">*</span>
+                Full name <span className="req">*</span>
               </label>
               <input
                 id="profile-full-name"
@@ -243,16 +243,16 @@ export default function ProfileForm({
                 autoComplete="name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Jouw volledige naam"
+                placeholder="Your full name"
                 required
               />
-              <div className="dash-form-hint">Wordt opgeslagen in jouw Fynoy-profiel.</div>
+              <div className="dash-form-hint">Stored in your Fynoy profile.</div>
             </div>
 
             <div className="dash-form-group span-2">
               <label className="dash-form-label" htmlFor="profile-email">
                 <IconMail width={11} height={11} style={{ verticalAlign: '-1px', marginRight: 4 }} />
-                E-mailadres
+                Email address
               </label>
               <input
                 id="profile-email"
@@ -264,7 +264,7 @@ export default function ProfileForm({
                 style={{ opacity: 0.7, cursor: 'not-allowed' }}
               />
               <div className="dash-form-hint">
-                E-mail wijzigen kan alleen via Supabase Auth. Neem contact op met support.
+                Changing your email is only possible via Supabase Auth. Contact support.
               </div>
             </div>
           </div>
@@ -295,7 +295,7 @@ export default function ProfileForm({
               className="dash-btn btn-gold"
               disabled={saving || !dirty}
             >
-              {saving ? 'Opslaan…' : 'Opslaan'}
+              {saving ? 'Saving…' : 'Save'}
             </button>
           </div>
         </section>
@@ -304,36 +304,36 @@ export default function ProfileForm({
       <section className="dash-form-section">
         <h2 className="dash-form-section-title">About</h2>
         <p className="dash-form-section-sub">
-          Optionele profielinformatie. Lokaal opgeslagen op dit apparaat.
+          Optional profile info. Stored locally on this device.
         </p>
 
         <div className="dash-form-grid">
           <div className="dash-form-group span-all">
             <label className="dash-form-label" htmlFor="profile-bio">
               <IconEdit width={11} height={11} style={{ verticalAlign: '-1px', marginRight: 4 }} />
-              Korte bio
+              Short bio
             </label>
             <textarea
               id="profile-bio"
               className="dash-textarea"
               value={extra.bio}
               onChange={(e) => updateExtra({ bio: e.target.value })}
-              placeholder="Een paar regels over jezelf — sector, ervaring, focus."
+              placeholder="A few lines about yourself — sector, experience, focus."
               maxLength={400}
               rows={3}
             />
-            <div className="dash-form-hint">{extra.bio.length}/400 tekens</div>
+            <div className="dash-form-hint">{extra.bio.length}/400 characters</div>
           </div>
 
           <div className="dash-form-group">
-            <label className="dash-form-label" htmlFor="profile-location">Locatie</label>
+            <label className="dash-form-label" htmlFor="profile-location">Location</label>
             <input
               id="profile-location"
               className="dash-input"
               type="text"
               value={extra.location}
               onChange={(e) => updateExtra({ location: e.target.value })}
-              placeholder="Amsterdam, NL"
+              placeholder="Rotterdam, NL"
               maxLength={120}
             />
           </div>
@@ -358,7 +358,7 @@ export default function ProfileForm({
 
       <section className="dash-form-section">
         <h2 className="dash-form-section-title">Account</h2>
-        <p className="dash-form-section-sub">Account-details, beveiliging en sessie.</p>
+        <p className="dash-form-section-sub">Account details, security and session.</p>
 
         <div className="dash-form-grid">
           <div className="dash-form-group">
@@ -369,14 +369,14 @@ export default function ProfileForm({
           </div>
 
           <div className="dash-form-group">
-            <span className="dash-form-label">E-mail</span>
+            <span className="dash-form-label">Email</span>
             <div style={{ fontSize: 14, color: 'var(--ink)', wordBreak: 'break-all' }}>
               {email || '—'}
             </div>
           </div>
 
           <div className="dash-form-group">
-            <span className="dash-form-label">Rol</span>
+            <span className="dash-form-label">Role</span>
             <div>
               <span className={`status-badge ${role === 'admin' ? 'info' : 'active'}`}>
                 {role}
@@ -387,14 +387,14 @@ export default function ProfileForm({
 
         <div style={{ display: 'flex', gap: 10, marginTop: 18, flexWrap: 'wrap' }}>
           <Link href="/auth/forgot-password?from=profile" className="dash-btn btn-outline">
-            <IconLock width={14} height={14} /> Wachtwoord wijzigen
+            <IconLock width={14} height={14} /> Change password
           </Link>
         </div>
       </section>
 
       <section className="dash-form-section">
-        <h2 className="dash-form-section-title">Sessie</h2>
-        <p className="dash-form-section-sub">Log uit op dit apparaat.</p>
+        <h2 className="dash-form-section-title">Session</h2>
+        <p className="dash-form-section-sub">Sign out on this device.</p>
 
         <button
           type="button"
@@ -403,7 +403,7 @@ export default function ProfileForm({
           disabled={signingOut}
         >
           <IconLogout width={14} height={14} />
-          {signingOut ? 'Uitloggen…' : 'Uitloggen'}
+          {signingOut ? 'Signing out…' : 'Sign out'}
         </button>
       </section>
     </>

@@ -27,7 +27,7 @@ interface Props {
 }
 
 function formatDate(d: string): string {
-  return new Date(d).toLocaleDateString('nl-NL', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 export default function RefreshClient(props: Props) {
@@ -75,26 +75,26 @@ export default function RefreshClient(props: Props) {
         }}
       >
         <Stat
-          label="Laatste datum"
+          label="Latest date"
           value={props.latestDate ? formatDate(props.latestDate) : '—'}
           sub={props.latestSource ?? ''}
         />
         <Stat
-          label="Laatste yield"
+          label="Latest yield"
           value={props.latestRatePct != null ? `${props.latestRatePct.toFixed(3)}%` : '—'}
           sub="annualized"
           accent
         />
         <Stat
-          label="Totaal observaties"
-          value={props.totalRows.toLocaleString('nl-NL')}
-          sub={`${props.sources.length} bron${props.sources.length === 1 ? '' : 'nen'}`}
+          label="Total observations"
+          value={props.totalRows.toLocaleString('en-GB')}
+          sub={`${props.sources.length} source${props.sources.length === 1 ? '' : 's'}`}
         />
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 12 }}>
           {error && <span style={{ color: '#f87171', fontSize: 12, fontFamily: 'var(--serif)', fontStyle: 'italic' }}>{error}</span>}
           {result?.success && (
             <span style={{ color: '#4ade80', fontSize: 12, fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
-              +{result.updated} rijen · {result.latest_rate_pct}%
+              +{result.updated} rows · {result.latest_rate_pct}%
             </span>
           )}
           <button
@@ -131,7 +131,7 @@ export default function RefreshClient(props: Props) {
                 }}
               />
             )}
-            {busy ? 'Ophalen…' : 'Vernieuw Bund-data'}
+            {busy ? 'Fetching…' : 'Refresh Bund data'}
           </button>
         </div>
       </div>
@@ -147,7 +147,7 @@ export default function RefreshClient(props: Props) {
           }}
         >
           <div style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--ink-dim)', marginBottom: 12 }}>
-            Bronnen
+            Sources
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
             {props.sources.map(s => (
@@ -181,28 +181,28 @@ export default function RefreshClient(props: Props) {
       >
         <div style={{ padding: '16px 20px 12px', borderBottom: '1px solid var(--line)' }}>
           <div style={{ fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 500, color: 'var(--ink)' }}>
-            Recente waarden
+            Recent values
           </div>
           <div style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-dim)', marginTop: 3 }}>
-            Laatste 20 observaties
+            Latest 20 observations
           </div>
         </div>
         {props.recent.length === 0 ? (
           <div style={{ padding: 32, textAlign: 'center', color: 'var(--ink-dim)', fontSize: 13, fontStyle: 'italic' }}>
-            Geen data. Klik op &quot;Vernieuw Bund-data&quot; om de tabel te vullen.
+            No data yet. Click &quot;Refresh Bund data&quot; to populate the table.
           </div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>
                 <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-dim)', fontWeight: 500, borderBottom: '1px solid var(--line)' }}>
-                  Datum
+                  Date
                 </th>
                 <th style={{ padding: '12px 20px', textAlign: 'right', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-dim)', fontWeight: 500, borderBottom: '1px solid var(--line)' }}>
                   Yield
                 </th>
                 <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-dim)', fontWeight: 500, borderBottom: '1px solid var(--line)' }}>
-                  Bron
+                  Source
                 </th>
               </tr>
             </thead>

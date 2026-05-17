@@ -10,7 +10,7 @@ import HeroOrbs from "./components/HeroOrbs";
 import Typewriter from "./components/Typewriter";
 
 export const metadata: Metadata = {
-  title: "Fynoy Capital — we invest with our own money, in the open",
+  title: "Fynoy Capital — a real portfolio, in the open",
   description:
     "Fynoy Capital shares its full portfolio in real time: every trade, every rationale, benchmarked against VWCE. Free to follow. Not advice — you decide.",
 };
@@ -31,10 +31,10 @@ export default function HomePage() {
           <div className="wrap" style={{ position: "relative", zIndex: 1 }}>
             <span className="eyebrow" style={{ animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both" }}>Transparent investment research</span>
             <h1 style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.1s" }}>
-              We invest with<br />our <em className="it">own money.</em>
+              A real portfolio,<br /><em className="it">in the open.</em>
             </h1>
             <p className="hero-sub lede" style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.25s" }}>
-              Every trade. Every rationale. Realtime. Fynoy Capital shares its full portfolio — open
+              Every trade, every rationale, in real time. Fynoy Capital shares its full portfolio — open
               positions, closed trades and the analysis behind every decision. No blind copy trading.
               You learn how we think and decide for yourself.
             </p>

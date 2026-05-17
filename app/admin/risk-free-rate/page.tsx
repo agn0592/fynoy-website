@@ -55,8 +55,8 @@ export default async function RiskFreeRatePage() {
           Risk-free Rate
         </h1>
         <p style={{ color: 'var(--ink-dim)', fontSize: 13, margin: 0 }}>
-          10Y Duitse Bund yield — gebruikt als R<sub>f</sub> in de M²-berekening op het dashboard.
-          Bundesbank Time Series WT1010, dagelijks ververst om 06:00 UTC via Vercel cron.
+          10Y German Bund yield — used as R<sub>f</sub> in the M² calculation on the dashboard.
+          Bundesbank Time Series WT1010, refreshed daily at 06:00 UTC via Vercel cron.
         </p>
       </div>
 

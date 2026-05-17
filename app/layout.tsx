@@ -6,7 +6,7 @@ import InstallPrompt from "@/app/components/InstallPrompt";
 export const metadata: Metadata = {
   metadataBase: new URL("https://fynoy.com"),
   title: {
-    default: "Fynoy Capital — we invest with our own money, in the open",
+    default: "Fynoy Capital — a real portfolio, in the open",
     template: "%s — Fynoy Capital",
   },
   description:
