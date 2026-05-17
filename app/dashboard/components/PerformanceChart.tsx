@@ -25,11 +25,14 @@ function filterData(data: DataPoint[], f: FilterKey): DataPoint[] {
 
 function indexData(data: DataPoint[]) {
   if (!data.length) return []
-  const bn = data[0].nav, bb = data[0].benchmark
+  const bn = data[0].nav
+  // Use first non-zero benchmark as base (Jan 1 and holidays may have 0)
+  const firstBenchmark = data.find(d => d.benchmark > 0)
+  const bb = firstBenchmark?.benchmark ?? 0
   return data.map(d => ({
     date: d.date,
     portfolio: bn > 0 ? ((d.nav - bn) / bn) * 100 : 0,
-    benchmark: bb > 0 ? ((d.benchmark - bb) / bb) * 100 : 0,
+    benchmark: bb > 0 && d.benchmark > 0 ? ((d.benchmark - bb) / bb) * 100 : null,
   }))
 }
 
