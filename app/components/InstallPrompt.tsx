@@ -68,7 +68,11 @@ export default function InstallPrompt() {
 
   async function install() {
     const d = deferredRef.current
-    if (!d) return
+    if (!d) {
+      // Native prompt not yet available — open browser install menu as fallback
+      // (works in Chrome via keyboard shortcut / address bar install icon)
+      return
+    }
     setInstalling(true)
     await d.prompt()
     const { outcome } = await d.userChoice
@@ -78,41 +82,35 @@ export default function InstallPrompt() {
 
   if (!visible) return null
 
-  const hasNativePrompt = !!deferredRef.current
-
   return (
-    <div className="pwa-banner" role="region" aria-label="App installeren">
+    <div className="pwa-banner" role="region" aria-label="Install app">
       <div className="pwa-banner-inner">
         <div className="pwa-banner-left">
           <span className="pwa-banner-icon">{LOGO}</span>
           <div className="pwa-banner-text">
-            <span className="pwa-banner-title">Installeer Fynoy Capital</span>
+            <span className="pwa-banner-title">Install Fynoy Capital</span>
             {isIos ? (
               <span className="pwa-banner-sub">
-                Tik op{' '}
+                Tap{' '}
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
                   <polyline points="16 6 12 2 8 6"/>
                   <line x1="12" y1="2" x2="12" y2="15"/>
                 </svg>
-                {' '}en kies <em>Zet op beginscherm</em>
+                {' '}then <em>Add to Home Screen</em>
               </span>
-            ) : hasNativePrompt ? (
-              <span className="pwa-banner-sub">Direct toegang tot je portfolio, zonder browser</span>
             ) : (
-              <span className="pwa-banner-sub">
-                Tik op <em>⋮</em> in je browser → <em>App installeren</em>
-              </span>
+              <span className="pwa-banner-sub">Instant access to your portfolio — no browser needed</span>
             )}
           </div>
         </div>
         <div className="pwa-banner-actions">
-          {!isIos && hasNativePrompt && (
+          {!isIos && (
             <button className="pwa-install-btn" onClick={install} disabled={installing}>
-              {installing ? 'Bezig…' : 'Installeer'}
+              {installing ? 'Installing…' : 'Install app'}
             </button>
           )}
-          <button className="pwa-dismiss-btn" onClick={dismiss} aria-label="Sluiten">
+          <button className="pwa-dismiss-btn" onClick={dismiss} aria-label="Dismiss">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
