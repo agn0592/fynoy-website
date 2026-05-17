@@ -3,6 +3,8 @@ interface PortfolioSummaryProps {
   realizedPnlYtdPct: number
   openPositionsCount: number
   twrPct: number
+  vwcePct: number | null
+  alphaPct: number | null
   inceptionDate: string
 }
 
@@ -10,10 +12,11 @@ function fmt(v: number) {
   return `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`
 }
 
-export default function PortfolioSummary({ unrealizedPnlPct, realizedPnlYtdPct, openPositionsCount, twrPct, inceptionDate }: PortfolioSummaryProps) {
+export default function PortfolioSummary({ unrealizedPnlPct, realizedPnlYtdPct, openPositionsCount, twrPct, vwcePct, alphaPct, inceptionDate }: PortfolioSummaryProps) {
   const uCls = unrealizedPnlPct >= 0 ? 'up' : 'dn'
   const rCls = realizedPnlYtdPct >= 0 ? 'up' : 'dn'
   const tCls = twrPct >= 0 ? 'up' : 'dn'
+  const aCls = alphaPct == null ? 'flat' : alphaPct >= 0 ? 'up' : 'dn'
 
   return (
     <div className="dash-card">
@@ -38,6 +41,18 @@ export default function PortfolioSummary({ unrealizedPnlPct, realizedPnlYtdPct, 
           <div className="dash-stat-label">Total Return <span style={{ fontWeight: 400, opacity: 0.5, fontSize: '0.8em' }}>TWR</span></div>
           <div className={`dash-stat-val ${tCls}`}>{fmt(twrPct)}</div>
           <div className={`dash-stat-glow ${tCls}`} />
+        </div>
+        <div className="dash-stat-cell">
+          <div className="dash-stat-label">vs VWCE <span style={{ fontWeight: 400, opacity: 0.5, fontSize: '0.8em' }}>α</span></div>
+          <div className={`dash-stat-val ${aCls}`}>
+            {alphaPct != null ? fmt(alphaPct) : '—'}
+          </div>
+          {alphaPct != null && vwcePct != null && (
+            <div className="dash-stat-sub" style={{ fontSize: '10px', opacity: 0.45, marginTop: 2 }}>
+              VWCE {fmt(vwcePct)}
+            </div>
+          )}
+          <div className={`dash-stat-glow ${aCls}`} />
         </div>
         <div className="dash-stat-cell full-width">
           <div className="dash-stat-label">Open Positions</div>

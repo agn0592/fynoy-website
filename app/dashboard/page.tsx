@@ -65,7 +65,13 @@ export default async function DashboardPage() {
     return { date: s.snapshot_date, nav: twrFactor * 100, benchmark: s.benchmark_value ?? 0 }
   })
 
-  const SECTOR_FALLBACK: Record<string, string> = {
+  // VWCE return from inception (first non-zero benchmark to latest)
+  const firstBenchmark = snapshots.find(s => (s.benchmark_value ?? 0) > 0)
+  const lastBenchmark = [...snapshots].reverse().find(s => (s.benchmark_value ?? 0) > 0)
+  const vwcePct = firstBenchmark && lastBenchmark && firstBenchmark !== lastBenchmark
+    ? ((lastBenchmark.benchmark_value - firstBenchmark.benchmark_value) / firstBenchmark.benchmark_value) * 100
+    : null
+  const alphaPct = vwcePct !== null ? (twrFactor - 1) * 100 - vwcePct : null: Record<string, string> = {
     I500: 'ETF', IBM: 'Technology', LLY: 'Healthcare',
     MSFT: 'Technology', ORCL: 'Technology', PLTR: 'Technology',
     V: 'Financials', RHM: 'Industrials', PANW: 'Technology',
@@ -110,6 +116,8 @@ export default async function DashboardPage() {
             realizedPnlYtdPct={realizedYtdPct}
             openPositionsCount={openPositions.length}
             twrPct={(twrFactor - 1) * 100}
+            vwcePct={vwcePct}
+            alphaPct={alphaPct}
             inceptionDate="1 Jan 2026"
           />
           <SectorAllocation data={sectorData} />
