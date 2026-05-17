@@ -21,30 +21,31 @@ interface DeferredPromptEvent extends Event {
 type AnyWindow = Window & { __pwaDeferred?: unknown }
 
 export default function InstallPrompt() {
-  const [visible, setVisible] = useState(false)
+  // Start hidden — always in DOM so iOS Safari never misses it
+  const [show, setShow] = useState(false)
   const [isIos, setIsIos] = useState(false)
   const [installing, setInstalling] = useState(false)
   const deferredRef = useRef<DeferredPromptEvent | null>(null)
 
   useEffect(() => {
-    // Already running as installed PWA
+    // Don't show if already installed as PWA
     if (window.matchMedia('(display-mode: standalone)').matches) return
-    // iOS Safari private browsing throws on localStorage access — guard it
-    try { if (localStorage.getItem('pwa-v2-dismissed') === '1') return } catch { /* continue */ }
+    // iOS-specific standalone check
+    if ((navigator as unknown as Record<string, unknown>).standalone === true) return
 
-    // iPadOS 13+ reports as MacIntel but has touch points
+    try {
+      if (localStorage.getItem('pwa-v2-dismissed') === '1') return
+    } catch { /* private browsing */ }
+
     const ios =
       /iphone|ipad|ipod/i.test(navigator.userAgent) ||
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
     setIsIos(ios)
 
-    // Grab deferred prompt captured early by PwaInit (may already be set)
+    // Pick up deferred prompt if already captured by PwaInit
     const w = window as AnyWindow
-    if (w.__pwaDeferred) {
-      deferredRef.current = w.__pwaDeferred as DeferredPromptEvent
-    }
+    if (w.__pwaDeferred) deferredRef.current = w.__pwaDeferred as DeferredPromptEvent
 
-    // Also listen in case it fires after we mount
     const handler = (e: Event) => {
       e.preventDefault()
       deferredRef.current = e as DeferredPromptEvent
@@ -52,8 +53,8 @@ export default function InstallPrompt() {
     }
     window.addEventListener('beforeinstallprompt', handler)
 
-    // Show banner after 2.5 s — works for iOS, Android, and desktop
-    const t = setTimeout(() => setVisible(true), 2500)
+    // Show after 1.5 s — element is already in DOM so this just triggers transition
+    const t = setTimeout(() => setShow(true), 1500)
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler)
@@ -62,28 +63,29 @@ export default function InstallPrompt() {
   }, [])
 
   function dismiss() {
-    setVisible(false)
+    setShow(false)
     try { localStorage.setItem('pwa-v2-dismissed', '1') } catch { /* ignore */ }
   }
 
   async function install() {
     const d = deferredRef.current
-    if (!d) {
-      // Native prompt not yet available — open browser install menu as fallback
-      // (works in Chrome via keyboard shortcut / address bar install icon)
-      return
-    }
+    if (!d) return
     setInstalling(true)
     await d.prompt()
     const { outcome } = await d.userChoice
     setInstalling(false)
-    if (outcome === 'accepted') setVisible(false)
+    if (outcome === 'accepted') setShow(false)
   }
 
-  if (!visible) return null
-
+  // Always render — visibility controlled by CSS class, not conditional render.
+  // This is crucial for iOS Safari where removing from DOM can miss the transition.
   return (
-    <div className="pwa-banner" role="region" aria-label="Install app">
+    <div
+      className={`pwa-banner${show ? ' pwa-banner--show' : ''}`}
+      role="region"
+      aria-label="Install app"
+      aria-hidden={!show}
+    >
       <div className="pwa-banner-inner">
         <div className="pwa-banner-left">
           <span className="pwa-banner-icon">{LOGO}</span>
@@ -95,7 +97,7 @@ export default function InstallPrompt() {
                   <span className="pwa-ios-num">1</span>
                   Tap the share icon
                   <span className="pwa-ios-share-icon" aria-hidden="true">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
                       <polyline points="16 6 12 2 8 6"/>
                       <line x1="12" y1="2" x2="12" y2="15"/>
@@ -109,7 +111,9 @@ export default function InstallPrompt() {
                 </span>
               </span>
             ) : (
-              <span className="pwa-banner-sub">Instant access to our portfolio — no browser needed</span>
+              <span className="pwa-banner-sub">
+                Instant access to our portfolio — no browser needed
+              </span>
             )}
           </div>
         </div>
