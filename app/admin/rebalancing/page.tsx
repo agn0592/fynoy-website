@@ -48,14 +48,16 @@ export default async function RebalancingPage() {
       : {}
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div>
-        <h1 style={{ color: '#fff', fontSize: '24px', fontWeight: 700, margin: '0 0 4px' }}>
-          Rebalancing
-        </h1>
-        <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>
-          Compare actual vs target sector allocations and update targets.
-        </p>
+    <>
+      <div className="dash-page-head">
+        <div className="dash-page-title-block">
+          <h1 className="dash-page-title">
+            <em>Rebalancing</em>
+          </h1>
+          <div className="dash-page-sub">
+            Compare actual vs target sector allocations and update targets.
+          </div>
+        </div>
       </div>
 
       <RebalancingView
@@ -63,6 +65,6 @@ export default async function RebalancingPage() {
         cases={cases}
         targetAllocation={targetAllocation}
       />
-    </div>
+    </>
   )
 }

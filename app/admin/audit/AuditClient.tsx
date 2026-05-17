@@ -85,6 +85,9 @@ export default function AuditClient(props: AuditClientProps) {
   const searchParams = useSearchParams()
   const [category, setCategory] = useState<Category>('all')
   const [copied, setCopied] = useState(false)
+  // Snapshot "now" at mount to keep render deterministic across re-renders.
+  // Lazy initializer runs once at mount; value remains stable thereafter.
+  const [nowMs] = useState<number>(() => Date.now())
 
   const allEvents = useMemo(() => {
     return [...auditEvents, ...synthetic].sort((a, b) =>
@@ -100,17 +103,17 @@ export default function AuditClient(props: AuditClientProps) {
     })
   }, [allEvents, rangeStartMs, category])
 
-  // KPI counts
+  // KPI counts — depend on nowMs snapshot from mount
   const eventsToday = useMemo(() => {
-    const start = new Date()
+    const start = new Date(nowMs)
     start.setHours(0, 0, 0, 0)
     const startMs = start.getTime()
     return allEvents.filter((e) => new Date(e.created_at).getTime() >= startMs).length
-  }, [allEvents])
+  }, [allEvents, nowMs])
   const eventsThisWeek = useMemo(() => {
-    const startMs = Date.now() - 7 * 24 * 3_600_000
+    const startMs = nowMs - 7 * 24 * 3_600_000
     return allEvents.filter((e) => new Date(e.created_at).getTime() >= startMs).length
-  }, [allEvents])
+  }, [allEvents, nowMs])
 
   function changeRange(next: '24h' | '7d' | '30d' | 'all') {
     const sp = new URLSearchParams(searchParams?.toString() ?? '')

@@ -140,9 +140,11 @@ export default function SettingsClient({ initial }: SettingsClientProps) {
     if (r.ok) setDisplayLastCommentary(new Date().toISOString())
   }
 
+  // Stable "now" snapshot — recomputed only on remount
+  const [nowMs] = useState<number>(() => Date.now())
   const syncAgeHours =
     displayLastSync !== null
-      ? (Date.now() - new Date(displayLastSync).getTime()) / 3_600_000
+      ? (nowMs - new Date(displayLastSync).getTime()) / 3_600_000
       : null
 
   const sectorList = (() => {

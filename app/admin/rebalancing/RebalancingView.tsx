@@ -12,6 +12,8 @@ import {
   Legend,
   CartesianGrid,
 } from 'recharts'
+import { IconCheck, IconAlertCircle, IconBalance } from '@/app/dashboard/components/Icons'
+import { fmtEUR } from '@/lib/analytics'
 
 interface Position {
   trading_id: string | null
@@ -31,23 +33,48 @@ interface RebalancingViewProps {
   targetAllocation: Record<string, number>
 }
 
-function getSignal(actual: number, target: number): { label: string; color: string } {
-  if (actual > target + 5) return { label: 'Overweight', color: '#ef4444' }
-  if (actual < target - 5) return { label: 'Underweight', color: '#3b82f6' }
-  return { label: 'On target', color: '#22c55e' }
+type SignalKey = 'over' | 'under' | 'on'
+
+function getSignal(actual: number, target: number): { label: string; key: SignalKey } {
+  if (actual > target + 5) return { label: 'Overweight', key: 'over' }
+  if (actual < target - 5) return { label: 'Underweight', key: 'under' }
+  return { label: 'On target', key: 'on' }
 }
 
-export default function RebalancingView({ positions, cases, targetAllocation: initialTarget }: RebalancingViewProps) {
+const SIGNAL_CLASS: Record<SignalKey, string> = {
+  over: 'warning',
+  under: 'info',
+  on:    'active',
+}
+
+interface TooltipPayload { value: number; name: string; color: string }
+
+function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: TooltipPayload[]; label?: string }) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="dash-tooltip">
+      <div className="dash-tooltip-date">{label}</div>
+      {payload.map((p) => (
+        <div key={p.name} className="dash-tooltip-row">
+          <span className="dash-tooltip-label">{p.name}</span>
+          <span className="dash-tooltip-val" style={{ color: p.color }}>{p.value.toFixed(1)}%</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default function RebalancingView({
+  positions, cases, targetAllocation: initialTarget,
+}: RebalancingViewProps) {
   const [targetAllocation, setTargetAllocation] = useState<Record<string, number>>(initialTarget)
   const [saving, setSaving] = useState(false)
-  const [saveMsg, setSaveMsg] = useState<string | null>(null)
+  const [saveMsg, setSaveMsg] = useState<{ kind: 'success' | 'error'; text: string } | null>(null)
 
-  // Build case map
   const caseMap = new Map<string, string>(
     cases.map((c) => [c.trading_id, c.sector ?? 'Unknown'])
   )
 
-  // Calculate total NAV and sector breakdown
   const sectorValues = new Map<string, number>()
   let totalValue = 0
   for (const pos of positions) {
@@ -76,6 +103,24 @@ export default function RebalancingView({ positions, cases, targetAllocation: in
     }
   })
 
+  // Summary KPIs
+  const totalDiff = sectors.reduce((s, sec) => {
+    const actual = totalValue > 0 ? ((sectorValues.get(sec) ?? 0) / totalValue) * 100 : 0
+    const target = targetAllocation[sec] ?? 0
+    return s + Math.abs(actual - target)
+  }, 0)
+  const targetCoverage = Object.values(targetAllocation).reduce((s, v) => s + v, 0)
+  const overweightCount = sectors.filter(sec => {
+    const a = totalValue > 0 ? ((sectorValues.get(sec) ?? 0) / totalValue) * 100 : 0
+    const t = targetAllocation[sec] ?? 0
+    return a > t + 5
+  }).length
+  const underweightCount = sectors.filter(sec => {
+    const a = totalValue > 0 ? ((sectorValues.get(sec) ?? 0) / totalValue) * 100 : 0
+    const t = targetAllocation[sec] ?? 0
+    return a < t - 5
+  }).length
+
   async function handleSave() {
     setSaving(true)
     setSaveMsg(null)
@@ -85,203 +130,173 @@ export default function RebalancingView({ positions, cases, targetAllocation: in
       .upsert({ key: 'target_allocation', value: targetAllocation, updated_at: new Date().toISOString() })
     setSaving(false)
     if (error) {
-      setSaveMsg(`Error: ${error.message}`)
+      setSaveMsg({ kind: 'error', text: error.message })
     } else {
-      setSaveMsg('Saved successfully')
+      setSaveMsg({ kind: 'success', text: 'Saved' })
       setTimeout(() => setSaveMsg(null), 3000)
     }
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Chart */}
-      <div
-        style={{
-          background: '#1a1d27',
-          border: '1px solid #2a2d3e',
-          borderRadius: '10px',
-          padding: '24px',
-        }}
-      >
-        <h2 style={{ color: '#fff', fontSize: '16px', fontWeight: 600, margin: '0 0 20px' }}>
-          Target vs Actual Allocation
-        </h2>
-        {chartData.length === 0 ? (
-          <div style={{ color: '#6b7280', fontSize: '14px', padding: '32px 0', textAlign: 'center' }}>
-            No positions or target allocations to display.
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2d3e" />
-              <XAxis
-                dataKey="sector"
-                tick={{ fill: '#6b7280', fontSize: 11 }}
-                tickLine={false}
-                axisLine={{ stroke: '#2a2d3e' }}
-              />
-              <YAxis
-                tickFormatter={(v) => `${v}%`}
-                tick={{ fill: '#6b7280', fontSize: 11 }}
-                tickLine={false}
-                axisLine={false}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: '#0f1117',
-                  border: '1px solid #2a2d3e',
-                  borderRadius: '6px',
-                  color: '#fff',
-                  fontSize: '12px',
-                }}
-                formatter={(value) => [`${value}%`]}
-              />
-              <Legend wrapperStyle={{ color: '#9ca3af', fontSize: '12px' }} />
-              <Bar dataKey="target" name="Target %" fill="#3b82f6" opacity={0.7} radius={[3, 3, 0, 0]} />
-              <Bar dataKey="actual" name="Actual %" fill="#22c55e" opacity={0.8} radius={[3, 3, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* KPI strip */}
+      <div className="adm-kpi-grid">
+        <div className="adm-kpi kpi-neutral">
+          <div className="adm-kpi-label">Sectors</div>
+          <div className="adm-kpi-val">{sectors.length}</div>
+          <div className="adm-kpi-sub">Tracked allocations</div>
+        </div>
+        <div className={`adm-kpi ${overweightCount > 0 ? 'kpi-dn' : 'kpi-neutral'}`}>
+          <div className="adm-kpi-label">Overweight</div>
+          <div className="adm-kpi-val">{overweightCount}</div>
+          <div className="adm-kpi-sub">More than +5% of target</div>
+        </div>
+        <div className={`adm-kpi ${underweightCount > 0 ? 'kpi-dn' : 'kpi-neutral'}`}>
+          <div className="adm-kpi-label">Underweight</div>
+          <div className="adm-kpi-val">{underweightCount}</div>
+          <div className="adm-kpi-sub">Less than -5% of target</div>
+        </div>
+        <div className="adm-kpi kpi-neutral">
+          <div className="adm-kpi-label">Total Drift</div>
+          <div className="adm-kpi-val">{totalDiff.toFixed(1)}%</div>
+          <div className="adm-kpi-sub">Sum of |actual − target|</div>
+        </div>
+        <div className="adm-kpi kpi-neutral">
+          <div className="adm-kpi-label">Target Coverage</div>
+          <div className="adm-kpi-val">{targetCoverage.toFixed(0)}%</div>
+          <div className="adm-kpi-sub">Sum of target weights</div>
+        </div>
       </div>
 
-      {/* Sector Detail Table + Target Inputs */}
-      <div
-        style={{
-          background: '#1a1d27',
-          border: '1px solid #2a2d3e',
-          borderRadius: '10px',
-          padding: '24px',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '12px', flexWrap: 'wrap' }}>
-          <h2 style={{ color: '#fff', fontSize: '16px', fontWeight: 600, margin: 0 }}>
-            Sector Allocation Detail
-          </h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      {/* Chart */}
+      <div className="dash-card">
+        <div className="dash-card-header">
+          <div>
+            <div className="dash-card-title">Target vs Actual Allocation</div>
+            <div className="dash-card-sub">Sector exposure comparison</div>
+          </div>
+        </div>
+        <div className="dash-card-body">
+          {chartData.length === 0 ? (
+            <div className="dash-empty">No positions or target allocations to display.</div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(232,228,220,0.08)" vertical={false} />
+                <XAxis
+                  dataKey="sector"
+                  tick={{ fill: 'var(--ink-dim)', fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={{ stroke: 'rgba(232,228,220,0.08)' }}
+                />
+                <YAxis
+                  tickFormatter={(v) => `${v}%`}
+                  tick={{ fill: 'var(--ink-dim)', fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(201,169,110,0.05)' }} />
+                <Legend wrapperStyle={{ color: 'var(--ink-mute)', fontSize: 11 }} iconType="square" />
+                <Bar dataKey="target" name="Target %" fill="var(--ink-dim)" opacity={0.65} radius={[2, 2, 0, 0]} />
+                <Bar dataKey="actual" name="Actual %" fill="var(--gold)" opacity={0.95} radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
+
+      {/* Detail Table + Target Inputs */}
+      <div className="dash-card">
+        <div className="dash-card-header">
+          <div>
+            <div className="dash-card-title">Sector Allocation Detail</div>
+            <div className="dash-card-sub">Adjust targets and save</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {saveMsg && (
               <span
                 style={{
-                  color: saveMsg.startsWith('Error') ? '#ef4444' : '#22c55e',
-                  fontSize: '13px',
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  color: saveMsg.kind === 'error' ? 'var(--dash-red)' : 'var(--dash-green)',
+                  fontSize: 11, fontWeight: 500, letterSpacing: 0.04,
                 }}
               >
-                {saveMsg}
+                {saveMsg.kind === 'error'
+                  ? <IconAlertCircle width={13} height={13} />
+                  : <IconCheck width={13} height={13} />}
+                {saveMsg.text}
               </span>
             )}
             <button
+              type="button"
               onClick={handleSave}
               disabled={saving}
-              style={{
-                background: saving ? '#1e3a5f' : '#3b82f6',
-                border: 'none',
-                borderRadius: '6px',
-                color: '#fff',
-                fontSize: '13px',
-                fontWeight: 600,
-                padding: '7px 18px',
-                cursor: saving ? 'not-allowed' : 'pointer',
-                opacity: saving ? 0.7 : 1,
-              }}
+              className="dash-btn btn-gold btn-sm"
             >
-              {saving ? 'Saving...' : 'Save Targets'}
+              <IconBalance width={13} height={13} />
+              {saving ? 'Saving…' : 'Save Targets'}
             </button>
           </div>
         </div>
 
         {sectors.length === 0 ? (
-          <div style={{ color: '#6b7280', fontSize: '14px', textAlign: 'center', padding: '32px 0' }}>
-            No sectors found. Add positions or set target allocations.
-          </div>
+          <div className="dash-empty">No sectors found. Add positions or set target allocations.</div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid #2a2d3e' }}>
-                {['Sector', 'Market Value', 'Actual %', 'Target %', 'Signal'].map((col) => (
-                  <th
-                    key={col}
-                    style={{
-                      padding: '10px 16px',
-                      textAlign: 'left',
-                      color: '#6b7280',
-                      fontSize: '11px',
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                    }}
-                  >
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sectors.map((sector, i) => {
-                const value = sectorValues.get(sector) ?? 0
-                const actualPct = totalValue > 0 ? (value / totalValue) * 100 : 0
-                const targetPct = targetAllocation[sector] ?? 0
-                const { label, color } = getSignal(actualPct, targetPct)
-                return (
-                  <tr
-                    key={sector}
-                    style={{ borderBottom: i < sectors.length - 1 ? '1px solid #2a2d3e' : 'none' }}
-                  >
-                    <td style={{ padding: '12px 16px', color: '#fff', fontSize: '14px' }}>
-                      {sector}
-                    </td>
-                    <td style={{ padding: '12px 16px', color: '#9ca3af', fontSize: '13px' }}>
-                      €{value.toLocaleString('en-EU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                    </td>
-                    <td style={{ padding: '12px 16px', color: '#d1d5db', fontSize: '14px', fontWeight: 600 }}>
-                      {actualPct.toFixed(1)}%
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          step={0.5}
-                          value={targetPct}
-                          onChange={(e) =>
-                            setTargetAllocation((prev) => ({
-                              ...prev,
-                              [sector]: Number(e.target.value),
-                            }))
-                          }
-                          style={{
-                            width: '72px',
-                            background: '#0f1117',
-                            border: '1px solid #2a2d3e',
-                            borderRadius: '6px',
-                            color: '#fff',
-                            fontSize: '13px',
-                            padding: '6px 8px',
-                            outline: 'none',
-                          }}
-                        />
-                        <span style={{ color: '#6b7280', fontSize: '13px' }}>%</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span
-                        style={{
-                          padding: '2px 10px',
-                          borderRadius: '4px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          color,
-                          background: `${color}20`,
-                          border: `1px solid ${color}40`,
-                        }}
-                      >
-                        {label}
-                      </span>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          <div className="dash-table-wrap">
+            <table className="dash-table">
+              <thead>
+                <tr>
+                  {['Sector', 'Market Value', 'Actual %', 'Target %', 'Signal'].map((col) => (
+                    <th key={col} className="dash-th">{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sectors.map((sector) => {
+                  const value = sectorValues.get(sector) ?? 0
+                  const actualPct = totalValue > 0 ? (value / totalValue) * 100 : 0
+                  const targetPct = targetAllocation[sector] ?? 0
+                  const sig = getSignal(actualPct, targetPct)
+                  return (
+                    <tr key={sector} className="dash-tr">
+                      <td className="dash-td">
+                        <span className="dash-symbol">{sector}</span>
+                      </td>
+                      <td className="dash-td">{fmtEUR(value)}</td>
+                      <td className="dash-td" style={{ color: 'var(--ink)', fontWeight: 600 }}>
+                        {actualPct.toFixed(1)}%
+                      </td>
+                      <td className="dash-td">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            step={0.5}
+                            value={targetPct}
+                            onChange={(e) =>
+                              setTargetAllocation((prev) => ({
+                                ...prev,
+                                [sector]: Number(e.target.value),
+                              }))
+                            }
+                            className="dash-input"
+                            style={{ width: 90, padding: '6px 8px' }}
+                          />
+                          <span style={{ color: 'var(--ink-dim)', fontSize: 12 }}>%</span>
+                        </div>
+                      </td>
+                      <td className="dash-td">
+                        <span className={`status-badge ${SIGNAL_CLASS[sig.key]}`}>
+                          {sig.label}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
