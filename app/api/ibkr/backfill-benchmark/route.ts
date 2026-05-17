@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
 
     const today = new Date().toISOString().split('T')[0]
 
-    // All snapshots missing a benchmark value + always re-fetch today
     const { data: missing, error: fetchErr } = await supabase
       .from('portfolio_snapshots')
       .select('snapshot_date')
@@ -50,17 +49,34 @@ export async function POST(request: NextRequest) {
     const timestamps: number[] = chartResult?.timestamp ?? []
     const closes: number[] = chartResult?.indicators?.quote?.[0]?.close ?? []
 
-    const history = new Map<string, number>()
+    // Build sorted list of known trading-day prices
+    const sortedDates: { date: string; price: number }[] = []
     for (let i = 0; i < timestamps.length; i++) {
       if (!timestamps[i] || !closes[i]) continue
       const date = new Date(timestamps[i] * 1000).toISOString().split('T')[0]
-      history.set(date, closes[i])
+      sortedDates.push({ date, price: closes[i] })
+    }
+    sortedDates.sort((a, b) => a.date.localeCompare(b.date))
+
+    const history = new Map(sortedDates.map(d => [d.date, d.price]))
+
+    // For dates with no Yahoo Finance data (holidays), use the previous trading day's price
+    function resolvePrice(date: string): number | undefined {
+      if (history.has(date)) return history.get(date)
+      // Walk back up to 5 days to find a previous trading day
+      const d = new Date(date)
+      for (let i = 1; i <= 5; i++) {
+        d.setDate(d.getDate() - 1)
+        const prev = d.toISOString().split('T')[0]
+        if (history.has(prev)) return history.get(prev)
+      }
+      return undefined
     }
 
     const updates = missing
       .map(row => ({
         snapshot_date: row.snapshot_date as string,
-        benchmark_value: history.get(row.snapshot_date as string),
+        benchmark_value: resolvePrice(row.snapshot_date as string),
       }))
       .filter((r): r is { snapshot_date: string; benchmark_value: number } => !!r.benchmark_value)
 
