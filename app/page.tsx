@@ -229,33 +229,49 @@ export default function HomePage() {
           <div className="wrap">
             <Reveal>
               <span className="eyebrow">Pricing</span>
-              <h2 style={{ marginTop: 24, maxWidth: "22ch" }}>One plan. Free.</h2>
-              <p className="lede" style={{ marginTop: 18, maxWidth: '54ch' }}>
-                Everything we publish is free to access. Create an account and follow the portfolio.
+              <h2 style={{ marginTop: 24, maxWidth: "22ch" }}>
+                Everything, <em className="it">free.</em>
+              </h2>
+              <p className="lede" style={{ marginTop: 18, maxWidth: '58ch' }}>
+                We don&apos;t sell the portfolio — we share it. Conviction shows in transparency, not in paywalls.
               </p>
             </Reveal>
 
-            <div className="pricing-single" style={{ marginTop: 48 }}>
-              <Reveal>
-                <div className="pricing-card pricing-card-pro">
-                  <div className="pricing-head">
-                    <div className="pricing-name">Free</div>
-                    <div className="pricing-price"><span>€0</span> / forever</div>
+            <Reveal>
+              <div className="pricing-hero" style={{ marginTop: 56 }}>
+                <div className="pricing-card pricing-card-pro pricing-card-hero">
+                  <div className="pricing-side">
+                    <div className="pricing-side-eyebrow">Always</div>
+                    <div className="pricing-mega">€0</div>
+                    <div className="pricing-side-meta">No subscription. No credit card. No upgrade path.</div>
+                    <Link
+                      className="btn btn-primary"
+                      href="/auth/register"
+                      style={{ marginTop: 28, width: '100%', justifyContent: 'center' }}
+                    >
+                      Create free account
+                    </Link>
+                    <Link href="/auth/login" className="pricing-side-link">
+                      Already a member? Sign in →
+                    </Link>
                   </div>
-                  <ul className="pricing-feats">
-                    <li><span className="check">✓</span> Realtime portfolio dashboard</li>
-                    <li><span className="check">✓</span> Open positions with live % return</li>
-                    <li><span className="check">✓</span> Full trade rationale per position</li>
-                    <li><span className="check">✓</span> Closed trades history with exact return</li>
-                    <li><span className="check">✓</span> Performance vs VWCE benchmark</li>
-                    <li><span className="check">✓</span> Sector allocation &amp; risk view</li>
-                  </ul>
-                  <Link className="btn btn-primary" href="/auth/register" style={{ width: '100%', justifyContent: 'center' }}>
-                    Create free account
-                  </Link>
+
+                  <div className="pricing-divider" aria-hidden />
+
+                  <div className="pricing-includes">
+                    <div className="pricing-includes-title">What you get</div>
+                    <ul className="pricing-feats">
+                      <li><span className="check">✓</span> Realtime portfolio dashboard</li>
+                      <li><span className="check">✓</span> Open positions with live % return</li>
+                      <li><span className="check">✓</span> Full trade rationale per position</li>
+                      <li><span className="check">✓</span> Closed trades with exact return</li>
+                      <li><span className="check">✓</span> Performance vs VWCE + Capped M²</li>
+                      <li><span className="check">✓</span> Sector allocation &amp; risk view</li>
+                    </ul>
+                  </div>
                 </div>
-              </Reveal>
-            </div>
+              </div>
+            </Reveal>
           </div>
         </section>
 
