@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   IconGrid, IconBriefcase, IconSearch, IconBalance, IconClock,
-  IconMessage, IconUsers, IconActivity, IconBook, IconSettings,
+  IconMessage, IconUsers, IconActivity, IconBook, IconSettings, IconShield,
 } from '@/app/dashboard/components/Icons'
 
 const NAV = [
@@ -17,6 +17,7 @@ const NAV = [
   { href: '/admin/ai-commentary', label: 'AI Commentary', icon: <IconMessage /> },
   { href: '/admin/journal',       label: 'Journal',       icon: <IconBook /> },
   { href: '/admin/members',       label: 'Members',       icon: <IconUsers /> },
+  { href: '/admin/audit',         label: 'Audit Log',     icon: <IconShield /> },
   { href: '/admin/settings',      label: 'Settings',      icon: <IconSettings /> },
 ]
 

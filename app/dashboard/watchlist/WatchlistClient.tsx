@@ -172,7 +172,7 @@ function AddForm({ onAdd, existingSymbols }: AddFormProps) {
       <div className="dash-card-header">
         <div>
           <div className="dash-card-title">Add to Watchlist</div>
-          <div className="dash-card-sub">Track symbols you're researching</div>
+          <div className="dash-card-sub">Track symbols you&rsquo;re researching</div>
         </div>
       </div>
       <div className="dash-card-body">
@@ -639,7 +639,7 @@ export default function WatchlistClient({ heldSymbols }: { heldSymbols: string[]
             Watchlist <em>& Targets</em>
           </h1>
           <div className="dash-page-sub">
-            Symbols you're tracking — prices, sparklines, and target levels.
+            Symbols you&rsquo;re tracking &mdash; prices, sparklines, and target levels.
           </div>
         </div>
         <div className="dash-page-actions">
@@ -767,8 +767,8 @@ export default function WatchlistClient({ heldSymbols }: { heldSymbols: string[]
               Your watchlist is empty
             </div>
             <div style={{ color: 'var(--ink-mute)', fontSize: 13, maxWidth: 360, margin: '0 auto', lineHeight: 1.6 }}>
-              Track symbols you're researching. Add a target price to monitor entries,
-              or just a note to remind yourself why it's interesting.
+              Track symbols you&rsquo;re researching. Add a target price to monitor entries,
+              or just a note to remind yourself why it&rsquo;s interesting.
             </div>
           </div>
         </div>
