@@ -920,9 +920,35 @@ footer { padding: clamp(56px,7vw,96px) 0 32px; border-top: 1px solid var(--line)
   font-style: normal;
   color: var(--gold);
 }
-.pwa-banner-sub svg {
+.pwa-banner-sub--ios {
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-start;
+}
+.pwa-ios-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pwa-ios-num {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: rgba(201,169,110,0.15);
+  border: 1px solid var(--gold-line);
+  color: var(--gold);
+  font-size: 9px;
+  font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  vertical-align: middle;
+  letter-spacing: 0;
+}
+.pwa-ios-share-icon {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 5px;
+  background: rgba(201,169,110,0.10);
+  border: 1px solid var(--gold-line);
+  border-radius: 4px;
   color: var(--gold);
 }
 .pwa-banner-actions {
