@@ -16,7 +16,7 @@ export default function AtlasPage() {
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
         <AgentChat
-          endpoint="/api/agent/atlas"
+          agent="atlas"
           agentName="Atlas"
           agentTagline="Admin agent · write access"
           placeholder="Geef Atlas een opdracht…"

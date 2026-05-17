@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import AgentChat from '@/app/components/AgentChat'
+import '@/app/components/agent-chat.css'
 
 export default function SageBubble() {
   const [open, setOpen] = useState(false)
@@ -18,7 +19,7 @@ export default function SageBubble() {
       {open && (
         <div className="agent-bubble-panel">
           <AgentChat
-            endpoint="/api/agent/sage"
+            agent="sage"
             agentName="Sage"
             agentTagline="Ask me about the portfolio"
             placeholder="Ask Sage anything…"

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import AgentChat from '@/app/components/AgentChat'
+import '@/app/components/agent-chat.css'
 
 export default function AtlasBubble() {
   const [open, setOpen] = useState(false)
@@ -11,7 +12,6 @@ export default function AtlasBubble() {
   // Hide the floating bubble when the user is already on the dedicated Atlas page.
   const onAtlasPage = pathname?.startsWith('/admin/atlas')
 
-  // Close on Esc.
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
@@ -26,7 +26,7 @@ export default function AtlasBubble() {
       {open && (
         <div className="agent-bubble-panel">
           <AgentChat
-            endpoint="/api/agent/atlas"
+            agent="atlas"
             agentName="Atlas"
             agentTagline="Admin agent · write access"
             placeholder="Geef Atlas een opdracht…"
