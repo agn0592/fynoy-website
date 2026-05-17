@@ -957,7 +957,21 @@ footer { padding: clamp(56px,7vw,96px) 0 32px; border-top: 1px solid var(--line)
 }
 .pwa-dismiss-btn:hover { color: var(--ink); background: rgba(232,228,220,0.06) }
 @media (max-width: 480px) {
-  .pwa-banner { bottom: 16px }
-  .pwa-banner-inner { padding: 12px 14px }
-  .pwa-banner-sub { display: none }
+  .pwa-banner {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+  @keyframes pwa-slide-up {
+    from { opacity: 0; transform: translateY(100%) }
+    to   { opacity: 1; transform: translateY(0) }
+  }
+  .pwa-banner-inner { padding: 14px 16px 22px }
+  .pwa-banner-sub { display: flex }
 }

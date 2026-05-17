@@ -45,6 +45,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Explicit manifest link — ensures browsers pick up start_url=/dashboard */}
+        <link rel="manifest" href="/manifest.webmanifest" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
