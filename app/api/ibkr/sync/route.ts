@@ -125,30 +125,6 @@ async function fetchBenchmarkPrice(): Promise<number> {
   }
 }
 
-async function fetchBenchmarkHistory(rangeDays: number): Promise<Map<string, number>> {
-  const result = new Map<string, number>()
-  try {
-    const rangeParam = rangeDays <= 30 ? '1mo' : rangeDays <= 90 ? '3mo' : rangeDays <= 180 ? '6mo' : rangeDays <= 365 ? '1y' : '2y'
-    const res = await fetch(
-      `https://query1.finance.yahoo.com/v8/finance/chart/VWCE.DE?interval=1d&range=${rangeParam}`,
-      { headers: { 'User-Agent': 'Mozilla/5.0' } }
-    )
-    if (!res.ok) return result
-    const data = await res.json()
-    const chartResult = data?.chart?.result?.[0]
-    const timestamps: number[] = chartResult?.timestamp ?? []
-    const closes: number[] = chartResult?.indicators?.quote?.[0]?.close ?? []
-    for (let i = 0; i < timestamps.length; i++) {
-      if (!timestamps[i] || !closes[i]) continue
-      const date = new Date(timestamps[i] * 1000).toISOString().split('T')[0]
-      result.set(date, closes[i])
-    }
-  } catch {
-    // fall through
-  }
-  return result
-}
-
 // ── main handler ─────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
@@ -320,31 +296,11 @@ export async function POST(request: NextRequest) {
     const today = new Date().toISOString().split('T')[0]
     const benchmarkValue = await fetchBenchmarkPrice()
 
-    await supabase.from('portfolio_snapshots').upsert(
-      { snapshot_date: today, benchmark_value: benchmarkValue },
-      { onConflict: 'snapshot_date' }
-    )
-
-    // ── Backfill missing benchmark values (batch) ────────────────────────────
-    const { data: missingBenchmark } = await supabase
-      .from('portfolio_snapshots')
-      .select('snapshot_date')
-      .or('benchmark_value.is.null,benchmark_value.eq.0')
-      .neq('snapshot_date', today)
-      .order('snapshot_date', { ascending: true })
-
-    if (missingBenchmark && missingBenchmark.length > 0) {
-      const oldestDate = missingBenchmark[0].snapshot_date as string
-      const ageDays = Math.ceil((Date.now() - new Date(oldestDate).getTime()) / 86_400_000)
-      const history = await fetchBenchmarkHistory(ageDays + 5)
-
-      const benchmarkUpdates = missingBenchmark
-        .map(row => ({ snapshot_date: row.snapshot_date as string, benchmark_value: history.get(row.snapshot_date as string) }))
-        .filter(r => r.benchmark_value)
-
-      if (benchmarkUpdates.length > 0) {
-        await supabase.from('portfolio_snapshots').upsert(benchmarkUpdates, { onConflict: 'snapshot_date' })
-      }
+    if (benchmarkValue > 0) {
+      await supabase.from('portfolio_snapshots').upsert(
+        { snapshot_date: today, benchmark_value: benchmarkValue },
+        { onConflict: 'snapshot_date' }
+      )
     }
 
     return Response.json({
