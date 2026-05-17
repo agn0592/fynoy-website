@@ -36,6 +36,18 @@ const SECTIONS = [
     ),
   },
   {
+    id: 'risk-adjusted',
+    label: 'Risk-adjusted Return',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3v18" />
+        <path d="M5 9h14" />
+        <path d="M8 9l-3 6a3 3 0 0 0 6 0z" />
+        <path d="M16 9l-3 6a3 3 0 0 0 6 0z" />
+      </svg>
+    ),
+  },
+  {
     id: 'commentary',
     label: 'Commentary',
     icon: (
