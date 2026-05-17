@@ -369,8 +369,20 @@
 }
 .dash-commentary-sub { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-dim) }
 .dash-commentary-date { font-size: 11px; color: var(--ink-dim); text-align: right }
-.dash-commentary-body { color: var(--ink-mute); font-size: 14px; line-height: 1.8; white-space: pre-wrap }
+.dash-commentary-body { color: var(--ink-mute); font-size: 14px; line-height: 1.8 }
 .dash-commentary-empty { color: var(--ink-dim); font-size: 14px; font-style: italic; font-family: var(--serif) }
+
+/* ── Commentary markdown ── */
+.commentary-h1 { font-size: 16px; font-weight: 700; font-family: var(--serif); color: var(--ink); margin: 0 0 12px 0 }
+.commentary-h2 { font-size: 14px; font-weight: 600; font-family: var(--serif); color: var(--ink); margin: 20px 0 8px; border-bottom: 1px solid var(--line); padding-bottom: 4px }
+.commentary-h2:first-child { margin-top: 0 }
+.commentary-h3 { font-size: 13px; font-weight: 600; color: var(--ink); margin: 14px 0 6px }
+.commentary-p  { font-size: 13px; line-height: 1.7; color: var(--ink-mute); margin: 0 0 10px }
+.commentary-ul { padding-left: 18px; margin: 0 0 10px }
+.commentary-li { font-size: 13px; line-height: 1.6; color: var(--ink-mute); margin-bottom: 4px }
+.commentary-strong { color: var(--ink); font-weight: 600 }
+.commentary-em { color: var(--ink-dim); font-style: italic }
+.commentary-hr { border: none; border-top: 1px solid var(--line); margin: 16px 0 }
 
 /* ── Divider label ── */
 .dash-section-sep {
@@ -408,4 +420,42 @@
 }
 [data-theme="light"] .dash-stat-glow.dn {
   background: radial-gradient(ellipse at center bottom, rgba(248,113,113,0.08) 0%, transparent 70%);
+}
+
+/* ── Light mode tables ── */
+[data-theme="light"] .dash-th {
+  color: #4a4132;
+  background: rgba(0,0,0,0.04);
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+[data-theme="light"] .dash-th:hover,
+[data-theme="light"] .dash-th.sorted { color: var(--gold) }
+[data-theme="light"] .dash-td {
+  color: #1a1a1a;
+  border-bottom-color: rgba(0,0,0,0.06);
+}
+[data-theme="light"] .dash-tr:nth-child(even) { background: rgba(0,0,0,0.02) }
+[data-theme="light"] .dash-tr:nth-child(odd)  { background: transparent }
+[data-theme="light"] .dash-tr:hover { background: rgba(139,100,32,0.06) }
+[data-theme="light"] .dash-symbol { color: #1a1a1a }
+[data-theme="light"] .dash-date   { color: #666 }
+[data-theme="light"] .ret-badge.up {
+  color: #16a34a;
+  background: rgba(22,163,74,0.08);
+  border-color: rgba(22,163,74,0.22);
+}
+[data-theme="light"] .ret-badge.dn {
+  color: #dc2626;
+  background: rgba(220,38,38,0.08);
+  border-color: rgba(220,38,38,0.22);
+}
+[data-theme="light"] .dash-stat-val.up { color: #16a34a }
+[data-theme="light"] .dash-stat-val.dn { color: #dc2626 }
+[data-theme="light"] .dash-pagination { border-top-color: rgba(0,0,0,0.08) }
+[data-theme="light"] .dash-page-btn { border-color: rgba(0,0,0,0.18); color: #4a4132 }
+[data-theme="light"] .dash-page-btn:not(:disabled):hover { color: #1a1a1a }
+[data-theme="light"] .win-badge {
+  color: #16a34a;
+  background: rgba(22,163,74,0.07);
+  border-color: rgba(22,163,74,0.22);
 }

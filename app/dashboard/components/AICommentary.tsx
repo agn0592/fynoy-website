@@ -1,3 +1,5 @@
+import ReactMarkdown from 'react-markdown'
+
 interface AICommentaryProps {
   commentary: string | null
   updatedAt: string | null
@@ -26,7 +28,25 @@ export default function AICommentary({ commentary, updatedAt }: AICommentaryProp
           )}
         </div>
         {commentary
-          ? <div className="dash-commentary-body">{commentary}</div>
+          ? (
+            <div className="dash-commentary-body">
+              <ReactMarkdown
+                components={{
+                  h1: ({ children }) => <h1 className="commentary-h1">{children}</h1>,
+                  h2: ({ children }) => <h2 className="commentary-h2">{children}</h2>,
+                  h3: ({ children }) => <h3 className="commentary-h3">{children}</h3>,
+                  p:  ({ children }) => <p  className="commentary-p">{children}</p>,
+                  ul: ({ children }) => <ul className="commentary-ul">{children}</ul>,
+                  li: ({ children }) => <li className="commentary-li">{children}</li>,
+                  strong: ({ children }) => <strong className="commentary-strong">{children}</strong>,
+                  em: ({ children }) => <em className="commentary-em">{children}</em>,
+                  hr: () => <hr className="commentary-hr" />,
+                }}
+              >
+                {commentary}
+              </ReactMarkdown>
+            </div>
+          )
           : <div className="dash-commentary-empty">No commentary available yet.</div>
         }
       </div>
