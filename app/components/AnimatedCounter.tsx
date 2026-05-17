@@ -18,6 +18,16 @@ export default function AnimatedCounter({ value, suffix = '', prefix = '', durat
     const el = ref.current
     if (!el) return
 
+    // Respect prefers-reduced-motion: jump straight to the final value.
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+    if (prefersReducedMotion) {
+      setCount(value)
+      return
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !triggered.current) {
@@ -41,7 +51,7 @@ export default function AnimatedCounter({ value, suffix = '', prefix = '', durat
   }, [value, duration])
 
   return (
-    <span ref={ref}>
+    <span ref={ref} aria-label={`${value}${suffix}`}>
       {prefix}{count}{suffix}
     </span>
   )

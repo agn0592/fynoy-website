@@ -63,11 +63,15 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 /* ───── typography ───── */
-h1, h2, h3, h4 { font-family: var(--serif); font-weight: 500; color: var(--ink); margin: 0; letter-spacing: -0.01em; line-height: 1.08 }
-h1 { font-size: clamp(40px,6.4vw,84px); font-weight: 500; line-height: 1.04; letter-spacing: -0.018em }
-h2 { font-size: clamp(28px,3.6vw,50px); font-weight: 500; line-height: 1.1 }
-h3 { font-size: clamp(20px,2.2vw,28px); font-weight: 500 }
+h1, h2, h3, h4 { font-family: var(--serif); font-weight: 500; color: var(--ink); margin: 0; letter-spacing: -0.01em; line-height: 1.1 }
+h1 { font-size: clamp(36px, 6.4vw, 84px); font-weight: 500; line-height: 1.08; letter-spacing: -0.018em }
+h2 { font-size: clamp(26px, 3.6vw, 50px); font-weight: 500; line-height: 1.12 }
+h3 { font-size: clamp(20px, 2.2vw, 28px); font-weight: 500 }
 h4 { font-size: 18px; font-weight: 500 }
+@media (max-width: 600px) {
+  h1 { line-height: 1.12 }
+  h2 { line-height: 1.18 }
+}
 p { margin: 0 0 1em; color: var(--ink); font-weight: 400 }
 .lede { font-size: clamp(17px,1.5vw,20px); font-weight: 300; line-height: 1.55; color: var(--ink); opacity: .86; max-width: 62ch }
 .muted { color: var(--ink-mute) }
@@ -661,6 +665,16 @@ p { margin: 0 0 1em; color: var(--ink); font-weight: 400 }
   color: var(--ink-dim);
 }
 .pricing-card .btn { margin-top: 4px }
+.pricing-card { transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease }
+.pricing-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(232,228,220,0.18);
+  box-shadow: 0 14px 32px rgba(0,0,0,0.25), inset 0 0 0 1px var(--gold-line);
+}
+.pricing-card-pro:hover {
+  border-color: var(--gold);
+  box-shadow: 0 14px 32px rgba(201,169,110,0.12), inset 0 0 0 1px var(--gold);
+}
 .pricing-single {
   display: grid;
   grid-template-columns: minmax(0, 480px);
@@ -672,6 +686,24 @@ p { margin: 0 0 1em; color: var(--ink); font-weight: 400 }
 }
 
 /* ───── footer ───── */
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 2px;
+  transition: color 0.2s, background 0.2s, opacity 0.2s;
+}
+.social-links a:hover {
+  color: var(--gold) !important;
+  background: rgba(201, 169, 110, 0.06);
+  opacity: 1 !important;
+}
+.social-links a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
 footer { padding: clamp(56px,7vw,96px) 0 32px; border-top: 1px solid var(--line); color: var(--ink-mute) }
 .foot-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 48px }
 .foot-grid h5 { font-family: var(--sans); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); margin: 0 0 18px; font-weight: 500 }
