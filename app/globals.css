@@ -476,6 +476,93 @@ p { margin: 0 0 1em; color: var(--ink); font-weight: 400 }
   .legal-toc { display: none }
 }
 
+/* ───── pricing ───── */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(16px, 2vw, 24px);
+}
+.pricing-card {
+  background: var(--navy-2);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: clamp(28px, 3vw, 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  position: relative;
+  overflow: hidden;
+}
+.pricing-card-pro {
+  border-color: var(--gold-line);
+  border-left: 2px solid var(--gold);
+}
+.pricing-badge {
+  position: absolute; top: 18px; right: 18px;
+  background: rgba(201,169,110,0.10);
+  border: 1px solid var(--gold-line);
+  color: var(--gold);
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 2px;
+  font-weight: 500;
+}
+.pricing-head { display: flex; flex-direction: column; gap: 4px }
+.pricing-name {
+  font-family: var(--serif);
+  font-size: 24px; font-weight: 500;
+  color: var(--ink);
+}
+.pricing-price {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink-mute);
+}
+.pricing-price span {
+  font-family: var(--serif);
+  font-size: 36px;
+  color: var(--ink);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-right: 6px;
+}
+.pricing-feats {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.pricing-feats li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.55;
+}
+.pricing-feats .check {
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: rgba(201,169,110,0.10);
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--gold-line);
+}
+.pricing-feats .check.tilde {
+  background: transparent;
+  border-color: var(--line-strong);
+  color: var(--ink-dim);
+}
+.pricing-card .btn { margin-top: 4px }
+@media (max-width: 760px) {
+  .pricing-grid { grid-template-columns: 1fr }
+}
+
 /* ───── footer ───── */
 footer { padding: clamp(56px,7vw,96px) 0 32px; border-top: 1px solid var(--line); color: var(--ink-mute) }
 .foot-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 48px }

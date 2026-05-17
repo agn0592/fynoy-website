@@ -7,10 +7,12 @@ import HeroOrbs from "../components/HeroOrbs";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Join Us",
+  title: "Join — volg ons portfolio gratis",
   description:
-    "Join the Fynoy Capital research group. Receive weekly stock reports, attend live Thursday pitch sessions, and access our WhatsApp investor community. Free to join.",
+    "Maak gratis een account aan en volg het Fynoy Capital portfolio realtime. Optioneel: word lid van de WhatsApp community voor analyses en pitches.",
 };
+
+const RESEARCH_WA = "https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.";
 
 const CHECK_SVG = (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -29,72 +31,48 @@ export default function JoinPage() {
           <div className="grid-bg" />
           <HeroOrbs />
           <div className="wrap" style={{ position: "relative", zIndex: 1 }}>
-            <span className="eyebrow" style={{ animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both" }}>Research group</span>
+            <span className="eyebrow" style={{ animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both" }}>
+              Volg ons portfolio
+            </span>
             <h1 style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.1s" }}>
-              Follow the research.<br />Attend the <em className="it">pitches.</em>
+              Volg ons portfolio.<br />Leer hoe wij <em className="it">denken.</em>
             </h1>
             <p className="hero-sub lede" style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.25s" }}>
-              Joining Fynoy Capital means receiving the weekly research report before each Thursday pitch session,
-              attending the live discussion, and joining a community of serious investors who treat markets as a
-              craft rather than a casino.
+              Gratis toegang tot realtime trades, analyses en de redenering achter elke beslissing.
             </p>
-            <p className="lede" style={{ marginTop: 18, animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.35s" }}>
-              Members are expected to read the report, show up, and contribute. We keep the group small and
-              focused on people who genuinely want to think harder about individual companies.
-            </p>
-            <p className="free-line" style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.45s" }}>
-              Free to join. No commitments. No fees.
-            </p>
-          </div>
-        </header>
-
-        {/* ── CTA SPLIT ── */}
-        <div className="cta-split">
-          <div className="cta-card">
-            <span className="eyebrow">WhatsApp</span>
-            <h2>Join via WhatsApp</h2>
-            <p>Send us a message and we'll add you to the research group ahead of this week's pitch.</p>
-            <div className="cta-foot">
-              <a className="btn btn-primary" target="_blank" rel="noopener noreferrer"
-                href="https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.">
-                {WA_ICON} Join on WhatsApp
+            <div className="hero-cta" style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.45s" }}>
+              <Link className="btn btn-primary" href="/auth/register">
+                Maak gratis account
+              </Link>
+              <a className="btn btn-outline" target="_blank" rel="noopener noreferrer" href={RESEARCH_WA}>
+                {WA_ICON} Word lid community
               </a>
             </div>
           </div>
-          <div className="cta-card gold">
-            <span className="eyebrow">Portfolio dashboard</span>
-            <h2>Track live. For free.</h2>
-            <p>Create a free account to access the live portfolio, every closed trade, and full P&amp;L — the same data we use internally.</p>
-            <div className="cta-foot">
-              <Link className="btn btn-on-gold" href="/auth/register">
-                Create free account →
-              </Link>
-            </div>
-          </div>
-        </div>
+        </header>
 
-        {/* ── WHAT'S INCLUDED ── */}
+        {/* ── WAT JE KRIJGT ── */}
         <section className="section">
           <div className="wrap">
             <Reveal>
-              <span className="eyebrow">What's included</span>
-              <h2 style={{ marginTop: 24 }}>Everything you need to follow the process</h2>
+              <span className="eyebrow">Wat je krijgt</span>
+              <h2 style={{ marginTop: 24, maxWidth: '20ch' }}>Twee niveaus van betrokkenheid</h2>
             </Reveal>
-            <div className="check-grid" style={{ marginTop: 48 }}>
-              {[
-                { title: "Weekly research report", body: "A full written stock analysis is delivered before each Thursday pitch — thesis, financials, valuation, and the key risks we are watching." },
-                { title: "Live Thursday pitch sessions", body: "Attend the pitch, question the thesis, and engage with the process. Members are invited to push back, propose counter-views, and stress-test the work." },
-                { title: "Live portfolio dashboard", body: "Track every open position and closed trade in real time. Full P&L, performance vs benchmark, and sector breakdown — the exact same view we use internally." },
-                { title: "WhatsApp group access", body: "Direct access to reports, mid-week updates, position changes, and the broader investment community on WhatsApp." },
-              ].map((item, i) => (
-                <Reveal key={i} delay={i * 100}>
-                  <div className="check">
-                    <div className="check-circle">{CHECK_SVG}</div>
-                    <h3>{item.title}</h3>
-                    <p>{item.body}</p>
-                  </div>
-                </Reveal>
-              ))}
+            <div className="check-grid" style={{ marginTop: 48, gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              <Reveal>
+                <div className="check">
+                  <div className="check-circle">{CHECK_SVG}</div>
+                  <h3>Gratis account</h3>
+                  <p>Toegang tot het portfolio dashboard: alle open posities en rendementen, gesloten trades met exact rendement, performance vs VWCE, sector allocatie.</p>
+                </div>
+              </Reveal>
+              <Reveal delay={100}>
+                <div className="check">
+                  <div className="check-circle">{CHECK_SVG}</div>
+                  <h3>Community lid</h3>
+                  <p>Wekelijkse analyses, pitches en directe toegang tot het team. Stel vragen, draag bij, leer mee — via de WhatsApp groep.</p>
+                </div>
+              </Reveal>
             </div>
           </div>
         </section>
@@ -103,17 +81,16 @@ export default function JoinPage() {
         <section className="section">
           <div className="wrap">
             <Reveal>
-              <span className="eyebrow">Process</span>
-              <h2 style={{ marginTop: 24 }}>How it works</h2>
+              <span className="eyebrow">Hoe het werkt</span>
+              <h2 style={{ marginTop: 24, maxWidth: '20ch' }}>Drie stappen, geen verplichtingen</h2>
             </Reveal>
-            <div className="steps" style={{ marginTop: 48 }}>
+            <div className="steps" style={{ marginTop: 48, gridTemplateColumns: 'repeat(3, 1fr)' }}>
               {[
-                { n: "1", title: "Stock selected", body: "A single name is chosen each week." },
-                { n: "2", title: "Report published", body: "Full written thesis sent to the group." },
-                { n: "3", title: "Live pitch", body: "Thursday session, open to all members." },
-                { n: "4", title: "Decision made", body: "Buy, watch, or pass — transparently." },
+                { n: "1", title: "Maak gratis account", body: "In één minuut. Dashboard direct beschikbaar." },
+                { n: "2", title: "Word community lid", body: "Optioneel. WhatsApp groep voor analyses en pitches." },
+                { n: "3", title: "Leer en bouw je visie", body: "Volg de trades, lees de redenering, ontwikkel je eigen aanpak." },
               ].map((s, i) => (
-                <Reveal key={i} delay={i * 100}>
+                <Reveal key={s.n} delay={i * 100}>
                   <div className="step">
                     <div className="step-num">{s.n}</div>
                     <h4>{s.title}</h4>
@@ -124,6 +101,34 @@ export default function JoinPage() {
             </div>
           </div>
         </section>
+
+        {/* ── CTA SPLIT ── */}
+        <div className="cta-split">
+          <Reveal className="cta-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div>
+              <span className="eyebrow">Portfolio dashboard</span>
+              <h2>Volg live. Gratis.</h2>
+              <p>Maak een gratis account en open de portfolio realtime — open posities, gesloten trades, performance vs VWCE.</p>
+            </div>
+            <div className="cta-foot">
+              <Link className="btn btn-primary" href="/auth/register">
+                Maak gratis account →
+              </Link>
+            </div>
+          </Reveal>
+          <Reveal delay={100} className="cta-card gold" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div>
+              <span className="eyebrow">Community</span>
+              <h2>WhatsApp community</h2>
+              <p>Analyses, pitches en discussie met de groep. Geen automatische signals — gewoon analyses, vragen en antwoorden.</p>
+            </div>
+            <div className="cta-foot">
+              <a className="btn btn-on-gold" target="_blank" rel="noopener noreferrer" href={RESEARCH_WA}>
+                {WA_ICON} Word lid via WhatsApp
+              </a>
+            </div>
+          </Reveal>
+        </div>
 
       </main>
       <Footer />

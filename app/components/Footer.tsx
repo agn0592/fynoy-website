@@ -49,7 +49,7 @@ export default function Footer() {
               <span className="brand-mark" aria-hidden="true" style={{ width: 24, height: 24 }}>{LOGO_SVG}</span>
               <span className="brand-name"><b>Fynoy</b><i>Capital</i></span>
             </Link>
-            <p className="foot-blurb">Independent equity research and investment, based in Rotterdam.</p>
+            <p className="foot-blurb">Transparant investment research — wij beleggen met eigen geld en delen elke trade realtime. Gevestigd in Rotterdam.</p>
             <div className="social-links" style={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
               <a href="https://x.com/fynoycapital" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)" style={{ color: 'var(--ink)', transition: 'color 0.2s', opacity: 0.8 }}>
                 <XIcon style={{ width: 20, height: 20 }} />
@@ -92,8 +92,9 @@ export default function Footer() {
         <div className="foot-bot">
           <div>© 2026 Fynoy Capital. All rights reserved.</div>
           <div className="disc">
-            Fynoy Capital is not licensed by the Autoriteit Financiële Markten (AFM). Nothing on this site
-            constitutes investment advice. Past performance does not guarantee future results.
+            Fynoy Capital deelt informatie en analyses uitsluitend ter educatie en transparantie. Wij faciliteren
+            geen automatisch handelen. Gebruikers plaatsen altijd zelf hun orders. Dit is geen beleggingsadvies.
+            Rendementen uit het verleden bieden geen garantie voor de toekomst.
           </div>
         </div>
       </div>

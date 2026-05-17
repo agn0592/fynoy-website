@@ -5,6 +5,7 @@ import PositionsTable from './components/PositionsTable'
 import SectorAllocation from './components/SectorAllocation'
 import ClosedTradesTable from './components/ClosedTradesTable'
 import AICommentary from './components/AICommentary'
+import CommunityCard from './components/CommunityCard'
 
 function getServiceClient() {
   return createSupabaseClient(
@@ -130,6 +131,11 @@ export default async function DashboardPage() {
       {/* ── Full-width commentary ── */}
       <div className="dash-full" id="commentary">
         <AICommentary commentary={commentary} updatedAt={commentaryUpdatedAt} />
+      </div>
+
+      {/* ── Community CTAs ── */}
+      <div className="dash-full" id="community">
+        <CommunityCard />
       </div>
     </>
   )

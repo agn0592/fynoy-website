@@ -4,16 +4,16 @@ import Footer from "./components/Footer";
 import { WA_ICON } from "./components/WaIcon";
 import Link from "next/link";
 import Reveal from "./components/Reveal";
-import AnimatedCounter from "./components/AnimatedCounter";
-import StockTicker from "./components/StockTicker";
 import HeroOrbs from "./components/HeroOrbs";
-import Typewriter from "./components/Typewriter";
 
 export const metadata: Metadata = {
-  title: "Fynoy Capital — Independent equity research & investment",
+  title: "Fynoy Capital — wij beleggen met eigen geld, in de open lucht",
   description:
-    "Fynoy Capital is an independent, research-led investment practice based in Rotterdam. Weekly stock pitches, a serious investor community, and long-only conviction.",
+    "Fynoy Capital deelt zijn volledige portfolio realtime: elke trade, elke redenering, vs VWCE benchmark. Gratis te volgen. Geen advies — jij beslist zelf.",
 };
+
+const RESEARCH_WA = "https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.";
+const ANALYST_WA  = "https://wa.me/31682074482?text=Hi%2C%20I'm%20interested%20in%20collaborating%20as%20a%20trader%20with%20Fynoy%20Capital.";
 
 export default function HomePage() {
   return (
@@ -26,204 +26,75 @@ export default function HomePage() {
           <div className="grid-bg" />
           <HeroOrbs />
           <div className="wrap" style={{ position: "relative", zIndex: 1 }}>
-            <span className="eyebrow" style={{ animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both" }}>Independent equity research &amp; investment</span>
+            <span className="eyebrow" style={{ animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both" }}>
+              Transparant investment research
+            </span>
             <h1 style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.1s" }}>
-              Conviction-driven<br />investing,<br />built in the <em className="it">open.</em>
+              Wij beleggen<br />met <em className="it">eigen geld.</em>
             </h1>
             <p className="hero-sub lede" style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.25s" }}>
-              Weekly stock research, live pitch sessions, and a community of serious investors —
-              a transparent, research-led practice in long-only public equities.
+              Elke trade. Elke redenering. Realtime.
             </p>
-            <div style={{ marginTop: 20, animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.35s" }}>
-              <Typewriter />
-            </div>
+            <p className="lede" style={{ marginTop: 18, maxWidth: '56ch', animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.35s" }}>
+              Fynoy Capital deelt zijn volledige portfolio — open posities, gesloten trades en de analyse achter
+              elke beslissing. Geen blinde copy trading. Jij leert hoe wij denken en bepaalt altijd zelf.
+            </p>
             <div className="hero-cta" style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.45s" }}>
-              <a
-                className="btn btn-primary"
-                href="https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group."
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {WA_ICON} Join Us
-              </a>
-              <Link className="btn btn-outline" href="/work-with-us">Work With Us</Link>
+              <Link className="btn btn-primary" href="/auth/register">
+                Volg ons portfolio gratis
+              </Link>
+              <Link className="btn btn-outline" href="/auth/login">
+                Naar het dashboard
+              </Link>
             </div>
           </div>
         </header>
 
-        {/* ── TICKER TAPE ── */}
-        <StockTicker />
-
-        {/* ── STATS ── */}
-        <div className="stats">
-          <div className="stat">
-            <div className="stat-num"><AnimatedCounter value={52} /></div>
-            <div className="stat-label label">Pitches per year</div>
-          </div>
-          <div className="stat">
-            <div className="stat-num"><em><AnimatedCounter value={68} suffix="%" /></em></div>
-            <div className="stat-label label">Win rate</div>
-          </div>
-          <div className="stat">
-            <div className="stat-num"><AnimatedCounter value={150} /><em style={{ fontSize: ".7em" }}>+</em></div>
-            <div className="stat-label label">Stocks researched</div>
-          </div>
-          <div className="stat">
-            <div className="stat-num"><AnimatedCounter value={2025} duration={1200} /></div>
-            <div className="stat-label label">Founded</div>
-          </div>
-        </div>
-
-        {/* ── ABOUT STRIP ── */}
-        <section className="section">
-          <div className="wrap two-col">
-            <Reveal>
-              <span className="eyebrow">About</span>
-              <h2 style={{ marginTop: 24 }}>A research-led approach to long-only equity investing</h2>
-            </Reveal>
-            <Reveal delay={120}>
-              <p>
-                Fynoy Capital was founded with a single conviction: that rigorous, independent research is the
-                only sustainable edge in public markets. What started as a personal investment practice has grown
-                into a structured weekly process — researching, pitching, and investing in individual equities
-                every Thursday.
-              </p>
-              <p>
-                We do not chase trends, run momentum books, or dilute decisions across hundreds of names. Each
-                position is the outcome of a written thesis, defended live before it ever reaches the portfolio.
-                Discipline, transparency, and long-only conviction define how we operate.
-              </p>
-              <Link className="btn btn-ghost" href="/about" style={{ marginTop: 8 }}>
-                <span>About Fynoy Capital</span><span style={{ color: "var(--gold)" }}>→</span>
-              </Link>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* ── PERFORMANCE ── */}
+        {/* ── WAAROM ── */}
         <section className="section">
           <div className="wrap">
             <Reveal>
-              <span className="eyebrow">Performance</span>
-              <h2 style={{ marginTop: 24, maxWidth: "18ch" }}>Portfolio at a glance</h2>
+              <span className="eyebrow">Waarom Fynoy Capital</span>
+              <h2 style={{ marginTop: 24, maxWidth: "20ch" }}>Drie redenen die de rest niet biedt</h2>
             </Reveal>
-            <div className="metric-grid" style={{ marginTop: 48 }}>
-              <Reveal delay={0}>
-                <div className="metric">
-                  <div className="label">Total return YTD</div>
-                  <div className="metric-num up">+<AnimatedCounter value={21} suffix="%" /></div>
-                  <p className="metric-cap">Fynoy Capital portfolio, year-to-date through latest close.</p>
-                </div>
-              </Reveal>
-              <Reveal delay={100}>
-                <div className="metric">
-                  <div className="label">vs FTSE All-World</div>
-                  <div className="metric-num up">+<AnimatedCounter value={17} suffix="%" /></div>
-                  <p className="metric-cap">Outperformance against the FTSE All-World index.</p>
-                </div>
-              </Reveal>
-              <Reveal delay={200}>
-                <div className="metric">
-                  <div className="label">FTSE All-World YTD</div>
-                  <div className="metric-num up">+<AnimatedCounter value={4} suffix="%" /></div>
-                  <p className="metric-cap">Benchmark return, year-to-date through latest close.</p>
-                </div>
-              </Reveal>
-            </div>
-            <p className="muted" style={{ marginTop: 24, fontSize: 12, maxWidth: "64ch" }}>
-              Returns are unaudited and for informational purposes only. Past performance does not guarantee future results.
-            </p>
-          </div>
-        </section>
-
-        {/* ── TRANSPARENCY ── */}
-        <section className="section">
-          <div className="wrap">
-            <Reveal>
-              <span className="eyebrow">Live transparency</span>
-            </Reveal>
-            <div className="transparency-layout">
-              <Reveal delay={100}>
-                <div className="transparency-copy">
-                  <h2>Every position.<br />Every trade.<br />Nothing hidden.</h2>
-                  <p className="muted">
-                    Members get a real-time view of the full Fynoy Capital portfolio — open positions with live prices, every closed trade with exact P&amp;L, and weekly performance tracked against the FTSE All-World. The same data we use internally.
-                  </p>
-                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 28 }}>
-                    <Link href="/auth/register" className="btn btn-primary">Create free account</Link>
-                    <Link href="/auth/login" className="btn btn-outline">Sign in</Link>
-                  </div>
-                </div>
-              </Reveal>
-              <Reveal delay={200}>
-                <div className="dashboard-mock">
-                  <div className="mock-bar">
-                    <span className="label">Portfolio dashboard</span>
-                    <span className="mock-live">
-                      <span className="mock-live-dot">●</span> Live
-                    </span>
-                  </div>
-                  <div className="mock-metrics">
-                    <div className="mock-metric">
-                      <div className="label">YTD Return</div>
-                      <div className="mock-val up">+21.0%</div>
-                    </div>
-                    <div className="mock-metric">
-                      <div className="label">vs Benchmark</div>
-                      <div className="mock-val up">+17.4pp</div>
-                    </div>
-                    <div className="mock-metric">
-                      <div className="label">Win rate</div>
-                      <div className="mock-val">68%</div>
-                    </div>
-                  </div>
-                  <div className="mock-section-label label">Open positions</div>
-                  <div className="mock-table">
-                    {[
-                      { ticker: "NVDA", name: "Nvidia Corp.", pnl: "+34.2%", up: true },
-                      { ticker: "ASML", name: "ASML Holding", pnl: "+12.8%", up: true },
-                      { ticker: "AAPL", name: "Apple Inc.",   pnl: "+8.1%",  up: true },
-                    ].map((r) => (
-                      <div key={r.ticker} className="mock-row">
-                        <span className="mock-ticker">{r.ticker}</span>
-                        <span className="mock-name">{r.name}</span>
-                        <span className={`mock-pnl ${r.up ? "up" : "dn"}`}>{r.pnl}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mock-section-label label">Recent closed trade</div>
-                  <div className="mock-table">
-                    <div className="mock-row">
-                      <span className="mock-ticker">META</span>
-                      <span className="mock-name">Meta Platforms</span>
-                      <span className="mock-pnl up">+61.4%</span>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            </div>
-          </div>
-        </section>
-
-        {/* ── APPROACH ── */}
-        <section className="section">
-          <div className="wrap">
-            <Reveal>
-              <span className="eyebrow">Our approach</span>
-              <h2 style={{ marginTop: 24 }}>How Fynoy Capital invests</h2>
-            </Reveal>
-            <div className="approach-grid" style={{ marginTop: 48 }}>
+            <div className="principles" style={{ marginTop: 48 }}>
               {[
-                { num: "— 01", title: "Bottom-up equity research", body: "Every position begins with a written thesis: business model, competitive position, unit economics, valuation. No top-down trades." },
-                { num: "— 02", title: "Weekly pitch sessions", body: "Every Thursday, one stock is pitched live to the group. The thesis is challenged, refined or rejected before any capital moves." },
-                { num: "— 03", title: "Concentrated portfolio", body: "Conviction over diversification. We hold a small number of names where the work is deepest and the asymmetry is clearest." },
-                { num: "— 04", title: "Independent & transparent", body: "No external mandates, no benchmarks dictating positions. Reports are shared openly with the research group ahead of every pitch." },
-              ].map((item, i) => (
-                <Reveal key={i} delay={i * 80}>
-                  <div className="approach">
-                    <div className="approach-num">{item.num}</div>
-                    <h3>{item.title}</h3>
-                    <p>{item.body}</p>
+                {
+                  glyph: (
+                    <svg className="glyph" viewBox="0 0 40 40" fill="none">
+                      <circle cx="20" cy="20" r="14" stroke="currentColor" strokeWidth="1.2" />
+                      <path d="M14 20 L18 24 L26 16" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+                    </svg>
+                  ),
+                  title: "Skin in the game",
+                  body: "We beleggen met eigen kapitaal. Onze resultaten zijn echt, onze consequenties ook. Geen theoretische picks of geleende voorbeelden.",
+                },
+                {
+                  glyph: (
+                    <svg className="glyph" viewBox="0 0 40 40" fill="none">
+                      <circle cx="20" cy="20" r="14" stroke="currentColor" strokeWidth="1.2" />
+                      <circle cx="20" cy="20" r="3.5" fill="currentColor" />
+                      <path d="M6 20 H10 M30 20 H34 M20 6 V10 M20 30 V34" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                    </svg>
+                  ),
+                  title: "Volledige transparantie",
+                  body: "Je ziet elke positie, elke redenering, elke fout — realtime. Niets wordt verborgen of achteraf herschreven.",
+                },
+                {
+                  glyph: (
+                    <svg className="glyph" viewBox="0 0 40 40" fill="none">
+                      <path d="M8 30 L8 12 L16 12 L16 22 L24 22 L24 8 L32 8 L32 30 Z" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinejoin="round" />
+                    </svg>
+                  ),
+                  title: "Leer zelf beleggen",
+                  body: "We faciliteren geen automatisch kopiëren. Je ziet wat we doen en waarom. Beslissingen blijven van jou.",
+                },
+              ].map((p, i) => (
+                <Reveal key={p.title} delay={i * 100}>
+                  <div className="principle">
+                    {p.glyph}
+                    <h3>{p.title}</h3>
+                    <p>{p.body}</p>
                   </div>
                 </Reveal>
               ))}
@@ -231,21 +102,21 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── HOW IT WORKS ── */}
+        {/* ── HOE HET WERKT ── */}
         <section className="section">
           <div className="wrap">
             <Reveal>
-              <span className="eyebrow">Process</span>
-              <h2 style={{ marginTop: 24 }}>How it works</h2>
+              <span className="eyebrow">Hoe het werkt</span>
+              <h2 style={{ marginTop: 24, maxWidth: "20ch" }}>Van research naar realtime trade</h2>
             </Reveal>
             <div className="steps" style={{ marginTop: 48 }}>
               {[
-                { n: "1", title: "Stock selected", body: "A single name is chosen for the week, based on screening, news flow, or analyst conviction." },
-                { n: "2", title: "Report published", body: "A full written thesis is distributed to the research group ahead of the pitch session." },
-                { n: "3", title: "Live pitch", body: "Every Thursday the analyst defends the thesis live. Members ask, push back, and refine." },
-                { n: "4", title: "Decision made", body: "Buy, watch, or pass. If we buy, the position is sized and entered transparently." },
+                { n: "1", title: "Research", body: "Fundamentele analyse, technische analyse en risicobeoordeling per aandeel. Volledig gedocumenteerd." },
+                { n: "2", title: "Trade", body: "Order met eigen geld. Entry, take profit en stop loss worden vooraf vastgelegd." },
+                { n: "3", title: "Realtime", body: "Je ziet de trade direct in het dashboard, inclusief de redenering achter de beslissing." },
+                { n: "4", title: "Leer", body: "Volg het verloop, zie hoe we omgaan met winst en verlies, ontwikkel je eigen visie." },
               ].map((s, i) => (
-                <Reveal key={i} delay={i * 100}>
+                <Reveal key={s.n} delay={i * 100}>
                   <div className="step">
                     <div className="step-num">{s.n}</div>
                     <h4>{s.title}</h4>
@@ -257,35 +128,142 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── CTA SPLIT ── */}
-        <div className="cta-split">
-          <Reveal className="cta-card" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div>
-              <span className="eyebrow">Research group</span>
-              <h2>Join Us</h2>
-              <p>Follow the weekly research, attend Thursday pitches, and join a serious investor community. Free to join, no commitments.</p>
+        {/* ── PERFORMANCE TEASER ── */}
+        <section className="section">
+          <div className="wrap">
+            <Reveal>
+              <span className="eyebrow">Performance</span>
+              <h2 style={{ marginTop: 24, maxWidth: "20ch" }}>Track record vanaf 1 januari 2026</h2>
+            </Reveal>
+            <Reveal delay={120}>
+              <p className="lede" style={{ marginTop: 18, maxWidth: '60ch' }}>
+                We bouwen het track record in de open lucht. Voor live cijfers — portfolio TWR, VWCE benchmark,
+                win rate, gemiddeld rendement per trade — maak een gratis account aan.
+              </p>
+              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 28 }}>
+                <Link href="/auth/register" className="btn btn-primary">Bekijk live performance →</Link>
+                <Link href="/auth/login" className="btn btn-outline">Login</Link>
+              </div>
+            </Reveal>
+            <p className="muted" style={{ marginTop: 32, fontSize: 12, maxWidth: "64ch" }}>
+              Rendementen uit het verleden bieden geen garantie voor de toekomst. Fynoy Capital doet aan publieke research,
+              geen vermogensbeheer.
+            </p>
+          </div>
+        </section>
+
+        {/* ── PRICING ── */}
+        <section className="section">
+          <div className="wrap">
+            <Reveal>
+              <span className="eyebrow">Pricing</span>
+              <h2 style={{ marginTop: 24, maxWidth: "22ch" }}>Gratis zolang we het bewijs bouwen.</h2>
+              <p className="lede" style={{ marginTop: 18, maxWidth: '60ch' }}>
+                Fase 1 is volledig gratis. Na 12-18 maanden aantoonbaar boven marktrendement introduceren we Pro.
+              </p>
+            </Reveal>
+
+            <div className="pricing-grid" style={{ marginTop: 48 }}>
+              <Reveal>
+                <div className="pricing-card">
+                  <div className="pricing-head">
+                    <div className="pricing-name">Free</div>
+                    <div className="pricing-price"><span>€0</span> / maand</div>
+                  </div>
+                  <ul className="pricing-feats">
+                    <li><span className="check">✓</span> Toegang tot portfolio dashboard</li>
+                    <li><span className="check">✓</span> Open posities met % rendement</li>
+                    <li><span className="check">✓</span> Gesloten trades historiek</li>
+                    <li><span className="check">✓</span> Performance vs VWCE</li>
+                    <li><span className="check">✓</span> Sector allocatie</li>
+                    <li><span className="check tilde">~</span> Vertraagde trade updates (einde dag)</li>
+                    <li><span className="check tilde">~</span> Beperkte analyse detail</li>
+                  </ul>
+                  <Link className="btn btn-primary" href="/auth/register" style={{ width: '100%', justifyContent: 'center' }}>
+                    Maak gratis account
+                  </Link>
+                </div>
+              </Reveal>
+
+              <Reveal delay={100}>
+                <div className="pricing-card pricing-card-pro">
+                  <div className="pricing-badge">Coming soon</div>
+                  <div className="pricing-head">
+                    <div className="pricing-name">Pro</div>
+                    <div className="pricing-price"><span>€15</span> / maand</div>
+                  </div>
+                  <ul className="pricing-feats">
+                    <li><span className="check">✓</span> Alles van Free</li>
+                    <li><span className="check">✓</span> Realtime trade alerts</li>
+                    <li><span className="check">✓</span> Volledige redenering bij elke trade</li>
+                    <li><span className="check">✓</span> Stop loss & take profit targets</li>
+                    <li><span className="check">✓</span> Wekelijkse research reports</li>
+                    <li><span className="check">✓</span> Prioriteit toegang community</li>
+                  </ul>
+                  <a className="btn btn-outline" target="_blank" rel="noopener noreferrer"
+                    href={RESEARCH_WA}
+                    style={{ width: '100%', justifyContent: 'center' }}>
+                    Early access wachtlijst
+                  </a>
+                </div>
+              </Reveal>
             </div>
-            <div className="cta-foot">
-              <a className="btn btn-primary" target="_blank" rel="noopener noreferrer"
-                href="https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.">
-                {WA_ICON} Join on WhatsApp
-              </a>
+
+            <p className="muted" style={{ marginTop: 28, fontSize: 12 }}>
+              Pro tier is nog niet beschikbaar. Meld je aan voor de wachtlijst via WhatsApp.
+            </p>
+          </div>
+        </section>
+
+        {/* ── COMMUNITY ── */}
+        <section className="section">
+          <div className="wrap">
+            <Reveal>
+              <span className="eyebrow">Community</span>
+              <h2 style={{ marginTop: 24, maxWidth: "22ch" }}>Word onderdeel van de community</h2>
+              <p className="lede" style={{ marginTop: 18, maxWidth: '52ch' }}>
+                Fynoy Capital groeit via mensen die serieus zijn over beleggen.
+              </p>
+            </Reveal>
+            <div className="cta-split" style={{ marginTop: 48 }}>
+              <Reveal className="cta-card" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div>
+                  <span className="eyebrow">Research community</span>
+                  <h2 style={{ marginTop: 8 }}>Volg de research</h2>
+                  <p>Lees analyses, woon pitches bij, stel vragen. Draag bij aan een groep die markten als vak ziet, niet als loterij.</p>
+                </div>
+                <div className="cta-foot">
+                  <a className="btn btn-primary" target="_blank" rel="noopener noreferrer" href={RESEARCH_WA}>
+                    {WA_ICON} Word lid via WhatsApp
+                  </a>
+                </div>
+              </Reveal>
+              <Reveal delay={100} className="cta-card gold" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div>
+                  <span className="eyebrow">Word analist</span>
+                  <h2 style={{ marginTop: 8 }}>Schrijf je eigen research</h2>
+                  <p>Schrijf research reports, presenteer stock pitches en bouw ervaring op in een echt investment team.</p>
+                </div>
+                <div className="cta-foot">
+                  <a className="btn btn-on-gold" target="_blank" rel="noopener noreferrer" href={ANALYST_WA}>
+                    {WA_ICON} Solliciteer via WhatsApp
+                  </a>
+                </div>
+              </Reveal>
             </div>
-          </Reveal>
-          <Reveal delay={100} className="cta-card gold" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div>
-              <span className="eyebrow">Collaboration</span>
-              <h2>Work With Us</h2>
-              <p>Experienced traders collaborate with Fynoy Capital on a profit-sharing basis. We provide the research and capital. You provide the execution.</p>
-            </div>
-            <div className="cta-foot">
-              <a className="btn btn-on-gold" target="_blank" rel="noopener noreferrer"
-                href="https://wa.me/31682074482?text=Hi%2C%20I'm%20interested%20in%20collaborating%20as%20a%20trader%20with%20Fynoy%20Capital.">
-                {WA_ICON} Get in touch
-              </a>
-            </div>
-          </Reveal>
-        </div>
+          </div>
+        </section>
+
+        {/* ── DISCLAIMER ── */}
+        <section className="section" style={{ paddingTop: 0 }}>
+          <div className="wrap">
+            <p className="muted" style={{ fontSize: 12, maxWidth: '72ch', lineHeight: 1.7 }}>
+              Fynoy Capital deelt informatie en analyses uitsluitend ter educatie en transparantie. Wij faciliteren
+              geen automatisch handelen. Gebruikers plaatsen altijd zelf hun orders. Dit is geen beleggingsadvies.
+              Rendementen uit het verleden bieden geen garantie voor de toekomst.
+            </p>
+          </div>
+        </section>
 
       </main>
       <Footer />

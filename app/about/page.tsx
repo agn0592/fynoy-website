@@ -7,10 +7,12 @@ import Link from "next/link";
 import HeroOrbs from "../components/HeroOrbs";
 
 export const metadata: Metadata = {
-  title: "About Us",
+  title: "Over Fynoy Capital",
   description:
-    "Fynoy Capital is an independent, research-led investment practice based in Rotterdam. Built on rigorous research and driven by long-only conviction.",
+    "Fynoy Capital is een transparant investment research platform opgericht door Alex Nijland. Wij beleggen met eigen geld en delen elke trade realtime.",
 };
+
+const RESEARCH_WA = "https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.";
 
 export default function AboutPage() {
   return (
@@ -23,18 +25,20 @@ export default function AboutPage() {
           <div className="grid-bg" />
           <HeroOrbs />
           <div className="wrap" style={{ position: "relative", zIndex: 1 }}>
-            <span className="eyebrow" style={{ animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both" }}>About Fynoy Capital</span>
+            <span className="eyebrow" style={{ animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both" }}>
+              Over Fynoy Capital
+            </span>
             <h1 style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.1s" }}>
-              Built on research.<br />Driven by <em className="it">conviction.</em>
+              Beleggen met<br />eigen geld, in de <em className="it">open lucht.</em>
             </h1>
             <p className="hero-sub lede" style={{ animation: "fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both", animationDelay: "0.25s" }}>
-              Fynoy Capital is an independent, research-led investment practice based in Rotterdam,
-              investing only in names we have studied, pitched, and defended ourselves.
+              Fynoy Capital is een transparant investment research platform opgericht door Alex Nijland.
+              Geen fund. Geen vermogensbeheer. Geen blinde copy trading.
             </p>
           </div>
         </header>
 
-        {/* ── KEY FACTS + COPY ── */}
+        {/* ── MISSIE / FACTS ── */}
         <section className="section">
           <div className="wrap two-col">
             <Reveal>
@@ -42,12 +46,12 @@ export default function AboutPage() {
                 <span className="eyebrow">Key facts</span>
                 <div className="facts" style={{ marginTop: 24 }}>
                   {[
-                    ["Founded", "2025"],
-                    ["Domicile", "Rotterdam, NL"],
-                    ["Registration", "KvK 86136062"],
+                    ["Opgericht", "2025"],
+                    ["Vestiging", "Rotterdam, NL"],
+                    ["KvK", "86136062"],
                     ["Broker", "Interactive Brokers"],
                     ["Focus", "Long-only equities"],
-                    ["Pitch cadence", "Weekly · Thursdays"],
+                    ["Track record", "Vanaf 1 jan 2026"],
                   ].map(([k, v], i) => (
                     <div key={i} className="fact"><span className="fact-k">{k}</span><span className="fact-v">{v}</span></div>
                   ))}
@@ -56,67 +60,91 @@ export default function AboutPage() {
             </Reveal>
             <Reveal delay={120}>
               <p>
-                Fynoy Capital began as a personal investment practice — a single analyst, a notebook of theses,
-                and the discipline to write everything down. Markets are noisy by default; conviction is built only
-                by doing the work. Over time the notebook became a process, the process became a weekly cadence,
-                and the cadence became Fynoy Capital.
+                Wij beleggen met eigen kapitaal en delen elke trade, elke analyse en elke redenering realtime
+                met ons publiek. Geen fund. Geen vermogensbeheer. Geen blinde copy trading. Onze missie is
+                simpel: transparantie normaliseren in de beleggingswereld.
               </p>
               <p>
-                At the heart of the firm is the Thursday pitch. Every week, one stock is selected, researched in
-                depth, and presented live to the group. Members read the report in advance, attend the session,
-                and challenge the thesis in real time. Nothing enters the portfolio unsigned by that process.
+                De meeste &quot;influencers&quot; en research clubs delen alleen de winnaars. Wij delen alles —
+                inclusief de fouten, de afgekeurde theses en de gemiste calls. Dat is de enige manier waarop
+                je echt kan leren hoe een belegger denkt.
               </p>
               <div className="pull">
-                Every Thursday, a new stock. Every week, a sharper process.
+                Wij beleggen met eigen geld. Onze fouten zijn echt, onze winsten ook.
               </div>
               <p>
-                Our philosophy is unfashionable on purpose: long-only, concentrated, slow-moving, and openly
-                documented. We are skeptical of diversification as a substitute for understanding, and skeptical
-                of any thesis that cannot survive a live audience. We hold names where the work is deepest and
-                the asymmetry is clearest, and we are comfortable holding cash when nothing meets the bar.
-              </p>
-              <p>
-                Transparency is non-negotiable. Every pitch is documented. Every position has a written rationale.
-                Members of the research group see the same reports we use to make decisions, in the same form,
-                ahead of the same deadline. There is no privileged version.
+                Elke positie begint met een gedocumenteerde case: fundamenteel onderzoek, technische analyse,
+                risk/reward, entry/exit plan. Die case wordt gepubliceerd in het dashboard zodra de trade
+                geplaatst is. Later — bij take-profit, stop-loss of vrijwillig sluiten — schrijven we een
+                post-trade reflectie. Klopte de thesis? Wat hadden we beter kunnen zien?
               </p>
             </Reveal>
           </div>
         </section>
 
-        {/* ── PRINCIPLES ── */}
+        {/* ── TEAM ── */}
         <section className="section">
           <div className="wrap">
             <Reveal>
-              <span className="eyebrow">Principles</span>
-              <h2 style={{ marginTop: 24 }}>What guides every decision</h2>
+              <span className="eyebrow">Team</span>
+              <h2 style={{ marginTop: 24, maxWidth: '24ch' }}>Wie er achter Fynoy Capital zit</h2>
             </Reveal>
-            <div className="principles" style={{ marginTop: 48 }}>
-              {[
-                {
-                  svg: <svg className="glyph" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="1"/><path d="M12 20 L18 26 L28 14" stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round"/></svg>,
-                  title: "Research first",
-                  body: "Every position begins with a written thesis. No idea enters the portfolio without surviving a live, structured pitch and rebuttal.",
-                },
-                {
-                  svg: <svg className="glyph" viewBox="0 0 40 40" fill="none"><rect x="6" y="6" width="28" height="28" stroke="currentColor" strokeWidth="1"/><path d="M6 14 H34 M6 22 H34 M6 30 H34" stroke="currentColor" strokeWidth="1" opacity=".5"/></svg>,
-                  title: "Transparency",
-                  body: "Reports, decisions, and positions are open to all members — including a live portfolio dashboard with every trade and P&L in real time. No black box.",
-                },
-                {
-                  svg: <svg className="glyph" viewBox="0 0 40 40" fill="none"><path d="M20 4 L36 32 L4 32 Z" stroke="currentColor" strokeWidth="1"/><circle cx="20" cy="24" r="3" fill="currentColor"/></svg>,
-                  title: "Conviction over diversification",
-                  body: "We hold a small number of names where the work is deepest. We are skeptical of breadth as a substitute for understanding.",
-                },
-              ].map((p, i) => (
-                <Reveal key={i} delay={i * 100}>
-                  <div className="principle">
-                    {p.svg}
-                    <h3>{p.title}</h3>
-                    <p>{p.body}</p>
-                  </div>
-                </Reveal>
-              ))}
+            <div className="principles" style={{ marginTop: 48, gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              <Reveal>
+                <div className="principle">
+                  <svg className="glyph" viewBox="0 0 40 40" fill="none">
+                    <circle cx="20" cy="14" r="6" stroke="currentColor" strokeWidth="1.2" />
+                    <path d="M8 34 C8 26 14 23 20 23 C26 23 32 26 32 34" stroke="currentColor" strokeWidth="1.2" fill="none" />
+                  </svg>
+                  <h3>Alex Nijland</h3>
+                  <p style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-dim)', marginBottom: 4 }}>
+                    Oprichter &amp; Portfolio Manager
+                  </p>
+                  <p>&ldquo;Ik beleg met eigen geld en deel alles. Fouten en successen. Dat is de enige manier om geloofwaardig te zijn.&rdquo;</p>
+                </div>
+              </Reveal>
+              <Reveal delay={100}>
+                <div className="principle">
+                  <svg className="glyph" viewBox="0 0 40 40" fill="none">
+                    <path d="M6 32 L14 24 L20 28 L34 12" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M28 12 L34 12 L34 18" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <h3>Analisten</h3>
+                  <p style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-dim)', marginBottom: 4 }}>
+                    In opbouw
+                  </p>
+                  <p>
+                    We zijn altijd op zoek naar analisten die willen schrijven, pitchen en leren.{' '}
+                    <Link href="/work-with-us" style={{ color: 'var(--gold)' }}>Word analist →</Link>
+                  </p>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        {/* ── ROADMAP ── */}
+        <section className="section">
+          <div className="wrap">
+            <Reveal>
+              <span className="eyebrow">Roadmap</span>
+              <h2 style={{ marginTop: 24, maxWidth: '22ch' }}>Hoe we groeien — in fases</h2>
+            </Reveal>
+            <div className="steps" style={{ marginTop: 48, gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              <Reveal>
+                <div className="step">
+                  <div className="step-num">I</div>
+                  <h4>Fase 1 · 2026</h4>
+                  <p>Track record bouwen, community laten groeien — alles volledig gratis. Bewijzen dat ons proces werkt.</p>
+                </div>
+              </Reveal>
+              <Reveal delay={100}>
+                <div className="step">
+                  <div className="step-num">II</div>
+                  <h4>Fase 2 · 2027+</h4>
+                  <p>Pro tier introduceren na 12-18 maanden aantoonbaar boven marktrendement. Free tier blijft beschikbaar.</p>
+                </div>
+              </Reveal>
             </div>
           </div>
         </section>
@@ -126,30 +154,28 @@ export default function AboutPage() {
           <Reveal className="cta-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
               <span className="eyebrow">Portfolio dashboard</span>
-              <h2>Track live. For free.</h2>
-              <p>Create a free account to access the live portfolio — every open position, every closed trade, full P&amp;L, performance vs benchmark.</p>
+              <h2>Volg live. Gratis.</h2>
+              <p>Maak een gratis account en open de portfolio realtime — elke positie, elke gesloten trade, performance vs VWCE.</p>
             </div>
             <div className="cta-foot">
               <Link className="btn btn-primary" href="/auth/register">
-                Create free account →
+                Maak gratis account →
               </Link>
-              <a className="btn btn-outline" target="_blank" rel="noopener noreferrer"
-                href="https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.">
-                {WA_ICON} Join on WhatsApp
+              <a className="btn btn-outline" target="_blank" rel="noopener noreferrer" href={RESEARCH_WA}>
+                {WA_ICON} Word lid community
               </a>
             </div>
           </Reveal>
           <Reveal delay={100} className="cta-card gold" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <span className="eyebrow">Collaboration</span>
-              <h2>Work With Us</h2>
-              <p>Experienced traders collaborate with Fynoy Capital on a profit-sharing basis.</p>
+              <span className="eyebrow">Word analist</span>
+              <h2>Werk mee in het team</h2>
+              <p>Schrijf research reports, presenteer stock pitches en bouw ervaring op in een echt investment team.</p>
             </div>
             <div className="cta-foot">
-              <a className="btn btn-on-gold" target="_blank" rel="noopener noreferrer"
-                href="https://wa.me/31682074482?text=Hi%2C%20I'm%20interested%20in%20collaborating%20as%20a%20trader%20with%20Fynoy%20Capital.">
-                {WA_ICON} Get in touch
-              </a>
+              <Link className="btn btn-on-gold" href="/work-with-us">
+                Bekijk profiel →
+              </Link>
             </div>
           </Reveal>
         </div>
