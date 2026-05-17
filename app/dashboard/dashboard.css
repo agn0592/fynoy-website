@@ -320,6 +320,53 @@
   font-family: var(--serif);
 }
 
+/* ── Expandable trade detail (positions + closed) ── */
+.trade-detail-panel {
+  padding: 20px 24px;
+  background: rgba(201,169,110,0.03);
+  border-top: 1px solid var(--gold-line);
+  border-bottom: 1px solid var(--line);
+}
+.trade-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: start;
+}
+.trade-detail-targets {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 110px;
+}
+.trade-target {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 2px;
+  border: 1px solid var(--line);
+}
+.trade-target.up { background: rgba(74,222,128,0.05); border-color: rgba(74,222,128,0.18) }
+.trade-target.dn { background: rgba(248,113,113,0.05); border-color: rgba(248,113,113,0.18) }
+.trade-target-label {
+  font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-dim); font-weight: 500;
+}
+.trade-target-val {
+  font-family: var(--serif); font-weight: 500;
+  font-size: 15px;
+}
+.trade-target.up .trade-target-val { color: #4ade80 }
+.trade-target.dn .trade-target-val { color: #f87171 }
+@media (max-width: 720px) {
+  .trade-detail-grid { grid-template-columns: 1fr }
+  .trade-detail-targets { flex-direction: row; flex-wrap: wrap }
+}
+[data-theme="light"] .trade-target.up .trade-target-val { color: #16a34a }
+[data-theme="light"] .trade-target.dn .trade-target-val { color: #dc2626 }
+[data-theme="light"] .trade-detail-panel { background: rgba(139,100,32,0.04) }
+
 /* ── Win rate ── */
 .win-badge {
   display: inline-flex; align-items: center; gap: 4px;
@@ -394,6 +441,106 @@
 
 /* ── Full-width row ── */
 .dash-full { margin-top: 16px }
+
+/* ── Activity feed ── */
+.activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+.activity-item {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 14px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+  position: relative;
+}
+.activity-item:last-child { border-bottom: 0 }
+.activity-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  justify-self: center;
+  box-shadow: 0 0 0 3px rgba(232,228,220,0.04);
+}
+.activity-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.activity-label {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.activity-date {
+  font-size: 10px;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+}
+[data-theme="light"] .activity-dot { box-shadow: 0 0 0 3px rgba(0,0,0,0.04) }
+[data-theme="light"] .activity-label { color: #1a1a1a }
+[data-theme="light"] .activity-date { color: #666 }
+
+/* ── Position timeline ── */
+.timeline-item {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.timeline-item:first-child { padding-top: 4px }
+.timeline-item:last-child { border-bottom: 0; padding-bottom: 0 }
+.timeline-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.timeline-symbol {
+  font-weight: 600; font-size: 14px; color: var(--ink);
+  font-family: var(--serif);
+}
+.timeline-return {
+  font-size: 12px; font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 2px;
+}
+.timeline-return.up { color: #4ade80; background: rgba(74,222,128,0.08) }
+.timeline-return.dn { color: #f87171; background: rgba(248,113,113,0.08) }
+.timeline-progress {
+  font-size: 11px; color: var(--ink-dim);
+  margin-left: auto;
+}
+.timeline-bar-track {
+  position: relative; height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+}
+.timeline-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), #e8c98a);
+  border-radius: 2px;
+  transition: width 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.timeline-marker {
+  position: absolute; top: -4px;
+  width: 12px; height: 12px;
+  background: var(--gold);
+  border-radius: 50%;
+  border: 2px solid var(--navy-1, var(--navy));
+  transform: translateX(-50%);
+}
+.timeline-labels {
+  display: flex; justify-content: space-between;
+  margin-top: 6px;
+  font-size: 10px; color: var(--ink-dim);
+}
+.timeline-chart { margin-top: 12px }
+[data-theme="light"] .timeline-return.up { color: #16a34a; background: rgba(22,163,74,0.08) }
+[data-theme="light"] .timeline-return.dn { color: #dc2626; background: rgba(220,38,38,0.08) }
 
 /* ── Community CTA cards ── */
 .community-section { margin-top: 16px }

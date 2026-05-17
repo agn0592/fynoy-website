@@ -1,10 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 interface ClosedTrade {
-  symbol: string; entry_date: string; exit_date: string
-  realized_pnl: number; realized_pnl_pct: number; holding_period_days: number
+  symbol: string
+  entry_date: string
+  exit_date: string
+  realized_pnl: number
+  realized_pnl_pct: number
+  holding_period_days: number
+  trading_id?: string | null
 }
 
 const PAGE_SIZE = 8
@@ -15,14 +21,58 @@ function fmtDate(d: string) {
   return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' })
 }
 
+const MARKDOWN_COMPONENTS = {
+  h1: ({ children }: { children?: React.ReactNode }) => <h1 className="commentary-h1">{children}</h1>,
+  h2: ({ children }: { children?: React.ReactNode }) => <h2 className="commentary-h2">{children}</h2>,
+  h3: ({ children }: { children?: React.ReactNode }) => <h3 className="commentary-h3">{children}</h3>,
+  p:  ({ children }: { children?: React.ReactNode }) => <p  className="commentary-p">{children}</p>,
+  ul: ({ children }: { children?: React.ReactNode }) => <ul className="commentary-ul">{children}</ul>,
+  li: ({ children }: { children?: React.ReactNode }) => <li className="commentary-li">{children}</li>,
+  strong: ({ children }: { children?: React.ReactNode }) => <strong className="commentary-strong">{children}</strong>,
+  hr: () => <hr className="commentary-hr" />,
+} as const
+
 export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] }) {
   const [page, setPage] = useState(0)
+  const [expandedKey, setExpandedKey] = useState<string | null>(null)
+  const [summaries, setSummaries] = useState<Record<string, string>>({})
+  const [loadingKey, setLoadingKey] = useState<string | null>(null)
+
   const totalPages = Math.ceil(trades.length / PAGE_SIZE)
   const pageData = trades.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
   const wins = trades.filter(t => t.realized_pnl_pct >= 0).length
   const winRate = trades.length > 0 ? Math.round((wins / trades.length) * 100) : null
   const avgReturn = trades.length > 0 ? trades.reduce((s, t) => s + t.realized_pnl_pct, 0) / trades.length : null
+
+  async function handleRowClick(trade: ClosedTrade, key: string) {
+    if (!trade.trading_id) return
+    if (expandedKey === key) {
+      setExpandedKey(null)
+      return
+    }
+    setExpandedKey(key)
+
+    if (!summaries[key]) {
+      setLoadingKey(key)
+      try {
+        const res = await fetch('/api/cases/summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            trading_id: trade.trading_id,
+            realized_pnl_pct: trade.realized_pnl_pct,
+          }),
+        })
+        const data = await res.json()
+        if (data.summary) setSummaries(prev => ({ ...prev, [key]: data.summary }))
+      } catch {
+        // swallow
+      } finally {
+        setLoadingKey(null)
+      }
+    }
+  }
 
   return (
     <div className="dash-card">
@@ -58,17 +108,68 @@ export default function ClosedTradesTable({ trades }: { trades: ClosedTrade[] })
                   No closed trades
                 </td>
               </tr>
-            ) : pageData.map((t, i) => (
-              <tr key={`${t.symbol}-${i}`} className="dash-tr">
-                <td className="dash-td"><span className="dash-symbol">{t.symbol}</span></td>
-                <td className="dash-td"><span className="dash-date">{fmtDate(t.entry_date)}</span></td>
-                <td className="dash-td"><span className="dash-date">{fmtDate(t.exit_date)}</span></td>
-                <td className="dash-td">
-                  <span className={`ret-badge ${t.realized_pnl_pct >= 0 ? 'up' : 'dn'}`}>{fmtPct(t.realized_pnl_pct)}</span>
-                </td>
-                <td className="dash-td"><span style={{ fontSize: 11, color: 'var(--ink-dim)' }}>{t.holding_period_days}d</span></td>
-              </tr>
-            ))}
+            ) : pageData.map((t, i) => {
+              const rowKey = `${t.symbol}-${t.entry_date}-${t.exit_date}-${i}`
+              const isClickable = !!t.trading_id
+              const isExpanded = expandedKey === rowKey
+              return (
+                <Fragment key={rowKey}>
+                  <tr
+                    className="dash-tr"
+                    onClick={() => handleRowClick(t, rowKey)}
+                    style={{ cursor: isClickable ? 'pointer' : 'default' }}
+                    aria-expanded={isExpanded ? 'true' : 'false'}
+                  >
+                    <td className="dash-td">
+                      <span className="dash-symbol">{t.symbol}</span>
+                      {isClickable && (
+                        <span style={{
+                          marginLeft: 8, color: 'var(--ink-dim)', fontSize: 11,
+                          display: 'inline-block', transition: 'transform 0.15s',
+                          transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                        }}>
+                          ›
+                        </span>
+                      )}
+                    </td>
+                    <td className="dash-td"><span className="dash-date">{fmtDate(t.entry_date)}</span></td>
+                    <td className="dash-td"><span className="dash-date">{fmtDate(t.exit_date)}</span></td>
+                    <td className="dash-td">
+                      <span className={`ret-badge ${t.realized_pnl_pct >= 0 ? 'up' : 'dn'}`}>{fmtPct(t.realized_pnl_pct)}</span>
+                    </td>
+                    <td className="dash-td"><span style={{ fontSize: 11, color: 'var(--ink-dim)' }}>{t.holding_period_days}d</span></td>
+                  </tr>
+
+                  {isExpanded && (
+                    <tr>
+                      <td colSpan={5} style={{ padding: 0 }}>
+                        <div className="trade-detail-panel">
+                          {loadingKey === rowKey ? (
+                            <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>Analyse laden…</div>
+                          ) : summaries[rowKey] ? (
+                            <div className="trade-detail-grid">
+                              <div className="dash-commentary-body" style={{ fontSize: 13 }}>
+                                <ReactMarkdown components={MARKDOWN_COMPONENTS}>
+                                  {summaries[rowKey]}
+                                </ReactMarkdown>
+                              </div>
+                              <div className="trade-detail-targets">
+                                <div className={`trade-target ${t.realized_pnl_pct >= 0 ? 'up' : 'dn'}`}>
+                                  <span className="trade-target-label">Resultaat</span>
+                                  <span className="trade-target-val">{fmtPct(t.realized_pnl_pct)}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div style={{ color: 'var(--ink-dim)', fontSize: 13 }}>Geen case analyse beschikbaar.</div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              )
+            })}
           </tbody>
         </table>
       </div>
