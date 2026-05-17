@@ -164,6 +164,29 @@ p { margin: 0 0 1em; color: var(--ink); font-weight: 400 }
 }
 .nav-login-btn:hover { background: rgba(201,169,110,0.08); border-color: rgba(201,169,110,0.65) }
 
+/* ── Nav CTAs (login + free account) ── */
+.nav-cta-group { display: flex; align-items: center; gap: 6px; white-space: nowrap }
+.nav-cta-ghost {
+  color: var(--ink-mute);
+  padding: 7px 12px;
+  font-size: 12px; font-weight: 500;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.nav-cta-ghost:hover { color: var(--ink) }
+.nav-cta-primary {
+  background: var(--gold);
+  color: #0a0f1e;
+  padding: 7px 16px;
+  border-radius: 2px;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.nav-cta-primary:hover { opacity: 0.85 }
+
 .nav-drawer-login {
   display: block; padding: 14px 0;
   font-size: 14px; letter-spacing: 0.04em;
@@ -189,6 +212,7 @@ p { margin: 0 0 1em; color: var(--ink); font-weight: 400 }
 @media (max-width: 880px) {
   .nav-links { display: none }
   .nav-login-btn { display: none }
+  .nav-cta-group { display: none }
   .nav-burger { display: inline-flex }
   .nav-inner { height: 64px }
   .brand-name { font-size: 17px }

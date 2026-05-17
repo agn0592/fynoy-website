@@ -24,7 +24,7 @@ export default function RegisterPage() {
     setLoading(true)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -34,13 +34,29 @@ export default function RegisterPage() {
     })
 
     if (error) {
-      setError(error.message)
+      const msg = error.message.toLowerCase()
+      if (msg.includes('registered') || msg.includes('exists')) {
+        setError('Er bestaat al een account met dit e-mailadres. Log in of reset je wachtwoord.')
+      } else if (msg.includes('password')) {
+        setError('Kies een sterker wachtwoord (minimaal 8 tekens).')
+      } else if (msg.includes('rate')) {
+        setError('Te veel pogingen. Probeer het over een paar minuten opnieuw.')
+      } else {
+        setError('Er is iets misgegaan. Probeer het opnieuw.')
+      }
       setLoading(false)
       return
     }
 
-    router.push('/dashboard')
-    router.refresh()
+    // If Supabase already has a session (email confirmation disabled), go to dashboard.
+    if (data.session) {
+      router.push('/dashboard')
+      router.refresh()
+      return
+    }
+
+    // Otherwise: show the verify-email confirmation screen.
+    router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`)
   }
 
   return (
@@ -54,20 +70,20 @@ export default function RegisterPage() {
             <HeroOrbs />
             <div className="grid-bg" />
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <span className="eyebrow">Free to join</span>
+              <span className="eyebrow">Gratis lidmaatschap</span>
               <h1 style={{ marginTop: 20, fontSize: 'clamp(32px,3.8vw,52px)', lineHeight: 1.08 }}>
-                Full transparency.<br />Zero cost.
+                Volledige transparantie.<br />Zonder kosten.
               </h1>
               <p className="lede" style={{ marginTop: 20, maxWidth: '30ch', color: 'var(--ink-mute)' }}>
-                Create a free account and follow every move Fynoy Capital makes — in real time.
+                Maak een gratis account aan en volg elke trade die Fynoy Capital maakt — in realtime.
               </p>
               <div className="auth-features" style={{ marginTop: 32 }}>
                 {[
-                  'Live portfolio with open positions',
-                  'Full closed trade history & P&L',
-                  'Weekly stock research reports',
-                  'Live Thursday pitch sessions',
-                  'Performance vs FTSE All-World',
+                  'Realtime open positions & rendementen',
+                  'Volledige trade redenering bij elke positie',
+                  'Performance vs VWCE benchmark',
+                  'Alle gesloten trades met exact rendement',
+                  'Sector allocatie & risico analyse',
                 ].map((f) => (
                   <div key={f} className="auth-feature">
                     <span className="auth-feature-dot" />
@@ -76,7 +92,7 @@ export default function RegisterPage() {
                 ))}
               </div>
               <p style={{ marginTop: 32, fontSize: 13, color: 'var(--ink-dim)' }}>
-                No fees. No commitments. Cancel anytime.
+                Geen kosten. Geen verplichtingen.
               </p>
             </div>
           </div>
@@ -84,17 +100,17 @@ export default function RegisterPage() {
           {/* Right form panel */}
           <div className="auth-form-side">
             <div className="auth-card">
-              <h2 style={{ fontSize: 'clamp(22px,2.2vw,30px)', marginBottom: 6 }}>Create account</h2>
+              <h2 style={{ fontSize: 'clamp(22px,2.2vw,30px)', marginBottom: 6 }}>Account aanmaken</h2>
               <p style={{ fontSize: 14, color: 'var(--ink-mute)', marginBottom: 32 }}>
-                Already a member?{' '}
+                Al lid?{' '}
                 <Link href="/auth/login" style={{ color: 'var(--gold)' }}>
-                  Sign in →
+                  Log in →
                 </Link>
               </p>
 
               <form onSubmit={handleSubmit}>
                 <div className="auth-input-group">
-                  <label className="auth-label" htmlFor="fullName">Full name</label>
+                  <label className="auth-label" htmlFor="fullName">Volledige naam</label>
                   <input
                     id="fullName"
                     type="text"
@@ -107,7 +123,7 @@ export default function RegisterPage() {
                   />
                 </div>
                 <div className="auth-input-group">
-                  <label className="auth-label" htmlFor="email">Email address</label>
+                  <label className="auth-label" htmlFor="email">E-mailadres</label>
                   <input
                     id="email"
                     type="email"
@@ -116,11 +132,11 @@ export default function RegisterPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="auth-input"
-                    placeholder="you@example.com"
+                    placeholder="jij@voorbeeld.com"
                   />
                 </div>
                 <div className="auth-input-group">
-                  <label className="auth-label" htmlFor="password">Password</label>
+                  <label className="auth-label" htmlFor="password">Wachtwoord</label>
                   <input
                     id="password"
                     type="password"
@@ -130,7 +146,7 @@ export default function RegisterPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="auth-input"
-                    placeholder="Min. 8 characters"
+                    placeholder="Min. 8 tekens"
                   />
                 </div>
 
@@ -143,12 +159,12 @@ export default function RegisterPage() {
                   className="btn btn-primary"
                   style={{ width: '100%', justifyContent: 'center', marginTop: 8, padding: '14px 0', fontSize: 13 }}
                 >
-                  {loading ? 'Creating account…' : 'Create free account'}
+                  {loading ? 'Aanmaken…' : 'Maak gratis account'}
                 </button>
 
                 <p style={{ marginTop: 16, fontSize: 12, color: 'var(--ink-dim)', lineHeight: 1.6 }}>
-                  By creating an account you agree to our{' '}
-                  <Link href="/legal/privacy" style={{ color: 'var(--ink-mute)' }}>privacy policy</Link>.
+                  Door een account aan te maken ga je akkoord met onze{' '}
+                  <Link href="/legal?tab=privacy" style={{ color: 'var(--ink-mute)' }}>privacy policy</Link>.
                 </p>
               </form>
             </div>

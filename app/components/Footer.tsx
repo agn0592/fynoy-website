@@ -71,6 +71,7 @@ export default function Footer() {
             <Link href="/about">About</Link>
             <Link href="/join">Join Us</Link>
             <Link href="/work-with-us">Work With Us</Link>
+            <Link href="/download-app">Installeer als app</Link>
             <Link href="/contact">Contact</Link>
           </div>
           <div>
@@ -82,7 +83,7 @@ export default function Footer() {
           </div>
           <div>
             <h5>Contact</h5>
-            <a href="mailto:fynoycapital@gmail.com">fynoycapital@gmail.com</a>
+            <a href="mailto:info@fynoy.com">info@fynoy.com</a>
             <a href="https://wa.me/31682074482" target="_blank" rel="noopener noreferrer">+31 6 82074482</a>
             <Link href="/contact">Rotterdam, Netherlands</Link>
             <span style={{ display: "block", padding: "6px 0", fontSize: 14, color: "var(--ink-mute)" }}>KvK 86136062</span>

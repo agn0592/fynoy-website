@@ -71,9 +71,14 @@ export default function Nav() {
             </Link>
           ))}
         </div>
-        <Link href="/auth/login" className="nav-login-btn">
-          Login
-        </Link>
+        <div className="nav-cta-group">
+          <Link href="/auth/login" className="nav-cta-ghost">
+            Login
+          </Link>
+          <Link href="/auth/register" className="nav-cta-primary">
+            Gratis account
+          </Link>
+        </div>
         <button
           ref={burgerRef}
           className="nav-burger"
@@ -93,6 +98,9 @@ export default function Nav() {
         ))}
         <Link href="/auth/login" onClick={closeDrawer} className="nav-drawer-login">
           Login
+        </Link>
+        <Link href="/auth/register" onClick={closeDrawer} className="nav-drawer-login" style={{ color: 'var(--gold)' }}>
+          Gratis account →
         </Link>
       </div>
     </nav>

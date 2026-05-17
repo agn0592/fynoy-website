@@ -25,8 +25,8 @@ export default function LegalContent() {
           <p>
             As a resident of the EU/EEA you have the right to access, correct, or delete your personal
             data. To exercise any of these rights, contact us at{" "}
-            <a href="mailto:fynoycapital@gmail.com" style={{ color: "var(--gold)" }}>
-              fynoycapital@gmail.com
+            <a href="mailto:info@fynoy.com" style={{ color: "var(--gold)" }}>
+              info@fynoy.com
             </a>
             .
           </p>
@@ -101,8 +101,8 @@ export default function LegalContent() {
           </p>
           <p style={{ marginTop: 32 }}>
             Questions? Contact us at{" "}
-            <a href="mailto:fynoycapital@gmail.com" style={{ color: "var(--gold)" }}>
-              fynoycapital@gmail.com
+            <a href="mailto:info@fynoy.com" style={{ color: "var(--gold)" }}>
+              info@fynoy.com
             </a>
             .
           </p>

@@ -43,7 +43,7 @@ export default function ContactPage() {
                     {[
                       { label: "Location", main: "Rotterdam", sub: "Netherlands" },
                       { label: "Registration", main: "KvK 86136062", sub: null },
-                      { label: "Email", main: null, link: { href: "mailto:fynoycapital@gmail.com", text: "fynoycapital@gmail.com" } },
+                      { label: "Email", main: null, link: { href: "mailto:info@fynoy.com", text: "info@fynoy.com" } },
                       { label: "WhatsApp", main: null, link: { href: "https://wa.me/31682074482", text: "+31 6 82074482", external: true } },
                     ].map((row, i) => (
                       <div key={i} className="info-row">
