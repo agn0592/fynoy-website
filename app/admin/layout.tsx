@@ -3,11 +3,13 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import AdminSidebarNav from './components/AdminSidebarNav'
+import AtlasBubble from './components/AtlasBubble'
 import SidebarLogo from '@/app/dashboard/components/SidebarLogo'
 import MobileBottomNav from '@/app/dashboard/components/MobileBottomNav'
 import TopBar from '@/app/dashboard/components/TopBar'
 import { buildNotifications } from '@/lib/notifications'
 import '../dashboard/dashboard.css'
+import '@/app/components/agent-chat.css'
 
 function getServiceClient() {
   return createSupabaseClient(
@@ -95,6 +97,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* ── Mobile bottom nav ── */}
         <MobileBottomNav variant="admin" />
       </div>
+
+      {/* ── Floating Atlas agent ── */}
+      <AtlasBubble />
     </div>
   )
 }

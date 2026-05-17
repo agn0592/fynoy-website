@@ -1,0 +1,372 @@
+/* ─────────────────────────────────────────────
+   Agent chat component (Atlas/Sage)
+   Used in dedicated /admin/atlas page and floating bubble.
+   ───────────────────────────────────────────── */
+
+.agent-chat {
+  display: flex;
+  flex-direction: column;
+  background: var(--navy-2);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  height: 100%;
+  min-height: 0;
+}
+
+.agent-chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  flex-shrink: 0;
+}
+.agent-chat-name {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.agent-chat-tag {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-top: 2px;
+}
+.agent-chat-reset {
+  width: 28px; height: 28px;
+  border-radius: 2px;
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s, color 0.15s;
+}
+.agent-chat-reset:hover {
+  color: var(--ink);
+  background: rgba(232,228,220,0.04);
+}
+
+.agent-chat-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+.agent-chat-empty {
+  margin: auto;
+  text-align: center;
+  padding: 32px 18px;
+}
+.agent-chat-empty-title {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.agent-chat-empty-tag {
+  font-size: 12px;
+  color: var(--ink-mute);
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-style: italic;
+}
+
+.agent-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 90%;
+}
+.agent-msg--user {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+.agent-msg--assistant {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+.agent-msg-bubble {
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.agent-msg--user .agent-msg-bubble {
+  background: rgba(201,169,110,0.10);
+  border: 1px solid var(--gold-line);
+  color: var(--ink);
+}
+.agent-msg--assistant .agent-msg-bubble {
+  background: rgba(232,228,220,0.04);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.agent-tool-card {
+  background: var(--navy-3);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  font-size: 12px;
+  width: 100%;
+  max-width: 480px;
+}
+.agent-tool-card summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: var(--sans);
+}
+.agent-tool-card summary::-webkit-details-marker { display: none }
+.agent-tool-icon {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.agent-tool-name {
+  font-family: 'Menlo', monospace;
+  font-size: 11px;
+  color: var(--ink);
+  flex: 1;
+}
+.agent-tool-meta {
+  font-size: 10px;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+}
+.agent-tool-args {
+  margin: 0;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--line);
+  font-family: 'Menlo', monospace;
+  font-size: 11px;
+  color: var(--ink-mute);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.5;
+}
+
+.agent-pending {
+  background: rgba(201,169,110,0.05);
+  border: 1px solid var(--gold-line);
+  border-radius: 2px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 100%;
+}
+.agent-pending-head {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.agent-pending-icon {
+  width: 24px; height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--gold-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 13px;
+}
+.agent-pending-title {
+  font-size: 13px;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-weight: 500;
+}
+.agent-pending-title code {
+  font-family: 'Menlo', monospace;
+  font-size: 12px;
+  background: rgba(232,228,220,0.06);
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+.agent-pending-desc {
+  font-size: 11.5px;
+  color: var(--ink-mute);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.agent-pending-args {
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--navy-3);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  font-family: 'Menlo', monospace;
+  font-size: 11px;
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.5;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.agent-pending-foot {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.agent-btn {
+  padding: 8px 16px;
+  border-radius: 2px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.agent-btn:hover { background: rgba(232,228,220,0.04) }
+.agent-btn--ghost { color: var(--ink-mute) }
+.agent-btn--primary {
+  border-color: transparent;
+  color: #1a140a;
+  font-weight: 600;
+}
+.agent-btn--primary:hover { opacity: 0.85 }
+
+.agent-chat-thinking {
+  display: flex;
+  gap: 4px;
+  align-self: flex-start;
+  padding: 12px 14px;
+}
+.agent-chat-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--ink-dim);
+  animation: agent-bounce 1.2s infinite ease-in-out;
+}
+.agent-chat-dot:nth-child(2) { animation-delay: 0.15s }
+.agent-chat-dot:nth-child(3) { animation-delay: 0.3s }
+@keyframes agent-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4 }
+  40% { transform: translateY(-4px); opacity: 1 }
+}
+
+.agent-chat-error {
+  align-self: flex-start;
+  font-size: 12px;
+  color: #f87171;
+  padding: 8px 12px;
+  border: 1px solid rgba(248,113,113,0.3);
+  border-radius: 2px;
+  background: rgba(248,113,113,0.04);
+}
+
+.agent-chat-input {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.agent-chat-input textarea {
+  flex: 1;
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  background: var(--navy);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  color: var(--ink);
+  resize: none;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.agent-chat-input textarea:focus {
+  border-color: var(--gold-line);
+}
+.agent-chat-input textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.agent-chat-input button {
+  padding: 0 18px;
+  border: 0;
+  color: #1a140a;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.agent-chat-input button:hover { opacity: 0.85 }
+.agent-chat-input button:disabled { opacity: 0.35; cursor: not-allowed }
+
+/* ─── Bubble layout ─── */
+.agent-bubble {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+}
+.agent-bubble-toggle {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #1a140a;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.agent-bubble-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+}
+.agent-bubble-panel {
+  position: absolute;
+  right: 0;
+  bottom: 64px;
+  width: clamp(320px, 30vw, 420px);
+  height: clamp(440px, 70vh, 640px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+  border-radius: 4px;
+  overflow: hidden;
+  animation: agent-pop-in 0.2s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes agent-pop-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98) }
+  to   { opacity: 1; transform: translateY(0) scale(1) }
+}
+@media (max-width: 520px) {
+  .agent-bubble-panel {
+    position: fixed;
+    inset: 16px;
+    width: auto;
+    height: auto;
+  }
+}
