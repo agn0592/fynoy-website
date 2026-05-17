@@ -8,15 +8,13 @@ import AnimatedCounter from "./components/AnimatedCounter";
 import StockTicker from "./components/StockTicker";
 import HeroOrbs from "./components/HeroOrbs";
 import Typewriter from "./components/Typewriter";
+import { WA_RESEARCH as RESEARCH_WA, WA_ANALYST as ANALYST_WA } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Fynoy Capital — a real portfolio, in the open",
   description:
     "Fynoy Capital shares its full portfolio in real time: every trade, every rationale, benchmarked against VWCE. Free to follow. Not advice — you decide.",
 };
-
-const RESEARCH_WA = "https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.";
-const ANALYST_WA  = "https://wa.me/31682074482?text=Hi%2C%20I'm%20interested%20in%20collaborating%20as%20a%20trader%20with%20Fynoy%20Capital.";
 
 export default function HomePage() {
   return (
@@ -62,12 +60,12 @@ export default function HomePage() {
             <div className="stat-label label">Own capital</div>
           </div>
           <div className="stat">
-            <div className="stat-num"><em><AnimatedCounter value={0} /></em></div>
-            <div className="stat-label label">Hidden trades</div>
-          </div>
-          <div className="stat">
             <div className="stat-num"><AnimatedCounter value={12} /><em style={{ fontSize: ".7em" }}>+</em></div>
             <div className="stat-label label">Cases published</div>
+          </div>
+          <div className="stat">
+            <div className="stat-num"><em>VWCE</em></div>
+            <div className="stat-label label">Benchmark</div>
           </div>
           <div className="stat">
             <div className="stat-num"><AnimatedCounter value={2026} duration={1200} /></div>

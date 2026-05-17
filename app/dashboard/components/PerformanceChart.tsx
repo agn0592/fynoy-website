@@ -77,44 +77,55 @@ export default function PerformanceChart({ data }: { data: DataPoint[] }) {
             <div className="dash-legend-item">
               <div className="dash-legend-line" style={{ background: '#a8a8a0', borderTop: '1.5px dashed #a8a8a0', height: 0 }} />
               <span>VWCE</span>
-              <span
-                role="button"
-                tabIndex={0}
+              <button
+                type="button"
                 aria-label="VWCE explanation"
+                aria-expanded={tipOpen}
+                onClick={() => setTipOpen(v => !v)}
                 onMouseEnter={() => setTipOpen(true)}
                 onMouseLeave={() => setTipOpen(false)}
                 onFocus={() => setTipOpen(true)}
                 onBlur={() => setTipOpen(false)}
+                onKeyDown={(e) => { if (e.key === 'Escape') setTipOpen(false) }}
                 style={{
                   position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  width: 14, height: 14, marginLeft: 2, borderRadius: '50%',
+                  width: 22, height: 22, marginLeft: 4, padding: 0,
+                  borderRadius: '50%', background: 'transparent',
                   border: '1px solid var(--line-strong)', color: 'var(--ink-dim)',
-                  fontSize: 9, fontWeight: 600, cursor: 'help', userSelect: 'none',
+                  fontSize: 11, fontWeight: 600, cursor: 'help', userSelect: 'none',
                   lineHeight: 1,
                 }}
               >
-                i
+                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 14, height: 14 }}>i</span>
                 {tipOpen && (
                   <div
+                    role="tooltip"
                     className="dash-tooltip"
                     style={{
                       position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%',
-                      transform: 'translateX(-50%)', width: 280, maxWidth: '80vw',
+                      transform: 'translateX(-50%)', width: 'min(280px, calc(100vw - 32px))',
                       zIndex: 50, pointerEvents: 'none', whiteSpace: 'normal',
                       fontSize: 11.5, lineHeight: 1.55, color: 'var(--ink-mute)',
-                      textTransform: 'none', letterSpacing: 0,
+                      textTransform: 'none', letterSpacing: 0, textAlign: 'left',
                     }}
                   >
                     {VWCE_TOOLTIP}
                   </div>
                 )}
-              </span>
+              </button>
             </div>
           </div>
         </div>
-        <div className="dash-chart-filters">
+        <div className="dash-chart-filters" role="group" aria-label="Time range">
           {FILTERS.map(f => (
-            <button key={f} className={`dash-filter${active === f ? ' active' : ''}`} onClick={() => setActive(f)}>{f}</button>
+            <button
+              key={f}
+              type="button"
+              className={`dash-filter${active === f ? ' active' : ''}`}
+              onClick={() => setActive(f)}
+              aria-pressed={active === f}
+              aria-label={`Show ${f} of performance data`}
+            >{f}</button>
           ))}
         </div>
       </div>

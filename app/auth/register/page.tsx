@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import Nav from '@/app/components/Nav'
 import HeroOrbs from '@/app/components/HeroOrbs'
+import PasswordInput from '@/app/auth/PasswordInput'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -137,15 +138,13 @@ export default function RegisterPage() {
                 </div>
                 <div className="auth-input-group">
                   <label className="auth-label" htmlFor="password">Password</label>
-                  <input
+                  <PasswordInput
                     id="password"
-                    type="password"
                     autoComplete="new-password"
                     required
                     minLength={8}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="auth-input"
+                    onChange={setPassword}
                     placeholder="Min. 8 characters"
                   />
                 </div>
@@ -164,7 +163,7 @@ export default function RegisterPage() {
 
                 <p style={{ marginTop: 16, fontSize: 12, color: 'var(--ink-dim)', lineHeight: 1.6 }}>
                   By creating an account you agree to our{' '}
-                  <Link href="/legal?tab=privacy" style={{ color: 'var(--ink-mute)' }}>privacy policy</Link>.
+                  <Link href="/legal#privacy" style={{ color: 'var(--ink-mute)' }}>privacy policy</Link>.
                 </p>
               </form>
             </div>

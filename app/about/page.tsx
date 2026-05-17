@@ -5,14 +5,13 @@ import { WA_ICON } from "../components/WaIcon";
 import Reveal from "../components/Reveal";
 import Link from "next/link";
 import HeroOrbs from "../components/HeroOrbs";
+import { WA_RESEARCH as RESEARCH_WA } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "About Fynoy Capital",
   description:
     "Fynoy Capital is a transparent investment research platform. We invest with our own money and share every trade in real time.",
 };
-
-const RESEARCH_WA = "https://wa.me/31682074482?text=Hi%2C%20I'd%20like%20to%20join%20the%20Fynoy%20Capital%20research%20group.";
 
 export default function AboutPage() {
   return (

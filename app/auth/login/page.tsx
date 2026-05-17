@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import Nav from '@/app/components/Nav'
 import HeroOrbs from '@/app/components/HeroOrbs'
+import PasswordInput from '@/app/auth/PasswordInput'
 
 const ERROR_MAP: Record<string, string> = {
   'Invalid login credentials': 'Incorrect email or password.',
@@ -66,19 +67,13 @@ function LoginForm() {
   return (
     <form onSubmit={handleSubmit}>
       {error && (
-        <div
-          role="alert"
-          style={{
-            background: 'rgba(220,38,38,0.08)',
-            border: '1px solid rgba(220,38,38,0.3)',
-            borderRadius: 2,
-            padding: '10px 14px',
-            fontSize: 13,
-            color: '#ef4444',
-            marginBottom: 18,
-          }}
-        >
-          {error}
+        <div role="alert" className="auth-error" style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }} aria-hidden>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>{error}</span>
         </div>
       )}
 
@@ -97,17 +92,15 @@ function LoginForm() {
       </div>
       <div className="auth-input-group">
         <label className="auth-label" htmlFor="password">Password</label>
-        <input
+        <PasswordInput
           id="password"
-          type="password"
           autoComplete="current-password"
           required
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="auth-input"
+          onChange={setPassword}
           placeholder="••••••••"
         />
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
           <Link
             href="/auth/forgot-password"
             style={{ color: 'var(--gold)', fontSize: 12, letterSpacing: '0.02em' }}

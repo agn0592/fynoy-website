@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import Nav from '@/app/components/Nav'
 import HeroOrbs from '@/app/components/HeroOrbs'
+import PasswordInput from '@/app/auth/PasswordInput'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -83,29 +84,25 @@ export default function ResetPasswordPage() {
               <form onSubmit={handleSubmit}>
                 <div className="auth-input-group">
                   <label className="auth-label" htmlFor="password">New password</label>
-                  <input
+                  <PasswordInput
                     id="password"
-                    type="password"
                     autoComplete="new-password"
                     required
                     minLength={8}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="auth-input"
+                    onChange={setPassword}
                     placeholder="Min. 8 characters"
                   />
                 </div>
                 <div className="auth-input-group">
                   <label className="auth-label" htmlFor="confirm">Confirm password</label>
-                  <input
+                  <PasswordInput
                     id="confirm"
-                    type="password"
                     autoComplete="new-password"
                     required
                     minLength={8}
                     value={confirm}
-                    onChange={(e) => setConfirm(e.target.value)}
-                    className="auth-input"
+                    onChange={setConfirm}
                     placeholder="Repeat your new password"
                   />
                 </div>
