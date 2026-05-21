@@ -5,6 +5,7 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import AdminSidebarNav from './components/AdminSidebarNav'
 import AtlasBubble from './components/AtlasBubble'
 import SidebarLogo from '@/app/dashboard/components/SidebarLogo'
+import ThemeToggle from '@/app/dashboard/components/ThemeToggle'
 import MobileBottomNav from '@/app/dashboard/components/MobileBottomNav'
 import TopBar from '@/app/dashboard/components/TopBar'
 import { buildNotifications } from '@/lib/notifications'
@@ -76,6 +77,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <nav className="dash-sb-nav">
           <AdminSidebarNav />
         </nav>
+        <ThemeToggle />
       </aside>
 
       {/* ── Content ── */}

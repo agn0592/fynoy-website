@@ -7,6 +7,7 @@ import SidebarLogo from './components/SidebarLogo'
 import MobileBottomNav from './components/MobileBottomNav'
 import TopBar from './components/TopBar'
 import SageBubble from './components/SageBubble'
+import ThemeToggle from './components/ThemeToggle'
 import { buildNotifications } from '@/lib/notifications'
 import './dashboard.css'
 import '@/app/components/agent-chat.css'
@@ -67,6 +68,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <nav className="dash-sb-nav">
           <SidebarNav />
         </nav>
+        <ThemeToggle />
       </aside>
 
       {/* ── Content ── */}
